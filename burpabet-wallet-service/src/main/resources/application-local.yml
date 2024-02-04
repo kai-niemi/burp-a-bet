@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:26257/burp_wallet?sslmode=disable
+  flyway:
+    placeholders:
+      cdc-sink-url: kafka://localhost:9092
+  kafka:
+    bootstrap-servers: localhost:9092

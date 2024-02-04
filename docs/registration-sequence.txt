@@ -1,0 +1,75 @@
+#
+# Registration journey sequence
+# https://www.websequencediagrams.com
+#
+
+actor User
+participant customer
+participant customer-db
+participant kafka
+participant wallet
+participant wallet-db
+participant betting
+participant betting-db
+
+User->+customer: register
+customer->+customer-db: write
+note over customer-db:
+Persist customer entity.
+Persist outbox event for registration.
+end note
+customer-db-->-customer: ack
+customer-->-User: accepted
+
+customer-db->+(1)kafka: cdc
+note left of  kafka:
+Publish outbox
+event to kafka.
+end note
+kafka-->-customer-db: ack
+
+# Comment
+
+kafka->+wallet: push
+wallet->wallet: Approve \n registration
+wallet->+wallet-db: write
+note left of wallet-db:
+Persist new wallet account.
+Persist outbox event
+for response.
+end note
+wallet-db-->-wallet: ack
+wallet-->-kafka: ack
+
+wallet-db->+(1)kafka: cdc
+note left of wallet-db:
+Publish outbox response
+event to kafka.
+end note
+kafka-->-wallet-db: ack
+
+# Betting
+kafka->+betting: push
+betting->betting: Approve \n registration
+betting->+betting-db: write outbox
+note left of betting-db:
+Persist outbox event
+for response.
+end note
+betting-db-->-betting: ack
+betting-->-kafka: ack
+
+# kstream join
+betting-db->+(1)kafka: cdc
+kafka-->-betting-db: ack
+kafka->+kafka: kstream join
+note over kafka:
+kstream join of wallet and betting
+response topics.
+end note
+kafka-->+customer: registration result
+customer-->+customer-db: update status
+customer-db-->-customer: ack
+customer-->-kafka: ack
+kafka-->+wallet: push final status
+kafka-->+betting: push final status

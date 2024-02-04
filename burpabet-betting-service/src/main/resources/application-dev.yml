@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://192.168.1.99:26257/burp_betting?sslmode=disable
+  flyway:
+    placeholders:
+      cdc-sink-url: kafka://192.168.1.99:9092
+  kafka:
+    bootstrap-servers: 192.168.1.99:9092

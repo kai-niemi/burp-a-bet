@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <logger name="org.eclipse.jetty" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="WARN" additivity="true"/>
+
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.batch" level="INFO" additivity="true"/>
+
+    <springProfile name="verbose">
+        <logger name="io.burpabet" level="TRACE"/>
+        <logger name="io.burpabet.SQL_TRACE" level="TRACE"/>
+    </springProfile>
+
+    <springProfile name="!verbose">
+        <logger name="io.burpabet" level="INFO"/>
+        <logger name="io.burpabet.SQL_TRACE" level="INFO"/>
+    </springProfile>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
+

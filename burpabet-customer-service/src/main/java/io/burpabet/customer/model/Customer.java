@@ -1,0 +1,144 @@
+package io.burpabet.customer.model;
+
+import io.burpabet.common.domain.Status;
+import io.burpabet.common.jpa.AbstractEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.UuidGenerator;
+import org.springframework.hateoas.server.core.Relation;
+
+import java.util.UUID;
+
+@Entity
+@DynamicUpdate
+@Table(name = "customer")
+@Relation(value = "customer",
+        collectionRelation = "customer-list")
+public class Customer extends AbstractEntity<UUID> {
+    @Id
+    @Column(updatable = false, nullable = false)
+    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    private UUID id;
+
+    @Column(name = "operator_id")
+    private UUID operatorId;
+
+    @Column(name = "email", length = 15, nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "jurisdiction")
+    private String jurisdiction;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    protected Customer() {
+    }
+
+    @Override
+    @NotNull
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(UUID operatorId) {
+        this.operatorId = operatorId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public void setJurisdiction(String jurisdiction) {
+        this.jurisdiction = jurisdiction;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", jurisdiction='" + jurisdiction + '\'' +
+                ", status=" + status +
+                "} " + super.toString();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private Customer instance = new Customer();
+
+        private Builder() {
+        }
+
+        public Builder withId(UUID id) {
+            instance.id = id;
+            return this;
+        }
+
+        public Builder withOperatorId(UUID operatorId) {
+            instance.operatorId = operatorId;
+            return this;
+        }
+
+        public Builder withEmail(String email) {
+            instance.email = email;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            instance.name = name;
+            return this;
+        }
+
+        public Builder withJurisdiction(String jurisdiction) {
+            instance.jurisdiction = jurisdiction;
+            return this;
+        }
+
+        public Builder withStatus(Status status) {
+            instance.status = status;
+            return this;
+        }
+
+        public Customer build() {
+            return instance;
+        }
+    }
+}

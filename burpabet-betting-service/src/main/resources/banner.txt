@@ -1,0 +1,10 @@
+${AnsiColor.BRIGHT_YELLOW}
+──▄──▄────▄▀         ____                                     ____       __
+───▀▄─█─▄▀▄▄▄       / __ )__  ___________        ____ _      / __ )___  / /_
+▄██▄████▄██▄▀█▄    / __  / / / / ___/ __ \______/ __ `/_____/ __  / _ \/ __/
+─▀▀─█▀█▀▄▀███▀    / /_/ / /_/ / /  / /_/ /_____/ /_/ /_____/ /_/ /  __/ /_
+──▄▄▀─█──▀▄▄     /_____/\__,_/_/  / .___/      \__,_/     /_____/\___/\__/
+                                 /_/
+${AnsiColor.BRIGHT_GREEN}${application.title}${application.formatted-version} powered by Spring Boot${spring-boot.formatted-version}
+${AnsiColor.GREEN}Active profiles: ${spring.profiles.active}${AnsiColor.DEFAULT}
+${AnsiColor.GREEN}   Database URL: ${spring.datasource.url}${AnsiColor.DEFAULT}
