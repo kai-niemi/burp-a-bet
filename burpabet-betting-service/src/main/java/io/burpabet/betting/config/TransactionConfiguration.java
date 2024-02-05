@@ -7,6 +7,7 @@ import io.burpabet.common.outbox.OutboxRepository;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -16,6 +17,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement(order = AdvisorOrder.TRANSACTION_MANAGER_ADVISOR, proxyTargetClass = true)
 @EnableJpaRepositories(basePackageClasses = BettingApplication.class, enableDefaultTransactions = false)
+@EnableJpaAuditing
 public class TransactionConfiguration {
     @Bean
     public OutboxRepository outboxRepository() {

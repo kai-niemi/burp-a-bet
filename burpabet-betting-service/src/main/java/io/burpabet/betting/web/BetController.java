@@ -51,6 +51,9 @@ public class BetController {
         return ResponseEntity.ok(betPagedResourcesAssembler.toModel(bets, betResourceAssembler));
     }
 
+    /**
+     * Invoked by web ui to present list of recent bets.
+     */
     @GetMapping(value = "/settled")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<CollectionModel<EntityModel<Bet>>> findAllSettled(

@@ -167,7 +167,7 @@
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.3.2</version>
                 <configuration>
-                    <failOnError>true</failOnError>
+                    <failOnError>false</failOnError>
                     <filesets>
                         <fileset>
                             <directory>${basedir}</directory>
@@ -195,7 +195,7 @@
     <profiles>
         <!--  Profile for cleaning kstream logs -->
         <profile>
-            <id>clean-deep</id>
+            <id>deep-clean</id>
             <build>
                 <plugins>
                     <plugin>

@@ -2,6 +2,7 @@ package io.burpabet.betting.model;
 
 import java.util.UUID;
 
+import io.burpabet.common.jpa.AbstractAuditedEntity;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -28,7 +29,7 @@ import org.springframework.hateoas.server.core.Relation;
 @Table(name = "bet")
 @Relation(value = "bet",
         collectionRelation = "bet-list")
-public class Bet extends AbstractEntity<UUID> {
+public class Bet extends AbstractAuditedEntity<UUID> {
     @Id
     @Column(updatable = false, nullable = false)
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)

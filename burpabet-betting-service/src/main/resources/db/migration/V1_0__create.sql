@@ -32,7 +32,9 @@ create table if not exists bet
     settlement_status varchar(32)      null,
     settled           bool             null     default false,
     payout            decimal(19, 2)   null,
-    payout_currency   varchar(3)       null
+    payout_currency   varchar(3)       null,
+    inserted_at       timestamptz      not null default clock_timestamp(),
+    last_modified_at  timestamptz      null
 );
 
 alter table if exists bet
