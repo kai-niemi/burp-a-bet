@@ -54,6 +54,11 @@ AppDashboard.prototype = {
                 .append(
                     $('<td>')
                         .attr('scope', 'row')
+                        .text(bet.customerName)
+                )
+                .append(
+                    $('<td>')
+                        .attr('scope', 'row')
                         .text(bet.race.track)
                 )
                 .append(
@@ -169,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new AppDashboard({
         endpoints: {
             settledBets: '/api/bet/settled',
-            allRaces: '/api/race/top',
+            allRaces: '/api/race',
             socket: '/burpabet-betting'
         },
 

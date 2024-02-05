@@ -41,6 +41,9 @@ public class Bet extends AbstractEntity<UUID> {
     @Column(name = "customer_id", nullable = false)
     private UUID customerId;
 
+    @Column(name = "customer_name")
+    private String customerName;
+
     @Column
     private String jurisdiction;
 
@@ -100,6 +103,14 @@ public class Bet extends AbstractEntity<UUID> {
 
     public void setCustomerId(UUID customerId) {
         this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public Status getPlacementStatus() {

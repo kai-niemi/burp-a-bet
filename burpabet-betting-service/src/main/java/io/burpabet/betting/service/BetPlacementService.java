@@ -56,6 +56,7 @@ public class BetPlacementService {
         bet.setRace(race);
         bet.setBetType(betPlacement.getBetType());
         bet.setCustomerId(betPlacement.getCustomerId());
+        bet.setCustomerName(betPlacement.getCustomerName());
         bet.setStake(betPlacement.getStake());
         bet.setPlacementStatus(Status.PENDING);
 
@@ -83,6 +84,7 @@ public class BetPlacementService {
 
         Bet bet = optional.get();
         bet.setJurisdiction(customerPayload.getJurisdiction());
+        bet.setCustomerName(customerPayload.getCustomerName());
 
         String origin = "betting-service";
 

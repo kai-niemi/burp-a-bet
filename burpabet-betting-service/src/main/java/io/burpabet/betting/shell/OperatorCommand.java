@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.shell.standard.EnumValueProvider;
@@ -38,7 +39,7 @@ import io.burpabet.common.shell.ThrottledPredicates;
 import io.burpabet.common.util.Money;
 import io.burpabet.common.util.RandomData;
 
-import static io.burpabet.betting.shell.HypermediaClient.MAP_MODEL_TYPE;
+import static io.burpabet.betting.shell.HypermediaClient.PAGED_MODEL_TYPE;
 
 @ShellComponent
 @ShellCommandGroup(CommandGroups.OPERATOR)
@@ -84,7 +85,7 @@ public class OperatorCommand extends AbstractShellComponent {
             @ShellOption(help = "customer id (empty denotes random)",
                     valueProvider = CustomerValueProvider.class,
                     value = {"customer"}, defaultValue = ShellOption.NULL) String customerId,
-            @ShellOption(help = "race id (empty denotes random)",
+            @ShellOption(help = "race id by track or horse (empty denotes random)",
                     valueProvider = RaceValueProvider.class,
                     value = {"race"}, defaultValue = ShellOption.NULL) String raceId,
             @ShellOption(help = "bet stake to wager (in USD)", defaultValue = "5.00",
@@ -102,12 +103,11 @@ public class OperatorCommand extends AbstractShellComponent {
 
         if (customerId == null) {
             try {
-                Collection<Map<String, Object>> collection = hypermediaClient.traverseCustomerApi(
+                PagedModel<Map<String, Object>> collection = hypermediaClient.traverseCustomerApi(
                         traverson -> Objects.requireNonNull(traverson
-                                        .follow("customer:all")
-                                        .toObject(MAP_MODEL_TYPE))
-                                .getContent());
-                all.addAll(collection);
+                                .follow("customer:all")
+                                .toObject(PAGED_MODEL_TYPE)));
+                all.addAll(collection.getContent());
             } catch (RestClientException e) {
                 logger.warn("Customer API error: " + e.getMessage());
             }
@@ -126,7 +126,9 @@ public class OperatorCommand extends AbstractShellComponent {
                 .forEach(value -> {
                     BetPlacement betPlacement = new BetPlacement();
                     if (!all.isEmpty()) {
-                        betPlacement.setCustomerId(UUID.fromString(RandomData.selectRandom(all).get("id").toString()));
+                        Map<String, Object> tuples = RandomData.selectRandom(all);
+                        betPlacement.setCustomerId(UUID.fromString(tuples.get("id").toString()));
+                        betPlacement.setCustomerName(tuples.get("name").toString());
                     } else {
                         betPlacement.setCustomerId(UUID.fromString(customerId));
                     }

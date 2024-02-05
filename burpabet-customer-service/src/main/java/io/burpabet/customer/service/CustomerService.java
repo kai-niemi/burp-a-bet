@@ -58,6 +58,7 @@ public class CustomerService {
     }
 
     @TransactionBoundary
+    @Retryable
     @OutboxOperation(aggregateType = "registration")
     public Registration registerCustomer(Customer customer) {
         customer = customerRepository.save(customer);

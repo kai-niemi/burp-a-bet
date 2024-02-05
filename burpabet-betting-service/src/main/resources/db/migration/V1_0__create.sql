@@ -23,6 +23,7 @@ create table if not exists bet
     id                uuid primary key not null default gen_random_uuid(),
     race_id           uuid             not null,
     customer_id       uuid             not null,
+    customer_name     varchar(128)     null,
     jurisdiction      varchar(3)       null,
     stake             decimal(19, 2)   not null,
     stake_currency    varchar(3)       not null,

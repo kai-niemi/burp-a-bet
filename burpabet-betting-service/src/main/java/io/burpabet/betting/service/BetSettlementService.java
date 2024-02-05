@@ -14,6 +14,7 @@ import io.burpabet.betting.model.Bet;
 import io.burpabet.betting.model.Race;
 import io.burpabet.betting.repository.BetRepository;
 import io.burpabet.betting.repository.RaceRepository;
+import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.ServiceFacade;
 import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.common.domain.BetSettlement;
@@ -52,6 +53,7 @@ public class BetSettlementService {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @TransactionBoundary
+    @Retryable
     public void settleBets(Race detached, Outcome outcome) {
         Race race = raceRepository.getReferenceById(detached.getId());
         race.setOutcome(outcome);
@@ -76,6 +78,7 @@ public class BetSettlementService {
     }
 
     @TransactionBoundary
+    @Retryable
     public BetSettlementEvent confirmSettlement(BetSettlementEvent fromWallet, BetSettlementEvent fromCustomer) {
         BetSettlement walletPayload = fromWallet.getPayload();
         BetSettlement customerPayload = fromCustomer.getPayload();

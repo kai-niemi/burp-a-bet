@@ -1,5 +1,7 @@
 package io.burpabet.betting.web;
 
+import java.time.LocalDate;
+
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
@@ -27,6 +29,16 @@ public class RaceModel extends RepresentationModel<RaceModel> {
     private Money totalWager;
 
     private Money totalPayout;
+
+    private LocalDate date;
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
     public String getTrack() {
         return track;

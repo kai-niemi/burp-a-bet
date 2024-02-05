@@ -14,31 +14,19 @@ import io.burpabet.betting.model.Race;
 
 @Repository
 public interface RaceRepository extends JpaRepository<Race, UUID> {
-//    @Query(value = "select b.race.id "
-//            + "from Bet b "
-//            + "group by b.race.id "
-//            + "order by "
-//            + "sum(b.stake.amount) desc, "
-//            + "sum(b.payout.amount) desc")
-    @Query(value = "select race_id from bet "
-            + "group by race_id "
-            + "order by sum(stake) desc, sum(payout) desc",
-            nativeQuery = true)
-    List<UUID> findTopRaceIdsWithBets();
-
-    @Query(value = "select r.id from Race r")
+    @Query(value = "select r.id from Race r "
+            +"left join r.bets b "
+            + "order by b.stake.amount desc, b.payout.amount desc")
     Page<UUID> findRaceIds(Pageable pageable);
 
     @Query(value = "select r from Race r "
             + "left join fetch r.bets b "
-            + "where r.id in (?1)")
+            + "where r.id in (?1) ")
     List<Race> findRaces(List<UUID> ids);
 
-    @Query(value = "select r from Race r "
-            + "where r.track like ?1 "
-            + "order by random()")
-    Page<Race> findAllTracksStartingWith(String prefix, Pageable page);
-
+    @Query(value = "select r from Race r")
+    Page<Race> findAllByPage(Pageable page);
+//
     @Query(value = "select r.id from Race r "
             + "join r.bets b "
             + "where b.settled = true and b.placementStatus = 'APPROVED'")

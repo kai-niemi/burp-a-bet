@@ -16,7 +16,7 @@ public class OperatorAccountValueProvider implements ValueProvider {
 
     @Override
     public List<CompletionProposal> complete(CompletionContext completionContext) {
-        String p = completionContext.currentWord();
+        String p = completionContext.currentWordUpToCursor();
         if (p == null) {
             p = "";
         }

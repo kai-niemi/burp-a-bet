@@ -1,5 +1,7 @@
 package io.burpabet.customer.web;
 
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
 import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.common.domain.Status;
 import io.burpabet.customer.model.Customer;
@@ -37,7 +39,7 @@ public class CustomerController {
     private PagedResourcesAssembler<Customer> customerPagedResourcesAssembler;
 
     @GetMapping(value = "/")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<EntityModel<Customer>>> findAll(
             @PageableDefault(size = 15) Pageable page) {
         Page<Customer> customerPage = customerRepository.findAll(page);
@@ -45,7 +47,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/status/{status}")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<EntityModel<Customer>>> findAllWithStatus(
             @PathVariable("status") Status status,
             @PageableDefault(size = 15) Pageable page) {
@@ -54,7 +56,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/{id}")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<EntityModel<Customer>> getCustomer(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(customerResourceAssembler
                 .toModel(customerRepository.findById(id)

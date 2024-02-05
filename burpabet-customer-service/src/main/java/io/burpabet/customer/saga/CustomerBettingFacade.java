@@ -64,6 +64,7 @@ public class CustomerBettingFacade {
             }
         }
 
+        placement.setCustomerName(customer.getName());
         placement.setJurisdiction(customer.getJurisdiction());
         placement.setOrigin("customer-service");
 

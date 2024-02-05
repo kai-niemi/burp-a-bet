@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.burpabet.betting.model.Race;
 import io.burpabet.betting.repository.RaceRepository;
 import io.burpabet.betting.service.NoSuchRaceException;
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
 import io.burpabet.common.annotations.TransactionBoundary;
 
 @RestController
@@ -36,7 +38,7 @@ public class RaceController {
     private PagedResourcesAssembler<Race> racePagedResourcesAssembler;
 
     @GetMapping
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<RaceModel>> findAllRaces(
             @PageableDefault(size = 15) Pageable page) {
         // Two queries to avoid in-memory sorting by hibernate due to left join fetch with limit
@@ -46,16 +48,8 @@ public class RaceController {
                 new PageImpl<>(races, page, raceIds.getTotalElements()), raceResourceAssembler));
     }
 
-    @GetMapping("/top")
-    @TransactionBoundary
-    public HttpEntity<CollectionModel<RaceModel>> findTopRaces() {
-        List<UUID> raceIds = raceRepository.findTopRaceIdsWithBets();
-        List<Race> races = raceRepository.findRaces(raceIds);
-        return ResponseEntity.ok(raceResourceAssembler.toCollectionModel(races));
-    }
-
     @GetMapping(value = "/settled")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<RaceModel>> findRacesWithSettledBets(
             @PageableDefault(size = 15) Pageable page) {
         Page<UUID> raceIds = raceRepository.findRaceIdsWithSettledBets(page);
@@ -65,7 +59,7 @@ public class RaceController {
     }
 
     @GetMapping(value = "/{id}")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<RaceModel> getRace(@PathVariable("id") UUID id) {
         Race race = raceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchRaceException(id.toString()));

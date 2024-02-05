@@ -31,10 +31,6 @@ public class IndexController {
                 .withRel("all")
                 .withTitle("Collection of races"));
         index.add(linkTo(methodOn(RaceController.class)
-                .findTopRaces())
-                .withRel("top")
-                .withTitle("Collection of top races with bets"));
-        index.add(linkTo(methodOn(RaceController.class)
                 .findRacesWithSettledBets(null))
                 .withRel("settled")
                 .withTitle("Collection of races with settle bets"));

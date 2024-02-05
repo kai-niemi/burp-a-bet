@@ -56,9 +56,9 @@ public class RandomData {
         int idx = ThreadLocalRandom.current().nextInt(items.size());
         return items
                 .stream()
-                .unordered()
-                .takeWhile(t -> c.incrementAndGet() <= idx)
-                .findAny().orElse(items.iterator().next());
+                .skip(idx)
+                .findFirst()
+                .orElse(items.iterator().next());
     }
 
     public static String randomFullName() {

@@ -1,10 +1,7 @@
 package io.burpabet.betting.web;
 
-import io.burpabet.betting.model.Bet;
-import io.burpabet.betting.repository.BetRepository;
-import io.burpabet.betting.service.NoSuchBetException;
-import io.burpabet.common.annotations.Retryable;
-import io.burpabet.common.annotations.TransactionBoundary;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +16,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+import io.burpabet.betting.model.Bet;
+import io.burpabet.betting.repository.BetRepository;
+import io.burpabet.betting.service.NoSuchBetException;
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
+import io.burpabet.common.annotations.TransactionBoundary;
 
 @RestController
 @RequestMapping(path = "/api/bet")
@@ -34,8 +36,7 @@ public class BetController {
     private PagedResourcesAssembler<Bet> betPagedResourcesAssembler;
 
     @GetMapping
-    @TransactionBoundary
-    @Retryable
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<CollectionModel<EntityModel<Bet>>> findAll(
             @PageableDefault(size = 15) Pageable page) {
         Page<Bet> bets = betRepository.findAllBets(page);
@@ -43,8 +44,7 @@ public class BetController {
     }
 
     @GetMapping(value = "/unsettled")
-    @TransactionBoundary
-    @Retryable
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<CollectionModel<EntityModel<Bet>>> findAllUnSettled(
             @PageableDefault(size = 15) Pageable page) {
         Page<Bet> bets = betRepository.findUnsettledBets(page);
@@ -52,8 +52,7 @@ public class BetController {
     }
 
     @GetMapping(value = "/settled")
-    @TransactionBoundary
-    @Retryable
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<CollectionModel<EntityModel<Bet>>> findAllSettled(
             @PageableDefault(size = 15) Pageable page) {
         Page<Bet> bets = betRepository.findSettledBets(page);
@@ -61,8 +60,7 @@ public class BetController {
     }
 
     @GetMapping(value = "/{id}")
-    @TransactionBoundary
-    @Retryable
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<EntityModel<Bet>> getBet(@PathVariable("id") UUID id) {
         Bet bet = betRepository.findById(id)
                 .orElseThrow(() -> new NoSuchBetException(id.toString()));

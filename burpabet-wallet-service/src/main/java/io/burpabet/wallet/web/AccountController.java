@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
 import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.wallet.model.Account;
 import io.burpabet.wallet.model.CustomerAccount;
@@ -56,15 +58,8 @@ public class AccountController {
     @Autowired
     private PagedResourcesAssembler<OperatorAccount> operatorAccountPagedResourcesAssembler;
 
-//    @GetMapping
-//    public IndexModel index() {
-//        IndexModel model = new IndexModel();
-//        model.add(linkTo(methodOn(getClass()).index()).withSelfRel());
-//        return model;
-//    }
-
     @GetMapping(value = "/operator")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<EntityModel<OperatorAccount>>> findAllOperatorAccounts(
             @PageableDefault(size = 15) Pageable page,
             @RequestParam(required = false, name = "shuffle", defaultValue = "false") boolean shuffle) {
@@ -76,14 +71,14 @@ public class AccountController {
     }
 
     @GetMapping(value = "/operator/{id}")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<EntityModel<OperatorAccount>> getOperatorAccount(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(operatorAccountResourceAssembler.toModel(
                 operatorAccountRepository.findById(id).orElseThrow(() -> new NoSuchAccountException(id))));
     }
 
     @GetMapping(value = "/customer")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<EntityModel<CustomerAccount>>> findAllCustomerAccounts(
             @PageableDefault(size = 15) Pageable page) {
         Page<CustomerAccount> accountPage = customerAccountRepository.findAll(page);
@@ -92,14 +87,14 @@ public class AccountController {
     }
 
     @GetMapping(value = "/customer/{id}")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<EntityModel<CustomerAccount>> getCustomerAccount(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(customerAccountResourceAssembler.toModel(
                 customerAccountRepository.findById(id).orElseThrow(() -> new NoSuchAccountException(id))));
     }
 
     @PatchMapping(value = "/{id}")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public ResponseEntity<?> updateAccount(@PathVariable("id") UUID id, @RequestBody Account account) {
         Account accountProxy = accountRepository.getReferenceById(id);
         accountProxy.setClosed(account.isClosed());
@@ -110,7 +105,7 @@ public class AccountController {
     }
 
     @DeleteMapping(value = "/{id}")
-    @TransactionBoundary
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public ResponseEntity<Void> deleteAccount(@PathVariable("id") UUID id) {
         accountRepository.deleteById(id);
         return ResponseEntity.ok().build();

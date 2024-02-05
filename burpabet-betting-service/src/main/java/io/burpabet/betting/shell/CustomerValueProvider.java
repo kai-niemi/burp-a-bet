@@ -7,12 +7,14 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
 import org.springframework.shell.standard.ValueProvider;
 import org.springframework.web.client.RestClientException;
 
 import static io.burpabet.betting.shell.HypermediaClient.MAP_MODEL_TYPE;
+import static io.burpabet.betting.shell.HypermediaClient.PAGED_MODEL_TYPE;
 
 public class CustomerValueProvider implements ValueProvider {
     @Autowired
@@ -20,7 +22,7 @@ public class CustomerValueProvider implements ValueProvider {
 
     @Override
     public List<CompletionProposal> complete(CompletionContext completionContext) {
-        String word = completionContext.currentWord();
+        String word = completionContext.currentWordUpToCursor();
         if (word == null) {
             word = "";
         }
@@ -30,9 +32,9 @@ public class CustomerValueProvider implements ValueProvider {
 
         try {
             hypermediaClient.traverseCustomerApi(traverson -> {
-                CollectionModel<Map<String, Object>> allCustomers = traverson
+                PagedModel<Map<String, Object>> allCustomers = traverson
                         .follow("customer:all")
-                        .toObject(MAP_MODEL_TYPE);
+                        .toObject(PAGED_MODEL_TYPE);
 
                 Objects.requireNonNull(allCustomers).getContent()
                         .forEach(map -> {

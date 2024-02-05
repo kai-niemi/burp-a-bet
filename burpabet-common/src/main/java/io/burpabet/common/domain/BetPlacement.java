@@ -11,6 +11,8 @@ import io.burpabet.common.util.Money;
 public class BetPlacement extends AbstractJourney {
     private UUID customerId;
 
+    private String customerName;
+
     private UUID raceId;
 
     private String track;
@@ -20,6 +22,14 @@ public class BetPlacement extends AbstractJourney {
     private Money stake;
 
     private BetType betType = BetType.win;
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
     public BetType getBetType() {
         return betType;
@@ -72,6 +82,7 @@ public class BetPlacement extends AbstractJourney {
     @Override
     public void debugTuples(Map<String, Object> console) {
         console.put("customerId", customerId);
+        console.put("customerName", customerName);
         console.put("raceId", raceId);
         console.put("track", track);
         console.put("horse", horse);
@@ -87,6 +98,7 @@ public class BetPlacement extends AbstractJourney {
     public String toString() {
         return "BetPlacement{" +
                 "customerId=" + customerId +
+                ", customerName='" + customerName + '\'' +
                 ", raceId=" + raceId +
                 ", track='" + track + '\'' +
                 ", horse='" + horse + '\'' +

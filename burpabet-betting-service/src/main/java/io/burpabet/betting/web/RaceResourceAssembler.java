@@ -26,6 +26,7 @@ public class RaceResourceAssembler
         model.setTotalWager(entity.getTotalWager());
         model.setTotalBets(entity.getTotalBets());
         model.setOutcome(entity.getOutcome() != null ? entity.getOutcome() : Outcome.pending);
+        model.setDate(entity.getDate());
 
         model.add(linkTo(methodOn(RaceController.class)
                 .getRace(entity.getId()))

@@ -19,20 +19,24 @@ public class RaceValueProvider implements ValueProvider {
 
     @Override
     public List<CompletionProposal> complete(CompletionContext completionContext) {
-        String prefix = completionContext.currentWord();
-        if (prefix == null) {
-            prefix = "";
+        String word = completionContext.currentWordUpToCursor();
+        if (word == null) {
+            word = "";
         }
+        String prefix = word;
 
         List<CompletionProposal> result = new ArrayList<>();
 
-        for (Race race : raceRepository.findAllTracksStartingWith(prefix + "%",
-                PageRequest.ofSize(128))) {
-            result.add(new CompletionProposal(
-                    Objects.requireNonNull(race.getId()).toString())
-                    .displayText(race.getTrack())
-                    .description(race.getHorse() + " odds " + race.getOdds())
-            );
+        for (Race race : raceRepository.findAllByPage(PageRequest.ofSize(
+                prefix.isEmpty() ? 100 : 2^16))) {
+            if (race.getTrack().startsWith(prefix)) {
+                result.add(new CompletionProposal(
+                        Objects.requireNonNull(race.getId()).toString())
+                        .displayText(race.getTrack())
+                        .description(race.getHorse() + " " + race.getOdds())
+                        .complete(true)
+                );
+            }
         }
 
         return result;
