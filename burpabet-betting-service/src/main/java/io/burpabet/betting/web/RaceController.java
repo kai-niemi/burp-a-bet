@@ -37,10 +37,13 @@ public class RaceController {
     @Autowired
     private PagedResourcesAssembler<Race> racePagedResourcesAssembler;
 
+    /**
+     * Invoked by web ui to present list of recent bets.
+     */
     @GetMapping
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<RaceModel>> findAllRaces(
-            @PageableDefault(size = 15) Pageable page) {
+            @PageableDefault(size = 30) Pageable page) {
         // Two queries to avoid in-memory sorting by hibernate due to left join fetch with limit
         Page<UUID> raceIds = raceRepository.findRaceIds(page);
         List<Race> races = raceRepository.findRaces(raceIds.getContent());

@@ -41,9 +41,10 @@ public class OperatorCommand extends AbstractShellComponent {
     @Value("${server.port}")
     private int port;
 
-    @ShellMethod(value = "Reset all customer data", key = {"t", "reset"})
+    @ShellMethod(value = "Reset all customer data", key = {"reset"})
     public void reset() {
         customerService.deleteAllInBatch();
+        ansiConsole.cyan("Done!").nl();
     }
 
     @ShellMethod(value = "Register a new customer", key = {"r", "register"})

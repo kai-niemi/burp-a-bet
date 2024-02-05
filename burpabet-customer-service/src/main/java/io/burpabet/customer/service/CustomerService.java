@@ -1,13 +1,5 @@
 package io.burpabet.customer.service;
 
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import io.burpabet.common.annotations.OutboxOperation;
 import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.SagaCoordinator;
@@ -21,6 +13,12 @@ import io.burpabet.common.outbox.OutboxRepository;
 import io.burpabet.common.shell.DebugSupport;
 import io.burpabet.customer.model.Customer;
 import io.burpabet.customer.repository.CustomerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
+
+import java.util.Optional;
 
 @ServiceFacade
 @SagaCoordinator("registration")
@@ -46,15 +44,10 @@ public class CustomerService {
     @Autowired
     private OutboxRepository outboxRepository;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
     @TransactionBoundary
     public void deleteAllInBatch() {
         customerRepository.deleteAllInBatch();
         outboxRepository.deleteAllInBatch();
-
-//        jdbcTemplate.execute("delete from flyway_schema_history where 1=1");
     }
 
     @TransactionBoundary

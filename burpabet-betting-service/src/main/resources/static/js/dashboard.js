@@ -54,11 +54,13 @@ AppDashboard.prototype = {
                 .append(
                     $('<td>')
                         .attr('scope', 'row')
-                        .text(bet.customerName)
+                        .append($('<a>')
+                            .attr('href', bet._links.self.href)
+                            .text(bet.customerName))
                 )
                 .append(
                     $('<td>')
-                        .attr('scope', 'row')
+                        // .attr('scope', 'row')
                         .text(bet.race.track)
                 )
                 .append(
@@ -103,7 +105,9 @@ AppDashboard.prototype = {
                     .append(
                             $('<td>')
                                     .attr('scope', 'row')
-                                    .text(race.track)
+                                    .append($('<a>')
+                                        .attr('href', race._links.self.href)
+                                        .text(race.track))
                     )
                     .append(
                             $('<td>')

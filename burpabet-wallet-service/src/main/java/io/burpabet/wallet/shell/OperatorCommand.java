@@ -1,25 +1,6 @@
 package io.burpabet.wallet.shell;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.shell.standard.AbstractShellComponent;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.common.domain.Jurisdiction;
-import io.burpabet.common.outbox.OutboxRepository;
 import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.CommandGroups;
 import io.burpabet.common.shell.JurisdictionValueProvider;
@@ -28,23 +9,36 @@ import io.burpabet.common.util.RandomData;
 import io.burpabet.wallet.model.AccountType;
 import io.burpabet.wallet.model.CustomerAccount;
 import io.burpabet.wallet.model.OperatorAccount;
-import io.burpabet.wallet.service.AccountService;
+import io.burpabet.wallet.service.BatchService;
 import io.burpabet.wallet.service.NoSuchAccountException;
-import io.burpabet.wallet.service.TransferService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.shell.standard.AbstractShellComponent;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ShellComponent
 @ShellCommandGroup(CommandGroups.OPERATOR)
 public class OperatorCommand extends AbstractShellComponent {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private static final AtomicInteger counter = new AtomicInteger();
 
     @Autowired
-    private OutboxRepository outboxRepository;
-
-    @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private TransferService transferService;
+    private BatchService batchService;
 
     @Autowired
     private AnsiConsole ansiConsole;
@@ -52,21 +46,13 @@ public class OperatorCommand extends AbstractShellComponent {
     @Value("${server.port}")
     private int port;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @ShellMethod(value = "Reset all account data", key = {"t", "reset"})
-    @TransactionBoundary
+    @ShellMethod(value = "Reset all account data", key = {"reset"})
     public void reset() {
-        transferService.deleteAllInBatch();
-        accountService.deleteAllInBatch();
-        outboxRepository.deleteAllInBatch();
-
-//        jdbcTemplate.execute("delete from flyway_schema_history where 1=1");
+        batchService.deleteAllInBatch();
+        ansiConsole.cyan("Done!").nl();
     }
 
     @ShellMethod(value = "Create a set of operator accounts (optional)", key = {"co", "create-operators"})
-    @TransactionBoundary
     public void createOperators(
             @ShellOption(help = "initial account balance (can go negative)", defaultValue = "0.00") String balance,
             @ShellOption(help = "account currency", defaultValue = "USD") String currency,
@@ -83,45 +69,45 @@ public class OperatorCommand extends AbstractShellComponent {
 
         jurisdictions
                 .parallelStream()
-                .forEach(j -> accountService.createOperatorAccounts(count,
-                () -> OperatorAccount.builder()
-                        .withJurisdiction(j.name())
-                        .withBalance(Money.of(balance, currency))
-                        .withName("operator-" + j.name() + "-" + counter.incrementAndGet()) // not unique
-                        .withDescription(RandomData.randomRoachFact())
-                        .withAccountType(AccountType.LIABILITY)
-                        .withAllowNegative(true) // allowed for operators
-                        .build(), operatorAccount -> {
-                    ansiConsole.yellow("Created '%s' in %s"
-                            .formatted(operatorAccount.getName(), operatorAccount.getJurisdiction())).nl();
-                }));
+                .forEach(j -> batchService.createOperatorAccounts(count,
+                        () -> OperatorAccount.builder()
+                                .withJurisdiction(j.name())
+                                .withBalance(Money.of(balance, currency))
+                                .withName("operator-" + j.name() + "-" + counter.incrementAndGet()) // not unique
+                                .withDescription(RandomData.randomRoachFact())
+                                .withAccountType(AccountType.LIABILITY)
+                                .withAllowNegative(true) // allowed for operators
+                                .build(), operatorAccount -> {
+                            logger.info("Created operator account '%s' in %s"
+                                    .formatted(operatorAccount.getName(), operatorAccount.getJurisdiction()));
+                        }));
     }
 
     @ShellMethod(value = "Create a set of customer accounts (optional)", key = {"cc", "create-customers"})
-    @TransactionBoundary
     public void createCustomers(
             @ShellOption(help = "initial account balance (can go negative)", defaultValue = "0.00") String balance,
             @ShellOption(help = "account currency", defaultValue = "USD") String currency,
             @ShellOption(help = "number of accounts per jurisdiction", defaultValue = "10") int count,
             @ShellOption(help = "operator jurisdiction (if picked by random)", defaultValue = "SE",
                     valueProvider = JurisdictionValueProvider.class) String jurisdiction,
-            @ShellOption(help = "operator id (random if omitted)", defaultValue = ShellOption.NULL) String operator
+            @ShellOption(help = "operator id (random if omitted)", defaultValue = ShellOption.NULL,
+                    valueProvider = OperatorValueProvider.class) String operator
     ) {
         OperatorAccount operatorAccount;
 
         if (Objects.nonNull(operator)) {
             UUID id = UUID.fromString(operator);
-            operatorAccount = accountService.findOperatorAccountById(id)
+            operatorAccount = batchService.findOperatorAccountById(id)
                     .orElseThrow(() -> new NoSuchAccountException(id));
         } else {
-            operatorAccount = accountService.findOperatorAccounts(jurisdiction)
+            operatorAccount = batchService.findOperatorAccounts(jurisdiction)
                     .stream()
                     .findAny()
                     .orElseThrow(() -> new OperatorsNotFoundException(
                             "No operators found for jurisdiction: " + jurisdiction));
         }
 
-        accountService.createCustomerAccounts(count,
+        batchService.createCustomerAccounts(count,
                 () -> CustomerAccount.builder()
                         .withJurisdiction(operatorAccount.getJurisdiction())
                         .withOperatorId(operatorAccount.getId())
@@ -131,9 +117,36 @@ public class OperatorCommand extends AbstractShellComponent {
                         .withAccountType(AccountType.ASSET)
                         .withAllowNegative(false)
                         .build(), customerAccount -> {
-                    ansiConsole.yellow("Created '%s' in %s"
-                            .formatted(customerAccount.getName(), customerAccount.getJurisdiction())).nl();
+                    logger.info("Created customer account '%s' in %s"
+                            .formatted(customerAccount.getName(), customerAccount.getJurisdiction()));
                 });
+    }
+
+    @ShellMethod(value = "Grant extra bonus to operator customers", key = {"g", "grant"})
+    public void grant(
+            @ShellOption(help = "bonus amount", defaultValue = "50.00") String amount,
+            @ShellOption(help = "bonus currency", defaultValue = "USD") String currency,
+            @ShellOption(help = "operator id (all in jurisdiction if omitted)",
+                    defaultValue = ShellOption.NULL,
+                    valueProvider = OperatorValueProvider.class) String operator,
+            @ShellOption(help = "operator jurisdiction (if picked by random)",
+                    defaultValue = "SE",
+                    valueProvider = JurisdictionValueProvider.class) String jurisdiction
+    ) {
+        List<OperatorAccount> operatorAccounts;
+
+        if (Objects.nonNull(operator)) {
+            UUID id = UUID.fromString(operator);
+            operatorAccounts = List.of(batchService.findOperatorAccountById(id)
+                    .orElseThrow(() -> new NoSuchAccountException(id)));
+        } else {
+            operatorAccounts = batchService.findOperatorAccounts(jurisdiction);
+        }
+
+        operatorAccounts.forEach(operatorAccount -> {
+            Money total = batchService.grantBonus(operatorAccount, Money.of(amount, currency));
+            ansiConsole.cyan("Granted %s in total for %s".formatted(total, operatorAccount.getName())).nl();
+        });
     }
 
     @ShellMethod(value = "Print and API index url", key = {"u", "url"})
@@ -152,4 +165,5 @@ public class OperatorCommand extends AbstractShellComponent {
     public void fact() {
         ansiConsole.cyan(RandomData.randomRoachFact()).nl();
     }
+
 }

@@ -75,9 +75,10 @@ public class OperatorCommand extends AbstractShellComponent {
         });
     }
 
-    @ShellMethod(value = "Reset all betting data", key = {"t", "reset"})
+    @ShellMethod(value = "Reset all betting data", key = {"reset"})
     public void reset() {
         bettingService.deleteAllInBatch();
+        ansiConsole.cyan("Done!").nl();
     }
 
     @ShellMethod(value = "Place a bet", key = {"pb", "place-bet", "burp"})

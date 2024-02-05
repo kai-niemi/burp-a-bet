@@ -1,20 +1,18 @@
 package io.burpabet.betting.service;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import io.burpabet.betting.model.Race;
 import io.burpabet.betting.repository.BetRepository;
 import io.burpabet.betting.repository.RaceRepository;
 import io.burpabet.common.annotations.ServiceFacade;
 import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.common.outbox.OutboxRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+import java.util.UUID;
 
 @ServiceFacade
 public class BettingService {
@@ -27,15 +25,10 @@ public class BettingService {
     @Autowired
     private OutboxRepository outboxRepository;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
     @TransactionBoundary
     public void deleteAllInBatch() {
         betRepository.deleteAllInBatch();
         outboxRepository.deleteAllInBatch();
-
-//        jdbcTemplate.execute("delete from flyway_schema_history where 1=1");
     }
 
     @TransactionBoundary

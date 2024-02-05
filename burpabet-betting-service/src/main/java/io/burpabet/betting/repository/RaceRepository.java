@@ -1,32 +1,31 @@
 package io.burpabet.betting.repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import io.burpabet.betting.model.Race;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import io.burpabet.betting.model.Race;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface RaceRepository extends JpaRepository<Race, UUID> {
     @Query(value = "select r.id from Race r "
-            +"left join r.bets b "
+            + "left join r.bets b "
             + "order by b.stake.amount desc, b.payout.amount desc")
     Page<UUID> findRaceIds(Pageable pageable);
 
     @Query(value = "select r from Race r "
             + "left join fetch r.bets b "
-            + "where r.id in (?1) ")
+            + "where r.id in (?1) order by b.stake.amount desc, b.payout.amount desc")
     List<Race> findRaces(List<UUID> ids);
 
     @Query(value = "select r from Race r")
     Page<Race> findAllByPage(Pageable page);
-//
+
     @Query(value = "select r.id from Race r "
             + "join r.bets b "
             + "where b.settled = true and b.placementStatus = 'APPROVED'")

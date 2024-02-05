@@ -57,7 +57,7 @@ public class BetController {
     @GetMapping(value = "/settled")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<CollectionModel<EntityModel<Bet>>> findAllSettled(
-            @PageableDefault(size = 15) Pageable page) {
+            @PageableDefault(size = 30) Pageable page) {
         Page<Bet> bets = betRepository.findSettledBets(page);
         return ResponseEntity.ok(betPagedResourcesAssembler.toModel(bets, betResourceAssembler));
     }

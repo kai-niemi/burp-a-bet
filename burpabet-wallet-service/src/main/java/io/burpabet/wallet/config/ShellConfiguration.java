@@ -1,6 +1,7 @@
 package io.burpabet.wallet.config;
 
 import io.burpabet.common.shell.AnsiConsole;
+import io.burpabet.wallet.shell.OperatorValueProvider;
 import org.jline.terminal.Terminal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,11 @@ public class ShellConfiguration {
     @Bean
     public JurisdictionValueProvider jurisdictionValueProvider() {
         return new JurisdictionValueProvider();
+    }
+
+    @Bean
+    public OperatorValueProvider operatorValueProvider() {
+        return new OperatorValueProvider();
     }
 
     @Bean

@@ -33,12 +33,6 @@ public class DefaultTransferService implements TransferService {
     private TransactionItemRepository transactionItemRepository;
 
     @Override
-    public void deleteAllInBatch() {
-        transactionItemRepository.deleteAllInBatch();
-        transactionRepository.deleteAllInBatch();
-    }
-
-    @Override
     @TransactionMandatory
     public Transaction submitTransferRequest(TransferRequest request) {
         // Idempotency check
