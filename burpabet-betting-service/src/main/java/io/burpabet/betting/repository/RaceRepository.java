@@ -1,10 +1,14 @@
 package io.burpabet.betting.repository;
 
 import io.burpabet.betting.model.Race;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -51,10 +55,11 @@ public interface RaceRepository extends JpaRepository<Race, UUID> {
             + "limit 1")
     Optional<Race> getRandomRace();
 
-    @Override
     @Query(value = "select r from Race r "
-            + "left join fetch r.bets b "
             + "where r.id=?1")
-    Optional<Race> findById(UUID id);
+//    @Lock(LockModeType.PESSIMISTIC_READ) // SFS to reduce contention
+//    @QueryHints(value = {
+//            @QueryHint(name = "hibernate.query.followOnLocking", value = "false")}, forCounting = false)
+    Optional<Race> findByIdForShare(UUID id);
 }
 
