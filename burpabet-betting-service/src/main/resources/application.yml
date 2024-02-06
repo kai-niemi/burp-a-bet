@@ -94,3 +94,4 @@ server:
 #############################
 burp:
   customer-api-url: http://localhost:8090
+  maximum-threads: 50
