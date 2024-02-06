@@ -5,6 +5,7 @@ import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.CommandGroups;
 import io.burpabet.common.shell.JurisdictionValueProvider;
 import io.burpabet.common.util.Money;
+import io.burpabet.common.util.Networking;
 import io.burpabet.common.util.RandomData;
 import io.burpabet.wallet.model.AccountType;
 import io.burpabet.wallet.model.CustomerAccount;
@@ -151,14 +152,20 @@ public class OperatorCommand extends AbstractShellComponent {
 
     @ShellMethod(value = "Print and API index url", key = {"u", "url"})
     public void url() throws IOException {
-        String uri = ServletUriComponentsBuilder.newInstance()
-                .scheme("http")
-                .host(InetAddress.getLocalHost().getHostAddress())
-                .port(port)
-                .build()
-                .toUriString();
-
-        ansiConsole.cyan(uri).nl();
+        ansiConsole.cyan("Public URL: %s"
+                .formatted(ServletUriComponentsBuilder.newInstance()
+                        .scheme("http")
+                        .host(Networking.getPublicIP())
+                        .port(port)
+                        .build()
+                        .toUriString())).nl();
+        ansiConsole.cyan("Local URL: %s"
+                .formatted(ServletUriComponentsBuilder.newInstance()
+                        .scheme("http")
+                        .host(Networking.getLocalIP())
+                        .port(port)
+                        .build()
+                        .toUriString())).nl();
     }
 
     @ShellMethod(value = "Print random fact", key = {"f", "fact"})

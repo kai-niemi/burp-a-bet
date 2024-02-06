@@ -6,5 +6,7 @@ ${AnsiColor.BRIGHT_YELLOW}
 ──▄▄▀─█──▀▄▄     /_____/\__,_/_/  / .___/      \__,_/     /_____/\___/\__/
                                  /_/
 ${AnsiColor.BRIGHT_GREEN}${application.title}${application.formatted-version} powered by Spring Boot${spring-boot.formatted-version}
-${AnsiColor.GREEN}Active profiles: ${spring.profiles.active}${AnsiColor.DEFAULT}
-${AnsiColor.GREEN}   Database URL: ${spring.datasource.url}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Active profiles: ${AnsiColor.BRIGHT_YELLOW}${spring.profiles.active}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}   Database URL: ${AnsiColor.BRIGHT_YELLOW}${spring.datasource.url}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}   Kafka Server: ${AnsiColor.BRIGHT_YELLOW}${spring.kafka.bootstrap-servers}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}   CDC sink URL: ${AnsiColor.BRIGHT_YELLOW}${spring.flyway.placeholders.cdc-sink-url}${AnsiColor.DEFAULT}

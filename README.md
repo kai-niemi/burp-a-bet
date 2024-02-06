@@ -1,6 +1,6 @@
 # Burp-a-bet 
 
-[![Java CI with Maven](https://github.com/cockroachlabs-field/burp-a-bet/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/cockroachlabs-field/burp-a-bet/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/cloudneutral/burp-a-bet/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/cloudneutral/burp-a-bet/actions/workflows/maven.yml)
 
 <img align="left" src="logo.png" width="128" height="128" />
 
@@ -175,7 +175,7 @@ the CLI.
 
 For example:
 
-    java -jar burpabet-betting-service.jar \
+    java -jar betting-service.jar \
         --spring.profiles.active=local,verbose \
         --spring.datasource.url=jdbc:postgresql://localhost:26257/burp_betting?sslmode=disable"
 

@@ -34,9 +34,9 @@
     <inceptionYear>2024</inceptionYear>
 
     <scm>
-        <connection>scm:git:https://github.com/cockroachlabs-field/burp-a-bet.git</connection>
-        <developerConnection>scm:git:https://github.com/cockroachlabs-field/burp-a-bet.git</developerConnection>
-        <url>https://github.com/cockroachlabs-field/burp-a-bet.git</url>
+        <connection>scm:git:https://github.com/cloudneutral/burp-a-bet.git</connection>
+        <developerConnection>scm:git:https://github.com/cloudneutral/burp-a-bet.git</developerConnection>
+        <url>https://github.com/cloudneutral/burp-a-bet.git</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -58,7 +58,7 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/cockroachlabs-field/burp-a-bet/issues</url>
+        <url>https://github.com/cloudneutral/burp-a-bet/issues</url>
     </issueManagement>
 
     <modules>
