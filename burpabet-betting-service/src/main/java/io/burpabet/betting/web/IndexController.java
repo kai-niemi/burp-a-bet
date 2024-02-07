@@ -25,6 +25,10 @@ public class IndexController {
                 .findAllUnSettled(null))
                 .withRel("unsettled")
                 .withTitle("Collection of unsettled bets"));
+        index.add(linkTo(methodOn(BetController.class)
+                .getBetPlacementForm())
+                .withRel("bet-placement")
+                .withTitle("Form template for placing a bet"));
 
         index.add(linkTo(methodOn(RaceController.class)
                 .findAllRaces(null))

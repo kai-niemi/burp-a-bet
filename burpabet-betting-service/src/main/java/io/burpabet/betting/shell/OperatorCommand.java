@@ -1,5 +1,42 @@
 package io.burpabet.betting.shell;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.shell.standard.AbstractShellComponent;
+import org.springframework.shell.standard.EnumValueProvider;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import io.burpabet.betting.model.Race;
 import io.burpabet.betting.service.BetPlacementService;
 import io.burpabet.betting.service.BetSettlementService;
@@ -13,36 +50,6 @@ import io.burpabet.common.shell.ThrottledPredicates;
 import io.burpabet.common.util.Money;
 import io.burpabet.common.util.Networking;
 import io.burpabet.common.util.RandomData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.shell.Availability;
-import org.springframework.shell.standard.AbstractShellComponent;
-import org.springframework.shell.standard.EnumValueProvider;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
-import java.util.stream.IntStream;
 
 import static io.burpabet.betting.shell.HypermediaClient.PAGED_MODEL_TYPE;
 
@@ -72,18 +79,6 @@ public class OperatorCommand extends AbstractShellComponent {
     @Value("${server.port}")
     private int port;
 
-
-    public Availability serviceAvailable() {
-        return hypermediaClient.traverseCustomerApi(traverson -> {
-            try {
-                traverson.follow().toObject(String.class);
-                return Availability.available();
-            } catch (RestClientException e) {
-                return Availability.unavailable("Customer API not available (" + e.getMessage() + ")");
-            }
-        });
-    }
-
     @ShellMethod(value = "Reset all betting data", key = {"reset"})
     public void reset() {
         bettingService.deleteAllInBatch();
@@ -101,7 +96,8 @@ public class OperatorCommand extends AbstractShellComponent {
             @ShellOption(help = "bet stake to wager (in USD)", defaultValue = "5.00",
                     valueProvider = StakeValueProvider.class) String stake,
             @ShellOption(help = "number of bets per customer", defaultValue = "1") int count,
-            @ShellOption(help = "duration for placements in seconds (>0 overrides count)", defaultValue = "0") int duration,
+            @ShellOption(help = "duration for placements in seconds (>0 overrides count)", defaultValue = "0")
+            int duration,
             @ShellOption(help = "max bets per minute (if count > 1)", defaultValue = "120") int ratePerMin,
             @ShellOption(help = "max bets per sec (if count > 1)", defaultValue = "5") int ratePerSec
     ) {
@@ -129,13 +125,14 @@ public class OperatorCommand extends AbstractShellComponent {
         customerMap.forEach(map -> {
             Callable<BetPlacement> c = () -> {
                 BetPlacement betPlacement = new BetPlacement();
+                betPlacement.setEventId(UUID.randomUUID());
                 betPlacement.setCustomerId(UUID.fromString(map.get("id").toString()));
                 betPlacement.setStake(Money.of(stake, "USD"));
 
                 if (raceId != null) {
                     betPlacement.setRaceId(UUID.fromString(raceId));
                 } else {
-                    betPlacement.setRaceId(bettingService.getRandomRace().getId());
+                    betPlacement.setRaceId(betPlacementService.getRandomRace().getId());
                 }
 
                 return betPlacementService.placeBet(betPlacement);
@@ -149,6 +146,7 @@ public class OperatorCommand extends AbstractShellComponent {
 
                 Predicate<Integer> completion =
                         ThrottledPredicates.timePredicate(Instant.now().plus(theDuration), ratePerMin, ratePerSec);
+
                 workloadExecutor.submit(Objects.toString(map.get("name")), c, completion);
             } else {
                 IntStream.rangeClosed(1, count).forEach(value -> {
@@ -174,7 +172,8 @@ public class OperatorCommand extends AbstractShellComponent {
                     valueProvider = EnumValueProvider.class) Outcome outcome,
             @ShellOption(help = "query page size when iterating all races", defaultValue = "64") int pageSize,
             @ShellOption(help = "number of settlements", defaultValue = "1") int count,
-            @ShellOption(help = "duration for settlements in seconds (>0 overrides count)", defaultValue = "0") int duration,
+            @ShellOption(help = "duration for settlements in seconds (>0 overrides count)", defaultValue = "0")
+            int duration,
             @ShellOption(help = "max settlements per minute", defaultValue = "30") int ratePerMin,
             @ShellOption(help = "max settlements per sec", defaultValue = "2") int ratePerSec
     ) {

@@ -37,12 +37,13 @@ with [Kafka stream joins](https://kafka.apache.org/documentation/streams/) to pa
 In summary, this makes the journeys fully asynchronous but still safe from a transactional standpoint. See 
 the rule invariants section below for the meaning of _safe_ in this context.
 
-This demonstrates the following mechanisms in CockroachDB:
+This system demonstrates the following mechanisms in CockroachDB:
 
-* CDC projection queries
-* TTL eviction
-* Follower reads
-* Multi-region (optional)
+* [CDC Queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) - where each service have an outbox table and a CDC query that sends events to Kafka.
+* [Row-level TTL eviction](https://www.cockroachlabs.com/docs/v23.2/row-level-ttl) - that deletes expired outbox keys.
+* [Follower reads](https://www.cockroachlabs.com/docs/v23.2/follower-reads) - used by REST endpoints to inspect betting and race data without interfering with ongoing journeys (causing retries).
+* [Multi-region (optional)](https://www.cockroachlabs.com/docs/v23.2/table-localities#regional-by-row-tables) - using regional-by-row to pin accounts and bets to specific jurisdictions. 
+* Computed virtual columns and enum types
 
 # Building and Running
 
@@ -129,6 +130,12 @@ Example setup using Kraft:
     KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
     bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/kraft/server.properties
 
+Depending on your network setup you may need to edit the following Socket 
+properties in `config/kraft/server.properties`:
+
+    listeners=PLAINTEXT://..
+    advertised.listener=PLAINTEXT://
+
 Start daemon:
 
     bin/kafka-server-start.sh -daemon config/kraft/server.properties
@@ -171,15 +178,24 @@ _Hint: if you are using Chrome, then [Json Viewer](https://chromewebstore.google
 
 ## Custom Parameters
 
-See [common-application-properties](http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html) on how to 
-tailor the application context. All parameters can be overridden through
-the CLI. 
+See [common-application-properties](http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html) on how to tailor the application context. 
+All parameters can be overridden through the CLI. 
 
 For example:
 
-    java -jar betting-service.jar \
-        --spring.profiles.active=local,verbose \
-        --spring.datasource.url=jdbc:postgresql://localhost:26257/burp_betting?sslmode=disable"
+    java -jar wallet-service.jar \
+    --spring.profiles.active=local \
+    --spring.datasource.url="jdbc:postgresql://my_fancy_cluster.aws-eu-north-1.cockroachlabs.cloud:26257/burp_wallet?sslmode=verify-full&sslrootcert=$HOME/Library/CockroachCloud/certs/<uuid>/cluster-name-ca.crt" \
+    --spring.datasource.username=burp \
+    --spring.datasource.password=*** \
+    --spring.kafka.bootstrap-servers=<kafka-local-ip>:9092 \
+    --spring.flyway.placeholders.cdc-sink-url=kafka://<kafka-public-ip>:9092 \
+    $*
+
+To run any of the service in the background without an interactive shell, you can 
+put the above in a script and use the `--noshell` arg:
+
+    nohup ./run-wallet.sh --noshell > wallet.txt &
 
 ## Usage
 

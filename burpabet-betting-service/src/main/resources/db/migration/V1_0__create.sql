@@ -41,3 +41,10 @@ alter table if exists bet
     add constraint if not exists fk_bet_ref_race
     foreign key (race_id) references race (id);
 
+create table if not exists key_log
+(
+    id            uuid primary key not null,
+    time_received timestamptz      not null
+);
+
+alter table key_log set (ttl_expire_after = '1 hour');

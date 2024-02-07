@@ -44,10 +44,23 @@ public class BetPlacementService {
     @Autowired
     private RaceRepository raceRepository;
 
+    @Autowired
+    private IdempotencyService idempotencyService;
+
+    @TransactionBoundary
+    public Race getRandomRace() {
+        return raceRepository.getRandomRace().orElseThrow(() -> new IllegalStateException("No races found"));
+    }
+
     @TransactionBoundary
     @OutboxOperation(aggregateType = "placement")
     @Retryable
     public BetPlacement placeBet(BetPlacement betPlacement) {
+        if (idempotencyService.alreadyProcessed(betPlacement.getEventId())) {
+            logger.warn("Event with ID already processed: {}", betPlacement.getEventId());
+            return betPlacement;
+        }
+
         Race race = raceRepository.findByIdForShare(betPlacement.getRaceId())
                 .orElseThrow(() -> new NoSuchRaceException(betPlacement.getRaceId().toString()));
 
@@ -62,7 +75,9 @@ public class BetPlacementService {
         bet = betRepository.save(bet);
 
         BetPlacement placement = toBetPlacement(bet);
-        placement.setEventId(UUID.randomUUID());
+        placement.setEventId(betPlacement.getEventId());
+
+        idempotencyService.markProcessed(betPlacement.getEventId());
 
         return placement;
     }
@@ -110,5 +125,4 @@ public class BetPlacementService {
 
         return new BetPlacementEvent(fromWallet.getEventId(), EventType.insert, placement);
     }
-
 }

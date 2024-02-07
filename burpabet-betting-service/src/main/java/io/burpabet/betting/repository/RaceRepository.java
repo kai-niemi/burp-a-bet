@@ -57,9 +57,9 @@ public interface RaceRepository extends JpaRepository<Race, UUID> {
 
     @Query(value = "select r from Race r "
             + "where r.id=?1")
-//    @Lock(LockModeType.PESSIMISTIC_READ) // SFS to reduce contention
-//    @QueryHints(value = {
-//            @QueryHint(name = "hibernate.query.followOnLocking", value = "false")}, forCounting = false)
+    @Lock(LockModeType.PESSIMISTIC_READ) // SFS/SFU to reduce contention
+    @QueryHints(value = {
+            @QueryHint(name = "hibernate.query.followOnLocking", value = "false")}, forCounting = false)
     Optional<Race> findByIdForShare(UUID id);
 }
 

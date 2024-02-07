@@ -1,6 +1,7 @@
 package io.burpabet.wallet.saga;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,20 +35,26 @@ public class WalletBettingFacade {
     @Retryable
     @OutboxOperation(aggregateType = "placement")
     public BetPlacement reserveWager(BetPlacement placement) {
-        CustomerAccount customerAccount = accountService
-                .findCustomerAccountByForeignId(placement.getCustomerId())
-                .orElseThrow(() -> new NoSuchAccountException(placement.getCustomerId()));
+        Optional<CustomerAccount> optional = accountService
+                .findCustomerAccountByForeignId(placement.getCustomerId());
 
         placement.setOrigin("wallet-service");
+
+        if (optional.isEmpty()) {
+            placement.setJurisdiction(placement.getJurisdiction());
+            placement.setStatus(Status.REJECTED);
+            placement.setStatusDetail("No such customer account: " + placement.getCustomerId());
+            logger.warn("Bet placement rejected (no customer account): {}", placement);
+            return placement;
+        }
+
+        CustomerAccount customerAccount = optional.get();
 
         if (customerAccount.getBalance().minus(placement.getStake()).isNegative()) {
             placement.setJurisdiction(customerAccount.getJurisdiction());
             placement.setStatus(Status.REJECTED);
             placement.setStatusDetail("Insufficient funds: " + customerAccount.getBalance());
-            placement.setOrigin("wallet-service");
-
             logger.warn("Bet placement rejected (insufficient funds): {}", placement);
-
             return placement;
         }
 

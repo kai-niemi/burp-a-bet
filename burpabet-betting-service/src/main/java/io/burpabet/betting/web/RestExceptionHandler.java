@@ -13,8 +13,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Objects;
+
+import io.burpabet.betting.service.NoSuchBetException;
+import io.burpabet.betting.service.NoSuchRaceException;
 
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -42,4 +46,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, Objects.toString(ex));
         }
     }
+
+    @ExceptionHandler(NoSuchRaceException.class)
+    public ProblemDetail handleNoSuchRaceException(NoSuchRaceException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                ex.getMessage());
+        problemDetail.setTitle("Race Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(NoSuchBetException.class)
+    public ProblemDetail handleNoSuchBetException(NoSuchBetException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                ex.getMessage());
+        problemDetail.setTitle("Bet Not Found");
+        return problemDetail;
+    }
+
 }

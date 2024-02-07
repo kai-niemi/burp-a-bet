@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.util.Assert;
 
 import io.burpabet.betting.model.Bet;
 import io.burpabet.betting.model.Race;
@@ -55,26 +54,27 @@ public class BetSettlementService {
     @TransactionBoundary
     @Retryable
     public void settleBets(Race detached, Outcome outcome) {
-        Race race = raceRepository.getReferenceById(detached.getId());
+        Race race = raceRepository.findByIdForShare(detached.getId())
+                .orElseThrow(() -> new NoSuchRaceException(detached.getId().toString()));
         race.setOutcome(outcome);
+        race.getBets()
+                .stream()
+                .filter(bet -> !bet.isSettled())
+                .forEach(bet -> {
+                    switch (outcome) {
+                        case win -> bet.setPayout(bet.getStake()
+                                .multiply(bet.getRace().getOdds())
+                                .plus(bet.getStake()));
+                        case lose -> bet.setPayout(bet.getStake().negate());
+                    }
+                    bet.setSettlementStatus(Status.PENDING);
 
-        race.getBets().forEach(bet -> {
-            Assert.isTrue(!bet.isSettled(), "Bet is already settled");
+                    BetSettlement settlement = toBetSettlement(bet);
+                    settlement.setEventId(UUID.randomUUID());
+                    settlement.setOrigin("betting-service");
 
-            switch (outcome) {
-                case win -> bet.setPayout(bet.getStake()
-                        .multiply(bet.getRace().getOdds())
-                        .plus(bet.getStake()));
-                case lose -> bet.setPayout(bet.getStake().negate());
-            }
-            bet.setSettlementStatus(Status.PENDING);
-
-            BetSettlement settlement = toBetSettlement(bet);
-            settlement.setEventId(UUID.randomUUID());
-            settlement.setOrigin("betting-service");
-
-            outboxRepository.writeEvent(settlement, "settlement");
-        });
+                    outboxRepository.writeEvent(settlement, "settlement");
+                });
     }
 
     @TransactionBoundary
@@ -85,12 +85,14 @@ public class BetSettlementService {
 
         Optional<Bet> optional = betRepository.findById(walletPayload.getEntityId());
         if (optional.isEmpty()) {
+            logger.warn("Bet not found with id: {}", walletPayload.getEntityId());
             return null;
         }
 
         Bet bet = optional.get();
 
         String origin = null;
+
         if (walletPayload.getStatus().equals(Status.APPROVED) &&
                 customerPayload.getStatus().equals(Status.APPROVED)) {
             bet.setSettled(true);

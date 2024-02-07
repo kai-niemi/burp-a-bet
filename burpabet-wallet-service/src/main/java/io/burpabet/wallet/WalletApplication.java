@@ -1,5 +1,8 @@
 package io.burpabet.wallet;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.springframework.boot.WebApplicationType;
@@ -24,10 +27,26 @@ import org.springframework.shell.jline.PromptProvider;
 @Order(InteractiveShellRunner.PRECEDENCE - 100)
 public class WalletApplication implements PromptProvider {
     public static void main(String[] args) {
+        LinkedList<String> argsList = new LinkedList<>(Arrays.asList(args));
+        LinkedList<String> passThroughArgs = new LinkedList<>();
+
+        while (!argsList.isEmpty()) {
+            String arg = argsList.pop();
+            if (arg.startsWith("--")) {
+                if (arg.equals("--noshell")) {
+                    System.setProperty("spring.shell.interactive.enabled", "false");
+                } else {
+                    passThroughArgs.add(arg);
+                }
+            } else {
+                passThroughArgs.add(arg);
+            }
+        }
+
         new SpringApplicationBuilder(WalletApplication.class)
-                .logStartupInfo(false)
+                .logStartupInfo(true)
                 .web(WebApplicationType.SERVLET)
-                .run(args);
+                .run(passThroughArgs.toArray(new String[] {}));
     }
 
     @Override

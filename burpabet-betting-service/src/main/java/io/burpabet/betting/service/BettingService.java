@@ -32,11 +32,6 @@ public class BettingService {
     }
 
     @TransactionBoundary
-    public Race getRandomRace() {
-        return raceRepository.getRandomRace().orElseThrow(() -> new IllegalStateException("No races found"));
-    }
-
-    @TransactionBoundary
     public Race getRaceById(UUID id) {
         return raceRepository.findById(id).orElseThrow(() -> new NoSuchRaceException(id.toString()));
     }

@@ -3,6 +3,7 @@ package io.burpabet.customer.saga;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -19,7 +20,6 @@ import io.burpabet.common.domain.Status;
 import io.burpabet.common.util.Money;
 import io.burpabet.customer.model.Customer;
 import io.burpabet.customer.repository.CustomerRepository;
-import io.burpabet.customer.service.NoSuchCustomerException;
 import io.burpabet.customer.service.SimpleSpendingLimit;
 import io.burpabet.customer.service.SpendingLimit;
 
@@ -36,37 +36,46 @@ public class CustomerBettingFacade {
     @Retryable
     @OutboxOperation(aggregateType = "placement")
     public BetPlacement acquireSpendingCredits(BetPlacement placement) {
-        Customer customer = customerRepository
-                .findById(placement.getCustomerId())
-                .orElseThrow(() -> new NoSuchCustomerException(placement.getCustomerId().toString()));
+        Optional<Customer> optional = customerRepository.findById(placement.getCustomerId());
+
+        placement.setOrigin("customer-service");
+
+        if (optional.isEmpty()) {
+            placement.setStatus(Status.REJECTED);
+            placement.setStatusDetail("No such customer: " + placement.getCustomerId());
+            logger.warn("Bet placement rejected (no customer account): {}", placement);
+            return placement;
+        }
+
+        Customer customer = optional.get();
 
         if (!Status.APPROVED.equals(customer.getStatus())) {
             placement.setStatus(Status.REJECTED);
             placement.setStatusDetail("Customer not approved");
             logger.warn("Bet placement rejected (customer not approved): {}", placement);
+            return placement;
+        }
+
+        final Money wager = placement.getStake();
+
+        boolean permitted = customerSpendingLimits.computeIfAbsent(placement.getCustomerId(),
+                        x -> new SimpleSpendingLimit(Money.of("50.00", wager.getCurrency()),
+                                Duration.ofSeconds(60)))
+                .acquirePermission(placement.getStake());
+        if (permitted) {
+            placement.setStatus(Status.APPROVED);
+            placement.setStatusDetail("Within spending budget");
+
+            logger.info("Bet placement approved (in spending budget): {}", placement);
         } else {
-            final Money wager = placement.getStake();
+            placement.setStatus(Status.REJECTED);
+            placement.setStatusDetail("Exhausted spending budget of $50/min");
 
-            boolean permitted = customerSpendingLimits.computeIfAbsent(placement.getCustomerId(),
-                            x -> new SimpleSpendingLimit(Money.of("50.00", wager.getCurrency()),
-                                    Duration.ofSeconds(60)))
-                    .acquirePermission(placement.getStake());
-            if (permitted) {
-                placement.setStatus(Status.APPROVED);
-                placement.setStatusDetail("Within spending budget");
-
-                logger.info("Bet placement approved (in spending budget): {}", placement);
-            } else {
-                placement.setStatus(Status.REJECTED);
-                placement.setStatusDetail("Exhausted spending budget of $50/min");
-
-                logger.warn("Bet placement rejected (exhausted spending budget): {}", placement);
-            }
+            logger.warn("Bet placement rejected (exhausted spending budget): {}", placement);
         }
 
         placement.setCustomerName(customer.getName());
         placement.setJurisdiction(customer.getJurisdiction());
-        placement.setOrigin("customer-service");
 
         return placement;
     }
@@ -88,9 +97,7 @@ public class CustomerBettingFacade {
     public BetSettlement approveSettlement(BetSettlement settlement) {
         settlement.setStatus(Status.APPROVED);
         settlement.setOrigin("customer-service");
-
         logger.info("Bet settlement approved: {}", settlement);
-
         return settlement;
     }
 }
