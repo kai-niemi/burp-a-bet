@@ -1,12 +1,14 @@
 package io.burpabet.common.shell;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 import ch.qos.logback.classic.Level;
 
 @ShellComponent
+@ShellCommandGroup(CommandGroups.OPERATOR)
 public class ToggleCommand {
     public static final String TRACE_LOGGER = "io.burpabet";
 

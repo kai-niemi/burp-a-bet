@@ -16,12 +16,33 @@ microservices to together support the following main customer journeys:
 - **Customer Registration** - where a player registers with a sports game operator (horse racing only)
 - **Bet Placement** - where a player wagers a bet on a specific game (track and horse)
 - **Bet Settlement** - where open bets placed on a race are settled with wins/losses
+                    
+Screenshot of the `betting-service` web UI:
 
-# How it works
+<img src="docs/frontend.png" width="512" />
 
-See the documentation section below for details.
+All three services provides an interactive shell and a [REST API](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven). 
+The shells are used to initiate the different journeys above and other management tasks. The APIs are used for observability and
+shell command completion. 
 
-<img src="docs/diagrams.jpg" width="368" />
+To promote service autonomy, independence and transactional integrity, all journeys (business transactions) 
+are modelled using [Sagas](https://microservices.io/patterns/data/saga.html) with the orchestration method. 
+
+All services maintain their local state in an isolated database using [ACID](https://en.wikipedia.org/wiki/ACID) 
+guarantees and local transactions. The message exchange between the services are effectively journey state 
+transitions. These messages through the transactional outbox pattern where 
+[CDC queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) are used in combination 
+with [Kafka stream joins](https://kafka.apache.org/documentation/streams/) to pair together requests with responses.  
+
+In summary, this makes the journeys fully asynchronous but still safe from a transactional standpoint. See 
+the rule invariants section below for the meaning of _safe_ in this context.
+
+This demonstrates the following mechanisms in CockroachDB:
+
+* CDC projection queries
+* TTL eviction
+* Follower reads
+* Multi-region (optional)
 
 # Building and Running
 
@@ -115,25 +136,6 @@ Start daemon:
 Tail a topic, in this case `registration`:
 
     bin/kafka-console-consumer.sh --topic registration --from-beginning --bootstrap-server localhost:9092 --property print.key=true
-
-All topics:
-
-| Topic                | Purpose                                                |
-|----------------------|--------------------------------------------------------|
-| registration         | Registration events published by customer-service      |
-| placement            | Placement events published by betting-service          |
-| settlement           | Settlement events published by betting-service         |
-| wallet-registration  | Registration reply events published by wallet-service  |
-| wallet-placement     | Placement reply events published by wallet-service     |
-| wallet-settlement    | Settlement reply events published by wallet-service    |
-| betting-registration | Registration reply events published by betting-service |
-| customer-placement   | Placement reply events published by customer-service   |
-| customer-settlement  | Settlement reply events published by customer-service  |
-
-These topics are created on-demand when starting the services.
-During service bootstrap, the CockroachDB change feeds are also created 
-for the outbox table of each service. Most event publications go through
-the transactional outbox pattern.
 
 ## Running Locally
 
@@ -257,25 +259,26 @@ For more help, type:
     help place-bet
     help settle-bets
 
-## Key Invariants
+## Rule Invariants
 
 In terms of measuring correct execution and outcomes during disruptions and/or contention, 
-these are the main invariants to observe:
+these are the main business rule invariants to observe:
 
 Wallet service:
 
-- Total sum of all accounts must be zero
+- Total sum of all accounts must always be zero
 - Customer accounts must always have a balance of zero or higher
 - Operator accounts can have both positive and negative balance
 
 Betting service:
 
 - Settled bets are marked as `settled` after payouts are transferred to customer account.
+- Bet placement can only be done against registered customer accounts.
 - Bet wagering can only be done against unsettled races.
 
 Customer service:
 
-- Customers spending budget must always be positive.
+- Customers spending budget (like a rate limit) must always be positive.
 
 ## Additional Documentation
 
@@ -286,4 +289,3 @@ Customer service:
 # Terms of Use
 
 See [MIT](LICENSE.txt) for terms and conditions.
-

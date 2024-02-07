@@ -4,6 +4,7 @@ import io.burpabet.betting.shell.support.CallMetrics;
 import io.burpabet.betting.shell.support.MetricsListener;
 import io.burpabet.betting.shell.support.WorkloadExecutor;
 import io.burpabet.common.shell.AnsiConsole;
+import io.burpabet.common.shell.CommandGroups;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.shell.standard.AbstractShellComponent;
@@ -13,47 +14,39 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 @ShellComponent
-@ShellCommandGroup("Workload Commands")
+@ShellCommandGroup(CommandGroups.OPERATOR)
 public class WorkloadCommand extends AbstractShellComponent {
-    private static final ReentrantLock mutex = new ReentrantLock();
-
     @Autowired
     private AnsiConsole ansiConsole;
 
     @Autowired
     private WorkloadExecutor workloadExecutor;
 
-    @Scheduled(initialDelay = 2, fixedDelay = 6, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(initialDelay = 5, fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
     public void printMetrics() {
         if (workloadExecutor.hasActiveWorkers()) {
-            try {
-                mutex.lock();
-                CallMetrics.print(new MetricsListener() {
-                    @Override
-                    public void header(String text) {
-                        ansiConsole.yellow(text).nl();
-                    }
+            CallMetrics.print(new MetricsListener() {
+                @Override
+                public void header(String text) {
+                    ansiConsole.yellow(text).nl();
+                }
 
-                    @Override
-                    public void body(String text) {
-                        ansiConsole.magenta(text).nl();
-                    }
+                @Override
+                public void body(String text) {
+                    ansiConsole.magenta(text).nl();
+                }
 
-                    @Override
-                    public void footer(String text) {
-                        ansiConsole.blue(text).nl();
-                    }
-                });
-            } finally {
-                mutex.unlock();
-            }
+                @Override
+                public void footer(String text) {
+                    ansiConsole.blue(text).nl();
+                }
+            });
         }
     }
 
-    @ShellMethod(value = "Clear workload metrics", key = {"c", "clear-metrics"})
+    @ShellMethod(value = "Clear workload metrics", key = {"cm", "clear-metrics"})
     public void clearMetrics() {
         CallMetrics.clear();
     }

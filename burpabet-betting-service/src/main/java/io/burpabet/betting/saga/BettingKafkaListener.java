@@ -45,12 +45,11 @@ public class BettingKafkaListener {
             try {
                 Jurisdiction.valueOf(registration.getJurisdiction());
                 registration.setStatus(Status.APPROVED);
-                registration.setStatusDetail("Approved jurisdiction");
 
                 logger.info("Registration approved: {}", registration);
             } catch (IllegalArgumentException e) {
                 registration.setStatus(Status.REJECTED);
-                registration.setStatusDetail("Illegal jurisdiction " + e.getMessage());
+                registration.setStatusDetail("Illegal jurisdiction: " + registration.getJurisdiction());
 
                 logger.warn("Registration rejected (bad jurisdiction): {}", registration);
             }

@@ -57,3 +57,22 @@ The service uses the following entity model for double-entry bookkeeping of mone
 
 - **race**  - A race at a given track, with a given horse and the decimal odds
 - **bet**  - A customer bet for a given race
+
+# Appendix: Kafka Topics
+
+These topics are created on-demand when starting the services. During a service bootstrap phase, the CockroachDB 
+change feeds are also created (through Flyway) for the outbox table of each service. Most event publications 
+go through the transactional outbox pattern.
+
+| Topic                | Purpose                                                |
+|----------------------|--------------------------------------------------------|
+| registration         | Registration events published by customer-service      |
+| placement            | Placement events published by betting-service          |
+| settlement           | Settlement events published by betting-service         |
+| wallet-registration  | Registration reply events published by wallet-service  |
+| wallet-placement     | Placement reply events published by wallet-service     |
+| wallet-settlement    | Settlement reply events published by wallet-service    |
+| betting-registration | Registration reply events published by betting-service |
+| customer-placement   | Placement reply events published by customer-service   |
+| customer-settlement  | Settlement reply events published by customer-service  |
+
