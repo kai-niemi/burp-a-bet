@@ -27,14 +27,16 @@ shows three categories of architectural mechanisms and shows how they are expres
 | Eventing               | Commit Log and Streaming | Kafka Streams used to link request and response topics.                               |                                                                                                                                                                                                                                                                                                                                      | 
 | Web Server             | Embedded Container       | Embedded Jetty servlet container.                                                     |                                                                                                                                                                                                                                                                                                                                      | 
 | Load Balancing         | L4 / L7                  | L4 load balancer between app instances and CockroachDB. L7 in front of app instances. | (Optional) Any load balancer, for example HAProxy in self-hosted.                                                                                                                                                                                                                                                                    | 
-| Platform and Build     | Java                     | JDK 17                                                                                | JDK 17 language level (OpenJDK compatible)                                                                                                                                                                                                                                                                                           | 
-| Frontend               | HTML+CSS, Shell          | Bootstrap 3 + Thymeleaf and/or Spring Shell                                           | For applicable services-                                                                                                                                                                                                                                                                                                             | 
+| Platform and Build     | Java                     | JDK 17                                                                                | JDK 17 language level (OpenJDK compatible).                                                                                                                                                                                                                                                                                          | 
+| Frontend               | HTML+CSS, Shell          | Bootstrap 3 + Thymeleaf and/or Spring Shell                                           | For applicable services.                                                                                                                                                                                                                                                                                                             | 
 
 # Wallet Service
 
 The service uses the following entity model for double-entry bookkeeping of monetary transaction history.
 
 ![schema](wallet-er.png)
+
+[V1_0__create.sql](../burpabet-wallet-service/src/main/resources/db/migration/V1_0__create.sql)
 
 - **account**  - Accounts with a derived balance from the sum of all transactions
 - **transaction**  - Balanced multi-legged monetary transactions
@@ -47,6 +49,8 @@ The service uses the following entity model for double-entry bookkeeping of mone
 
 ![schema](customer-er.png)
 
+[V1_0__create.sql](../burpabet-customer-service/src/main/resources/db/migration/V1_0__create.sql)
+
 - **customer**  - Customer registrations
 
 # Betting Service
@@ -54,6 +58,8 @@ The service uses the following entity model for double-entry bookkeeping of mone
 The service uses the following entity model for double-entry bookkeeping of monetary transaction history.
 
 ![schema](betting-er.png)
+
+[V1_0__create.sql](../burpabet-betting-service/src/main/resources/db/migration/V1_0__create.sql)
 
 - **race**  - A race at a given track, with a given horse and the decimal odds
 - **bet**  - A customer bet for a given race

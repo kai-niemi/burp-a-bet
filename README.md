@@ -1,6 +1,6 @@
 # Burp-a-bet 
 
-[![Java CI with Maven](https://github.com/cloudneutral/burp-a-bet/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/cloudneutral/burp-a-bet/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/kai-niemi/burp-a-bet/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/kai-niemi/burp-a-bet/actions/workflows/maven.yml)
 
 <img align="left" src="logo.png" width="128" height="128" />
 
@@ -282,8 +282,8 @@ Customer service:
 
 ## Additional Documentation
 
-- [High-Level Design](docs/DESIGN.md) - Details including architectural patterns and mechanisms.
-- [Service Description](docs/diagrams.okso) - Using [C4 model](https://c4model.com/) diagrams drawn with the [okso](https://okso.app/) app _(open the file with the app)_.
+- [Design Notes](docs/README) - Details including architectural patterns and mechanisms.
+- [Service Description](docs/diagrams.okso) - [C4 model](https://c4model.com/) diagrams drawn with [okso](https://okso.app/) app _(open the file using the app)_.
 - [Registration Journey Diagram](docs/registration-sequence.txt) - Using a [websequence](https://www.websequencediagrams.com/) diagram.
 
 # Terms of Use
