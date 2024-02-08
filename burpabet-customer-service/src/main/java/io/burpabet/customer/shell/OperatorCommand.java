@@ -1,5 +1,6 @@
 package io.burpabet.customer.shell;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Registration;
 import io.burpabet.common.domain.Status;
 import io.burpabet.common.shell.AnsiConsole;
@@ -56,7 +57,7 @@ public class OperatorCommand extends AbstractShellComponent {
                     defaultValue = ShellOption.NULL) String operatorId,
             @ShellOption(help = "customer jurisdiction",
                     defaultValue = "SE",
-                    valueProvider = JurisdictionValueProvider.class) String jurisdiction,
+                    valueProvider = JurisdictionValueProvider.class) Jurisdiction jurisdiction,
             @ShellOption(help = "number of registrations", defaultValue = "1") int count,
             @ShellOption(help = "registrations per minute", defaultValue = "120") int ratePerMin,
             @ShellOption(help = "registrations per sec", defaultValue = "5") int ratePerSec

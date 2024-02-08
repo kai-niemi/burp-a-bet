@@ -14,7 +14,7 @@ public abstract class AbstractJourney {
 
     private String origin;
 
-    private String jurisdiction;
+    private Jurisdiction jurisdiction;
 
     public UUID getEventId() {
         return eventId;
@@ -48,11 +48,11 @@ public abstract class AbstractJourney {
         this.origin = origin;
     }
 
-    public String getJurisdiction() {
+    public Jurisdiction getJurisdiction() {
         return jurisdiction;
     }
 
-    public void setJurisdiction(String jurisdiction) {
+    public void setJurisdiction(Jurisdiction jurisdiction) {
         this.jurisdiction = jurisdiction;
     }
 

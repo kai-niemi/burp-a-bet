@@ -7,4 +7,4 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
 burp:
-  customer-api-url: http://localhost:8090
+  customer-api-url: http://localhost:8090/api

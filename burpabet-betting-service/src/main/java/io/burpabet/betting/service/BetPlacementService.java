@@ -1,5 +1,12 @@
 package io.burpabet.betting.service;
 
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
+
 import io.burpabet.betting.model.Bet;
 import io.burpabet.betting.model.Race;
 import io.burpabet.betting.repository.BetRepository;
@@ -13,13 +20,6 @@ import io.burpabet.common.domain.BetPlacementEvent;
 import io.burpabet.common.domain.EventType;
 import io.burpabet.common.domain.Status;
 import io.burpabet.common.shell.DebugSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @ServiceFacade
 public class BetPlacementService {
@@ -48,8 +48,8 @@ public class BetPlacementService {
     private IdempotencyService idempotencyService;
 
     @TransactionBoundary
-    public Race getRandomRace() {
-        return raceRepository.getRandomRace().orElseThrow(() -> new IllegalStateException("No races found"));
+    public void deleteAllInBatch() {
+        idempotencyService.deleteAllInBatch();
     }
 
     @TransactionBoundary

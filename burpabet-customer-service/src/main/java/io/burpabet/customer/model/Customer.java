@@ -1,5 +1,6 @@
 package io.burpabet.customer.model;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Status;
 import io.burpabet.common.jpa.AbstractEntity;
 import jakarta.persistence.*;
@@ -31,7 +32,8 @@ public class Customer extends AbstractEntity<UUID> {
     private String name;
 
     @Column(name = "jurisdiction")
-    private String jurisdiction;
+    @Enumerated(EnumType.STRING)
+    private Jurisdiction jurisdiction;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -70,11 +72,11 @@ public class Customer extends AbstractEntity<UUID> {
         this.name = name;
     }
 
-    public String getJurisdiction() {
+    public Jurisdiction getJurisdiction() {
         return jurisdiction;
     }
 
-    public void setJurisdiction(String jurisdiction) {
+    public void setJurisdiction(Jurisdiction jurisdiction) {
         this.jurisdiction = jurisdiction;
     }
 
@@ -127,7 +129,7 @@ public class Customer extends AbstractEntity<UUID> {
             return this;
         }
 
-        public Builder withJurisdiction(String jurisdiction) {
+        public Builder withJurisdiction(Jurisdiction jurisdiction) {
             instance.jurisdiction = jurisdiction;
             return this;
         }

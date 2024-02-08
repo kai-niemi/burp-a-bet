@@ -25,10 +25,6 @@ public class IndexController {
                 .findAllUnSettled(null))
                 .withRel("unsettled")
                 .withTitle("Collection of unsettled bets"));
-        index.add(linkTo(methodOn(BetController.class)
-                .getBetPlacementForm())
-                .withRel("bet-placement")
-                .withTitle("Form template for placing a bet"));
 
         index.add(linkTo(methodOn(RaceController.class)
                 .findAllRaces(null))
@@ -38,6 +34,15 @@ public class IndexController {
                 .findRacesWithSettledBets(null))
                 .withRel("settled")
                 .withTitle("Collection of races with settle bets"));
+
+        index.add(linkTo(methodOn(PlacementController.class)
+                .getPlacementForm())
+                .withRel("placement")
+                .withTitle("Form template for placing a bet"));
+        index.add(linkTo(methodOn(SettlementController.class)
+                .getSettlementForm())
+                .withRel("settlement")
+                .withTitle("Form template for settling bets"));
 
         return index;
     }

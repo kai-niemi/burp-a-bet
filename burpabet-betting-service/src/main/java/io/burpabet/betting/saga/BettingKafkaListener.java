@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.SagaStepAction;
 import io.burpabet.common.annotations.TransactionBoundary;
-import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Registration;
 import io.burpabet.common.domain.RegistrationEvent;
 import io.burpabet.common.domain.Status;
@@ -42,20 +41,9 @@ public class BettingKafkaListener {
         Registration registration = event.getPayload();
 
         if (registration.getStatus().equals(Status.PENDING)) {
-            try {
-                Jurisdiction.valueOf(registration.getJurisdiction());
-                registration.setStatus(Status.APPROVED);
-
-                logger.info("Registration approved: {}", registration);
-            } catch (IllegalArgumentException e) {
-                registration.setStatus(Status.REJECTED);
-                registration.setStatusDetail("Illegal jurisdiction: " + registration.getJurisdiction());
-
-                logger.warn("Registration rejected (bad jurisdiction): {}", registration);
-            }
-
+            registration.setStatus(Status.APPROVED);
             registration.setOrigin("betting-service");
-
+            logger.info("Registration approved: {}", registration);
             outboxRepository.writeEvent(registration, "registration");
         } else {
             logger.debug("Registration event received with status: %s".formatted(registration.getStatus()));

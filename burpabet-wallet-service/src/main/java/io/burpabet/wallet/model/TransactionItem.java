@@ -1,21 +1,10 @@
 package io.burpabet.wallet.model;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.jpa.AbstractEntity;
 import io.burpabet.common.util.Money;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.server.core.Relation;
 import org.springframework.util.Assert;
@@ -40,7 +29,8 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
     private Id id = new Id();
 
     @Column
-    private String jurisdiction;
+    @Enumerated(EnumType.STRING)
+    private Jurisdiction jurisdiction;
 
     @Embedded
     @AttributeOverrides({
@@ -88,11 +78,11 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
         this.id = id;
     }
 
-    public String getJurisdiction() {
+    public Jurisdiction getJurisdiction() {
         return jurisdiction;
     }
 
-    public void setJurisdiction(String jurisdiction) {
+    public void setJurisdiction(Jurisdiction jurisdiction) {
         this.jurisdiction = jurisdiction;
     }
 

@@ -1,11 +1,6 @@
 package io.burpabet.betting.shell;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -18,8 +13,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
-
-import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +33,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import io.burpabet.betting.model.Race;
 import io.burpabet.betting.service.BetPlacementService;
 import io.burpabet.betting.service.BetSettlementService;
-import io.burpabet.betting.service.BettingService;
+import io.burpabet.betting.service.RaceService;
 import io.burpabet.betting.shell.support.WorkloadExecutor;
 import io.burpabet.common.domain.BetPlacement;
 import io.burpabet.common.domain.Outcome;
@@ -59,7 +52,7 @@ public class OperatorCommand extends AbstractShellComponent {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private BettingService bettingService;
+    private RaceService raceService;
 
     @Autowired
     private BetPlacementService betPlacementService;
@@ -81,7 +74,8 @@ public class OperatorCommand extends AbstractShellComponent {
 
     @ShellMethod(value = "Reset all betting data", key = {"reset"})
     public void reset() {
-        bettingService.deleteAllInBatch();
+        betPlacementService.deleteAllInBatch();
+        betSettlementService.deleteAllInBatch();
         ansiConsole.cyan("Done!").nl();
     }
 
@@ -132,7 +126,7 @@ public class OperatorCommand extends AbstractShellComponent {
                 if (raceId != null) {
                     betPlacement.setRaceId(UUID.fromString(raceId));
                 } else {
-                    betPlacement.setRaceId(betPlacementService.getRandomRace().getId());
+                    betPlacement.setRaceId(raceService.getRandomRace().getId());
                 }
 
                 return betPlacementService.placeBet(betPlacement);
@@ -186,13 +180,13 @@ public class OperatorCommand extends AbstractShellComponent {
                     ? ThreadLocalRandom.current().nextBoolean() ? Outcome.win : Outcome.lose
                     : outcome;
             if (race != null) {
-                settleBets(counter.incrementAndGet(), bettingService.getRaceById(UUID.fromString(race)), o);
+                settleBets(counter.incrementAndGet(), raceService.getRaceById(UUID.fromString(race)), o);
             } else {
-                Page<Race> page = bettingService.findRacesWithUnsettledBets(PageRequest.ofSize(pageSize));
+                Page<Race> page = raceService.findRacesWithUnsettledBets(PageRequest.ofSize(pageSize));
                 for (; ; ) {
                     page.forEach(x -> settleBets(counter.incrementAndGet(), x, o));
                     if (page.hasNext()) {
-                        page = bettingService.findRacesWithUnsettledBets(page.nextPageable());
+                        page = raceService.findRacesWithUnsettledBets(page.nextPageable());
                     } else {
                         break;
                     }

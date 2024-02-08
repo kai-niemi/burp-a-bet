@@ -31,11 +31,8 @@ import io.burpabet.wallet.repository.CustomerAccountRepository;
 import io.burpabet.wallet.repository.OperatorAccountRepository;
 import io.burpabet.wallet.service.NoSuchAccountException;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @RestController
-@RequestMapping(path = "/account")
+@RequestMapping(path = "/api/account")
 public class AccountController {
     @Autowired
     private AccountRepository accountRepository;

@@ -70,11 +70,11 @@ public class OperatorCommand extends AbstractShellComponent {
 
         jurisdictions
                 .parallelStream()
-                .forEach(j -> batchService.createOperatorAccounts(count,
+                .forEach(jur -> batchService.createOperatorAccounts(count,
                         () -> OperatorAccount.builder()
-                                .withJurisdiction(j.name())
+                                .withJurisdiction(jur)
                                 .withBalance(Money.of(balance, currency))
-                                .withName("operator-" + j.name() + "-" + counter.incrementAndGet()) // not unique
+                                .withName("operator-" + jur.name() + "-" + counter.incrementAndGet()) // not unique
                                 .withDescription(RandomData.randomRoachFact())
                                 .withAccountType(AccountType.LIABILITY)
                                 .withAllowNegative(true) // allowed for operators

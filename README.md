@@ -7,23 +7,28 @@
 Welcome to Burp-a-Bet - an online, voice-activated horse betting system _demo_ based on CockroachDB, Kafka 
 and Spring Boot. 
 
-Actually, there's only imaginary voice activation since its done by keystrokes via a shell, but anyway. 
+Actually, the voice activation is imaginary and bets are instead placed by keystrokes through shell commands 
+or API requests. In theory thought it could be.
 
-The system is designed to demonstrate different architectural patterns and mechanisms in the context 
-of an Online Sports Betting use case. The system provides three separate and independent 
-microservices to together support the following main customer journeys:
+# Introduction
+
+The system is designed to _demonstrate_ different architectural patterns and mechanisms in the context 
+of an Online Sports Betting use case. The purpose is not to accurately model the full domain complexity of 
+sports betting but to give an idea of how such systems are crafted using [CockroachDB](https://www.cockroachlabs.com/) 
+as the database of choice.
+
+The system provides three separate and independent microservices that together supports the following 
+customer journeys:
  
-- **Customer Registration** - where a player registers with a sports game operator (horse racing only)
+- **Customer Registration** - where a player registers with a game operator (horse racing only)
 - **Bet Placement** - where a player wagers a bet on a specific game (track and horse)
-- **Bet Settlement** - where open bets placed on a race are settled with wins/losses
+- **Bet Settlement** - where open bets are settled with a win or loss
                     
 Screenshot of the `betting-service` web UI:
 
 <img src="docs/frontend.png" width="512" />
 
-All three services provides an interactive shell and a [REST API](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven). 
-The shells are used to initiate the different journeys above and other management tasks. The APIs are used for observability and
-shell command completion. 
+# Design Features
 
 To promote service autonomy, independence and transactional integrity, all journeys (business transactions) 
 are modelled using [Sagas](https://microservices.io/patterns/data/saga.html) with the orchestration method. 
@@ -45,10 +50,16 @@ This system demonstrates the following mechanisms in CockroachDB:
 * [Multi-region (optional)](https://www.cockroachlabs.com/docs/v23.2/table-localities#regional-by-row-tables) - using regional-by-row to pin accounts and bets to specific jurisdictions. 
 * Computed virtual columns and enum types
 
+All three services provide an interactive shell and a [REST API](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven)
+using the [HAL+forms](https://rwcbook.github.io/hal-forms/) hypermedia type.
+
+The shells are used to initiate the different journeys above and other management tasks. The APIs are used for
+observability and also for initiating journeys using HTTP requests through cURL / Postman or similar tools.
+
 # Building and Running
 
-The project builds executable JAR files for each deployable component or microservice. 
-These JAR files runs on any platform for which there is a Java 17+ runtime.
+The project builds executable JAR files for each deployable component or microservice. These JAR files runs 
+on any platform for which there is a Java 17+ runtime.
                  
 ## Prerequisites
 
@@ -62,8 +73,8 @@ These JAR files runs on any platform for which there is a Java 17+ runtime.
 
 ### Running
 
-- Java 17 JRE
-- CockroachDB 23.1+
+- Java 17+ JRE
+- CockroachDB 23.1+ with an Enterprise License
   - https://www.cockroachlabs.com/docs/releases/
 - Kafka 3.6+
   - https://kafka.apache.org/downloads
@@ -78,7 +89,7 @@ Install the JDK (MacOS example using sdkman):
 
     curl -s "https://get.sdkman.io" | bash
     sdk list java
-    sdk install java 17.0.. (pick from list) 
+    sdk install java 17.0..  
 
 Confirm the installation by running:
 
@@ -86,7 +97,7 @@ Confirm the installation by running:
 
 ### Clone the project
                              
-    git clone git@github.com:cockroachlabs-field/burp-a-bet.git burp-a-bet
+    git clone git@github.com:kai-niemi/burp-a-bet.git burp-a-bet
 
 ### Build the executable jars
 
@@ -274,6 +285,45 @@ For more help, type:
 
     help place-bet
     help settle-bets
+
+## API Testing
+
+The services also provide REST APIs for initiating the bet placement, bet settlement and registration journeys.
+
+### Registration
+
+First request a form template:
+
+    curl -X GET http://localhost:8090/api/registration > registration.json
+
+Post back the form to the self href specified in the response:
+
+    curl -d "@registration.json" -H "Content-Type:application/json" -X POST http://localhost:8090/api/registration
+
+### Bet Placement
+
+First request a form template:
+
+    curl -X GET http://localhost:8092/api/placement > place-bet.json
+
+Then adjust the IDs in the form. Note that you need to supply a valid customer UUID that
+you can get from the customer service API. There's also an optional idempotency key. If
+omitted, there will be one placement per request. If not omitted, the placements are
+de-duped.
+
+Post back the form to the self href specified in the response:
+
+    curl -d "@place-bet.json" -H "Content-Type:application/json" -X POST http://localhost:8092/api/placement
+
+### Bet Settlement
+
+First request a form template:
+
+    curl -X GET http://localhost:8092/api/settlement/form > settle-bets.json
+
+Post back the form to the self href specified in the response:
+
+    curl -d "@settle-bet.json" -H "Content-Type:application/json" -X POST http://localhost:8092/api/settlement
 
 ## Rule Invariants
 

@@ -6,14 +6,12 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
 import org.springframework.shell.standard.ValueProvider;
 import org.springframework.web.client.RestClientException;
 
-import static io.burpabet.betting.shell.HypermediaClient.MAP_MODEL_TYPE;
 import static io.burpabet.betting.shell.HypermediaClient.PAGED_MODEL_TYPE;
 
 public class CustomerValueProvider implements ValueProvider {

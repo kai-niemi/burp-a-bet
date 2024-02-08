@@ -1,5 +1,6 @@
 package io.burpabet.wallet.model;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.jpa.AbstractEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -24,7 +25,8 @@ public class Transaction extends AbstractEntity<UUID> {
     private UUID id;
 
     @Column
-    private String jurisdiction;
+    @Enumerated(EnumType.STRING)
+    private Jurisdiction jurisdiction;
 
     @Column(name = "transaction_type")
     private String transactionType;
@@ -42,7 +44,7 @@ public class Transaction extends AbstractEntity<UUID> {
     }
 
     protected Transaction(UUID id,
-                          String jurisdiction,
+                          Jurisdiction jurisdiction,
                           String transactionType,
                           LocalDate bookingDate,
                           LocalDate transferDate,
@@ -69,7 +71,7 @@ public class Transaction extends AbstractEntity<UUID> {
         return id;
     }
 
-    public String getJurisdiction() {
+    public Jurisdiction getJurisdiction() {
         return jurisdiction;
     }
 
@@ -98,7 +100,7 @@ public class Transaction extends AbstractEntity<UUID> {
 
         private UUID transactionId;
 
-        private String jurisdiction;
+        private Jurisdiction jurisdiction;
 
         private String transferType;
 
@@ -111,7 +113,7 @@ public class Transaction extends AbstractEntity<UUID> {
             return this;
         }
 
-        public Builder withJurisdiction(String jurisdiction) {
+        public Builder withJurisdiction(Jurisdiction jurisdiction) {
             this.jurisdiction = jurisdiction;
             return this;
         }

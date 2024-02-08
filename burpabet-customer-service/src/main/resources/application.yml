@@ -99,4 +99,4 @@ server:
   port: 8090
 #############################
 burp:
-  wallet-api-url: http://localhost:8091
+  wallet-api-url: http://localhost:8091/api

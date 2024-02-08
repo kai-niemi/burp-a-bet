@@ -2,6 +2,7 @@ package io.burpabet.wallet.model;
 
 import java.util.UUID;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.util.Money;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -38,7 +39,7 @@ public class OperatorAccount extends Account {
             return this;
         }
 
-        public Builder withJurisdiction(String jurisdiction) {
+        public Builder withJurisdiction(Jurisdiction jurisdiction) {
             this.instance.jurisdiction = jurisdiction;
             return this;
         }

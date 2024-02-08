@@ -1,12 +1,7 @@
 package io.burpabet.customer.web;
 
-import io.burpabet.common.annotations.TimeTravel;
-import io.burpabet.common.annotations.TimeTravelMode;
-import io.burpabet.common.annotations.TransactionBoundary;
-import io.burpabet.common.domain.Status;
-import io.burpabet.customer.model.Customer;
-import io.burpabet.customer.repository.CustomerRepository;
-import io.burpabet.customer.service.NoSuchCustomerException;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +19,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
+import io.burpabet.common.annotations.TransactionBoundary;
+import io.burpabet.common.domain.Status;
+import io.burpabet.customer.model.Customer;
+import io.burpabet.customer.repository.CustomerRepository;
+import io.burpabet.customer.service.NoSuchCustomerException;
 
 @RestController
-@RequestMapping(path = "/customer")
+@RequestMapping(path = "/api/customer")
 public class CustomerController {
     @Autowired
     private CustomerRepository customerRepository;

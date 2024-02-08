@@ -2,6 +2,7 @@ package io.burpabet.betting.model;
 
 import java.util.UUID;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.jpa.AbstractAuditedEntity;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
@@ -46,7 +47,8 @@ public class Bet extends AbstractAuditedEntity<UUID> {
     private String customerName;
 
     @Column
-    private String jurisdiction;
+    @Enumerated(EnumType.STRING)
+    private Jurisdiction jurisdiction;
 
     @Column(name = "placement_status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -82,11 +84,11 @@ public class Bet extends AbstractAuditedEntity<UUID> {
         return id;
     }
 
-    public String getJurisdiction() {
+    public Jurisdiction getJurisdiction() {
         return jurisdiction;
     }
 
-    public void setJurisdiction(String jurisdiction) {
+    public void setJurisdiction(Jurisdiction jurisdiction) {
         this.jurisdiction = jurisdiction;
     }
 

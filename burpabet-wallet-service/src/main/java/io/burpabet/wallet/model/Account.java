@@ -4,25 +4,12 @@ import java.util.UUID;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
-import org.springframework.hateoas.server.core.Relation;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.jpa.AbstractAuditedEntity;
 import io.burpabet.common.util.Money;
 import io.burpabet.wallet.service.NegativeBalanceException;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 /**
  * Represents a monetary account like asset, liability, expense, capital accounts and so forth.
@@ -42,7 +29,8 @@ public abstract class Account extends AbstractAuditedEntity<UUID> {
     protected String name;
 
     @Column
-    protected String jurisdiction;
+    @Enumerated(EnumType.STRING)
+    protected Jurisdiction jurisdiction;
 
     @Column
     @Basic(fetch = FetchType.LAZY)
@@ -89,11 +77,11 @@ public abstract class Account extends AbstractAuditedEntity<UUID> {
         this.name = name;
     }
 
-    public String getJurisdiction() {
+    public Jurisdiction getJurisdiction() {
         return jurisdiction;
     }
 
-    public void setJurisdiction(String jurisdiction) {
+    public void setJurisdiction(Jurisdiction jurisdiction) {
         this.jurisdiction = jurisdiction;
     }
 

@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.util.Money;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -30,7 +33,8 @@ public class TransferRequest {
 
     @NotNull
     @Size(min = 2)
-    private String jurisdiction;
+    @Enumerated(EnumType.STRING)
+    private Jurisdiction jurisdiction;
 
     @NotBlank
     private String transactionType;
@@ -50,7 +54,7 @@ public class TransferRequest {
         return id;
     }
 
-    public String getJurisdiction() {
+    public Jurisdiction getJurisdiction() {
         return jurisdiction;
     }
 
@@ -94,7 +98,7 @@ public class TransferRequest {
             return this;
         }
 
-        public Builder withJurisdiction(String jurisdiction) {
+        public Builder withJurisdiction(Jurisdiction jurisdiction) {
             this.instance.jurisdiction = jurisdiction;
             return this;
         }

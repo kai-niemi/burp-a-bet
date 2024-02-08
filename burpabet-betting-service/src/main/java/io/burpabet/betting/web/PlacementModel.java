@@ -11,11 +11,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.burpabet.common.util.Money;
 import jakarta.validation.constraints.NotNull;
 
-@Relation(value = "betting:bet",
-        collectionRelation = "betting:bet-list")
+@Relation(value = "betting:place")
 @JsonPropertyOrder({"links"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BetModel extends RepresentationModel<BetModel> {
+public class PlacementModel extends RepresentationModel<PlacementModel> {
     private UUID idempotencyKey;
 
     @NotNull

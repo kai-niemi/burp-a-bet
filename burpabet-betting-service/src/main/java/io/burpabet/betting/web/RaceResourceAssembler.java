@@ -29,7 +29,7 @@ public class RaceResourceAssembler
         model.setDate(entity.getDate());
 
         model.add(linkTo(methodOn(RaceController.class)
-                .getRace(entity.getId()))
+                .getRaceById(entity.getId()))
                 .withSelfRel()
         );
 

@@ -18,7 +18,7 @@ public class BetResourceAssembler implements SimpleRepresentationModelAssembler<
                 .getBet(bet.getId())).withSelfRel()
         );
         resource.add(linkTo(methodOn(RaceController.class)
-                .getRace(bet.getRace().getId()))
+                .getRaceById(bet.getRace().getId()))
                 .withRel("race")
         );
     }
