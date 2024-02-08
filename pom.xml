@@ -15,10 +15,10 @@
 
     <packaging>pom</packaging>
 
-    <name>Burp-a-bet :: Aggregator</name>
+    <name>Burp-a-bet :: Project Aggregator</name>
 
     <description>
-        Burp-a-bet parent project and aggregator
+        Burp-a-bet online betting demo parent project and build aggregator.
     </description>
 
     <properties>

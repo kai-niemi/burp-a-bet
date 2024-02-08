@@ -2,6 +2,7 @@
 -- drop type if exists race_outcome;
 
 create type if not exists bet_type as enum ('win', 'each_way');
+
 create type if not exists race_outcome as enum ('win', 'lose');
 
 -- drop table if exists race cascade;
@@ -47,4 +48,4 @@ create table if not exists key_log
     time_received timestamptz      not null
 );
 
-alter table key_log set (ttl_expire_after = '1 hour');
+alter table key_log set (ttl='on', ttl_expire_after = '24 hours', ttl_job_cron='@daily');

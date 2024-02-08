@@ -1,15 +1,5 @@
 package io.burpabet.customer.saga;
 
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import io.burpabet.common.annotations.OutboxOperation;
 import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.ServiceFacade;
@@ -22,6 +12,15 @@ import io.burpabet.customer.model.Customer;
 import io.burpabet.customer.repository.CustomerRepository;
 import io.burpabet.customer.service.SimpleSpendingLimit;
 import io.burpabet.customer.service.SpendingLimit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @ServiceFacade
 public class CustomerBettingFacade {
@@ -51,7 +50,7 @@ public class CustomerBettingFacade {
 
         if (!Status.APPROVED.equals(customer.getStatus())) {
             placement.setStatus(Status.REJECTED);
-            placement.setStatusDetail("Customer not approved");
+            placement.setStatusDetail("Customer not approved (" + customer.getStatus() + ")");
             logger.warn("Bet placement rejected (customer not approved): {}", placement);
             return placement;
         }

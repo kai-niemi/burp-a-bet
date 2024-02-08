@@ -348,7 +348,7 @@ Customer service:
 
 ## Additional Documentation
 
-- [Design Notes](docs/README) - Details including architectural patterns and mechanisms.
+- [Design Notes](docs/README.md) - Details including architectural patterns and mechanisms.
 - [Service Description](docs/diagrams.okso) - [C4 model](https://c4model.com/) diagrams drawn with [okso](https://okso.app/) app _(open the file using the app)_.
 - [Registration Journey Diagram](docs/registration-sequence.txt) - Using a [websequence](https://www.websequencediagrams.com/) diagram.
 

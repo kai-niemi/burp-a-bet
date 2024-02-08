@@ -58,7 +58,6 @@ public class BetSettlementService {
     @TransactionBoundary
     public void deleteAllInBatch() {
         betRepository.deleteAllInBatch();
-        raceRepository.deleteAllInBatch();
         outboxRepository.deleteAllInBatch();
     }
 
