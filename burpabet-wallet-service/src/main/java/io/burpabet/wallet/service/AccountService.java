@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AccountService {
+
     CustomerAccount createCustomerAccount(CustomerAccount account);
 
     OperatorAccount createOperatorAccount(OperatorAccount account);

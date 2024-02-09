@@ -10,8 +10,6 @@ create table if not exists outbox
 
 alter table outbox set (ttl_expire_after = '1 hour');
 
--- CANCEL JOBS (SELECT job_id FROM [SHOW JOBS] where job_type='CHANGEFEED' and status='running');
-
 create changefeed into '${cdc-sink-url}?topic_name=wallet-registration'
 with diff
          as select id           as event_id,

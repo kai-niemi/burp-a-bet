@@ -2,6 +2,7 @@ package io.burpabet.wallet.service;
 
 import io.burpabet.common.annotations.ServiceFacade;
 import io.burpabet.common.annotations.TransactionBoundary;
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.outbox.OutboxRepository;
 import io.burpabet.common.util.Money;
 import io.burpabet.wallet.model.CustomerAccount;
@@ -63,7 +64,7 @@ public class BatchService {
     }
 
     @TransactionBoundary
-    public List<OperatorAccount> findOperatorAccounts(String jurisdiction) {
+    public List<OperatorAccount> findOperatorAccounts(Jurisdiction jurisdiction) {
         return operatorAccountRepository.findAllAccountsByJurisdiction(jurisdiction);
     }
 

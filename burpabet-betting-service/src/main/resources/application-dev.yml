@@ -2,6 +2,9 @@ spring:
   datasource:
     url: jdbc:postgresql://192.168.1.99:26257/burp_betting?sslmode=disable
   flyway:
+    clean-on-validation-error: true
+    baseline-on-migrate: true
+    clean-disabled: false
     placeholders:
       cdc-sink-url: kafka://192.168.1.99:9092
   kafka:

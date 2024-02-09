@@ -1,5 +1,6 @@
 package io.burpabet.wallet.repository;
 
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.wallet.model.OperatorAccount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,7 @@ public interface OperatorAccountRepository extends JpaRepository<OperatorAccount
     @Query(value = "select a "
             + "from OperatorAccount a "
             + "where a.jurisdiction=?1")
-    List<OperatorAccount> findAllAccountsByJurisdiction(String jurisdiction);
+    List<OperatorAccount> findAllAccountsByJurisdiction(Jurisdiction jurisdiction);
 
     @Query(value = "select a "
             + "from OperatorAccount a order by random()")

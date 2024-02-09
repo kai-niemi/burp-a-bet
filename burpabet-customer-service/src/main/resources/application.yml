@@ -48,9 +48,9 @@ spring:
       enabled: ALWAYS
   flyway:
     enabled: true
-    clean-on-validation-error: true
-    baseline-on-migrate: true
-    clean-disabled: false
+    baseline-on-migrate: false
+    clean-on-validation-error: false
+    clean-disabled: true
     placeholders:
       cdc-sink-url: kafka://localhost:9092
   jpa:
