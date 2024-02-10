@@ -18,7 +18,7 @@ public class IndexController {
     public IndexModel index() {
         IndexModel index = new IndexModel();
         index.add(linkTo(methodOn(CustomerController.class)
-                .findAll(null))
+                .findAllWithJurisdiction(null, null))
                 .withRel("all")
                 .withTitle("Collection of customers"));
 

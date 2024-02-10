@@ -1,19 +1,19 @@
 package io.burpabet.betting.repository;
 
-import io.burpabet.betting.model.Race;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.QueryHint;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import io.burpabet.betting.model.Race;
+import io.burpabet.common.domain.Outcome;
 
 @Repository
 public interface RaceRepository extends JpaRepository<Race, UUID> {
@@ -55,11 +55,8 @@ public interface RaceRepository extends JpaRepository<Race, UUID> {
             + "limit 1")
     Optional<Race> getRandomRace();
 
-    @Query(value = "select r from Race r "
-            + "where r.id=?1")
-    @Lock(LockModeType.PESSIMISTIC_READ) // SFS/SFU to reduce contention
-    @QueryHints(value = {
-            @QueryHint(name = "hibernate.query.followOnLocking", value = "false")}, forCounting = false)
-    Optional<Race> findByIdForShare(UUID id);
+    @Query(value = "update Race r set r.outcome=:outcome where r.id=:id")
+    @Modifying
+    int updateRaceOutcome(@Param("id") UUID id, @Param("outcome") Outcome outcome);
 }
 

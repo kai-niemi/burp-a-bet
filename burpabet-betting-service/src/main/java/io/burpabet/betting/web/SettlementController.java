@@ -56,13 +56,11 @@ public class SettlementController {
     public HttpEntity<SettlementModel> settleBets(@Valid @RequestBody SettlementModel form) {
         UUID raceId = form.getRaceId();
         if (raceId != null) {
-            betSettlementService.settleBets(raceService.getRaceById(raceId), form.getOutcome());
+            betSettlementService.settleBets(raceId, form.getOutcome());
         } else {
             Page<Race> page = raceService.findRacesWithUnsettledBets(PageRequest.ofSize(form.getPageSize()));
             for (; ; ) {
-                page.forEach(x -> {
-                    betSettlementService.settleBets(x, form.getOutcome());
-                });
+                page.forEach(x -> betSettlementService.settleBets(x.getId(), form.getOutcome()));
                 if (page.hasNext()) {
                     page = raceService.findRacesWithUnsettledBets(page.nextPageable());
                 } else {

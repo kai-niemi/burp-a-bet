@@ -1,5 +1,27 @@
 package io.burpabet.customer.shell;
 
+import java.io.IOException;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.util.Pair;
+import org.springframework.shell.standard.AbstractShellComponent;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.table.TableModel;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Registration;
 import io.burpabet.common.domain.Status;
@@ -9,25 +31,9 @@ import io.burpabet.common.shell.JurisdictionValueProvider;
 import io.burpabet.common.shell.ThrottledPredicates;
 import io.burpabet.common.util.Networking;
 import io.burpabet.common.util.RandomData;
+import io.burpabet.common.util.TableUtils;
 import io.burpabet.customer.model.Customer;
 import io.burpabet.customer.service.CustomerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.util.Pair;
-import org.springframework.shell.standard.AbstractShellComponent;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.IntStream;
 
 @ShellComponent
 @ShellCommandGroup(CommandGroups.OPERATOR)
@@ -77,14 +83,16 @@ public class OperatorCommand extends AbstractShellComponent {
 
                     Registration registration = customerService.registerCustomer(Customer.builder()
                             .withName(pair.getFirst())
-                            .withEmail(pair.getSecond())
+                            .withEmail(pair.getSecond()) // unique index and collisions are possible
                             .withJurisdiction(jurisdiction)
                             .withStatus(Status.PENDING)
                             .withOperatorId(Objects.nonNull(operatorId) ? UUID.fromString(operatorId) : null)
                             .build());
 
-                    logger.info("Registration journey %d/%d started: %s"
-                            .formatted(value, count, registration.toString()));
+                    if (count == 1) {
+                        logger.info("Registration journey %d/%d started: %s"
+                                .formatted(value, count, registration.toString()));
+                    }
                 });
     }
 
@@ -110,4 +118,79 @@ public class OperatorCommand extends AbstractShellComponent {
     public void fact() {
         ansiConsole.cyan(RandomData.randomRoachFact()).nl();
     }
+
+    @ShellMethod(value = "List customer accounts", key = {"l", "list"})
+    public void listCustomers() {
+        Page<Customer> page = customerService.findAll(PageRequest.ofSize(64)
+                .withSort(Sort.by("jurisdiction").ascending()));
+        AtomicInteger n = new AtomicInteger();
+        for (; ; ) {
+            printPage(page, n.getAndIncrement());
+            if (page.hasNext()) {
+                page = customerService.findAll(page.nextPageable());
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void printPage(Page<Customer> page, int n) {
+        ansiConsole.cyan(TableUtils.prettyPrint(
+                new TableModel() {
+                    @Override
+                    public int getRowCount() {
+                        return page.getNumberOfElements();
+                    }
+
+                    @Override
+                    public int getColumnCount() {
+                        return 5;
+                    }
+
+                    @Override
+                    public Object getValue(int row, int column) {
+                        if (row == 0) {
+                            switch (column) {
+                                case 0 -> {
+                                    return "#";
+                                }
+                                case 1 -> {
+                                    return "Name";
+                                }
+                                case 2 -> {
+                                    return "Status";
+                                }
+                                case 3 -> {
+                                    return "Jurisdiction";
+                                }
+                                case 4 -> {
+                                    return "ID";
+                                }
+                            }
+                            return "??";
+                        }
+
+                        Customer customer = page.getContent().get(row - 1);
+                        switch (column) {
+                            case 0 -> {
+                                return page.getNumber() + n;
+                            }
+                            case 1 -> {
+                                return customer.getName();
+                            }
+                            case 2 -> {
+                                return customer.getStatus();
+                            }
+                            case 3 -> {
+                                return customer.getJurisdiction();
+                            }
+                            case 4 -> {
+                                return customer.getId();
+                            }
+                        }
+                        return "??";
+                    }
+                }));
+    }
+
 }

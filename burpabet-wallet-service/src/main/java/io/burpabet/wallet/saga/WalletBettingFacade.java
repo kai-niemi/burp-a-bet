@@ -70,7 +70,7 @@ public class WalletBettingFacade {
                 .addLeg()
                 .withId(customerAccount.getId())
                 .withAmount(placement.getStake().negate())
-                .withNote("Bet wager for " + placement.getHorse())
+                .withNote("Bet wager")
                 .then()
                 .addLeg()
                 .withId(operatorAccount.getId())

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.burpabet.common.annotations.TimeTravel;
 import io.burpabet.common.annotations.TimeTravelMode;
 import io.burpabet.common.annotations.TransactionBoundary;
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Status;
 import io.burpabet.customer.model.Customer;
 import io.burpabet.customer.repository.CustomerRepository;
@@ -39,11 +40,12 @@ public class CustomerController {
     @Autowired
     private PagedResourcesAssembler<Customer> customerPagedResourcesAssembler;
 
-    @GetMapping(value = "/")
+    @GetMapping(value = "/jurisdiction/{jurisdiction}")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
-    public HttpEntity<PagedModel<EntityModel<Customer>>> findAll(
+    public HttpEntity<PagedModel<EntityModel<Customer>>> findAllWithJurisdiction(
+            @PathVariable("jurisdiction") Jurisdiction jurisdiction,
             @PageableDefault(size = 15) Pageable page) {
-        Page<Customer> customerPage = customerRepository.findAll(page);
+        Page<Customer> customerPage = customerRepository.findAllWithJurisdiction(jurisdiction, page);
         return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
     }
 

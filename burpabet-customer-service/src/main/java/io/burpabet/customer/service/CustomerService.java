@@ -5,12 +5,16 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 
 import io.burpabet.common.annotations.OutboxOperation;
 import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.SagaCoordinator;
 import io.burpabet.common.annotations.ServiceFacade;
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
 import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.common.domain.EventType;
 import io.burpabet.common.domain.Registration;
@@ -50,6 +54,11 @@ public class CustomerService {
     public void deleteAllInBatch() {
         customerRepository.deleteAllInBatch();
         outboxRepository.deleteAllInBatch();
+    }
+
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    public Page<Customer> findAll(Pageable pageable) {
+        return customerRepository.findAll(pageable);
     }
 
     @TransactionBoundary

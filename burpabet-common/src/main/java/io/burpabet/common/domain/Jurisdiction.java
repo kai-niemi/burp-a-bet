@@ -5,7 +5,7 @@ public enum Jurisdiction {
     IE("west-1", "Ireland"),
     NL("west-1", "Netherlands"),
 
-    BG("central-1", "Belgium"),
+    BG("central-1", "Bulgaria"),
     CZ("central-1", "Czechia"),
     DE("central-1", "Denmark"),
     EL("central-1", "Greece"),

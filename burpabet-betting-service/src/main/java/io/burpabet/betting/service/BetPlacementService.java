@@ -1,6 +1,7 @@
 package io.burpabet.betting.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +24,14 @@ import io.burpabet.common.shell.DebugSupport;
 
 @ServiceFacade
 public class BetPlacementService {
-    private static BetPlacement toBetPlacement(Bet bet) {
+    private static BetPlacement toBetPlacement(Bet bet, UUID raceID) {
         BetPlacement betPlacement = new BetPlacement();
         betPlacement.setEntityId(bet.getId());
         betPlacement.setStatus(bet.getPlacementStatus());
         betPlacement.setCustomerId(bet.getCustomerId());
         betPlacement.setJurisdiction(bet.getJurisdiction());
         betPlacement.setStake(bet.getStake());
-        betPlacement.setRaceId(bet.getRace().getId());
-        betPlacement.setHorse(bet.getRace().getHorse());
-        betPlacement.setTrack(bet.getRace().getTrack());
+        betPlacement.setRaceId(raceID);
         return betPlacement;
     }
 
@@ -61,8 +60,7 @@ public class BetPlacementService {
             return betPlacement;
         }
 
-        Race race = raceRepository.findByIdForShare(betPlacement.getRaceId())
-                .orElseThrow(() -> new NoSuchRaceException(betPlacement.getRaceId().toString()));
+        Race race = raceRepository.getReferenceById(betPlacement.getRaceId());
 
         Bet bet = new Bet();
         bet.setRace(race);
@@ -74,7 +72,7 @@ public class BetPlacementService {
 
         bet = betRepository.save(bet);
 
-        BetPlacement placement = toBetPlacement(bet);
+        BetPlacement placement = toBetPlacement(bet, betPlacement.getRaceId());
         placement.setEventId(betPlacement.getEventId());
 
         idempotencyService.markProcessed(betPlacement.getEventId());
@@ -119,7 +117,7 @@ public class BetPlacementService {
                 Pair.of("Customer", customerPayload),
                 bet.getPlacementStatus());
 
-        BetPlacement placement = toBetPlacement(bet);
+        BetPlacement placement = toBetPlacement(bet, bet.getRace().getId());
         placement.setEventId(fromWallet.getEventId());
         placement.setOrigin(origin);
 

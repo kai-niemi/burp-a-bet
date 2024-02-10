@@ -165,13 +165,12 @@ public class OperatorCommand extends AbstractShellComponent {
 
     @ShellMethod(value = "Print account balances", key = {"b", "balance"})
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
-    public void balances() {
+    public void printBalance() {
         Page<Account> page = accountRepository.findAll(PageRequest.ofSize(64)
                 .withSort(Sort.by("balance", "accountType").descending()));
+        AtomicInteger n = new AtomicInteger();
         for (; ; ) {
-            Page<Account> finalPage = page;
-            AtomicInteger n = new AtomicInteger();
-            page.forEach(x -> printPage(finalPage, n.getAndIncrement()));
+            printPage(page, n.getAndIncrement());
             if (page.hasNext()) {
                 page = accountRepository.findAll(page.nextPageable());
             } else {

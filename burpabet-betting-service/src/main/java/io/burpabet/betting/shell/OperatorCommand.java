@@ -36,9 +36,11 @@ import io.burpabet.betting.service.BetSettlementService;
 import io.burpabet.betting.service.RaceService;
 import io.burpabet.betting.shell.support.WorkloadExecutor;
 import io.burpabet.common.domain.BetPlacement;
+import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Outcome;
 import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.CommandGroups;
+import io.burpabet.common.shell.JurisdictionValueProvider;
 import io.burpabet.common.shell.ThrottledPredicates;
 import io.burpabet.common.util.Money;
 import io.burpabet.common.util.Networking;
@@ -81,19 +83,29 @@ public class OperatorCommand extends AbstractShellComponent {
 
     @ShellMethod(value = "Place a bet", key = {"pb", "place-bet", "burp"})
     public void placeBet(
-            @ShellOption(help = "customer id (empty denotes all)",
+            @ShellOption(help = "customer id (empty denotes all in jurisdiction)",
                     valueProvider = CustomerValueProvider.class,
-                    value = {"customer"}, defaultValue = ShellOption.NULL) String customerId,
+                    value = {"customer"},
+                    defaultValue = ShellOption.NULL) String customerId,
+            @ShellOption(help = "customer jurisdiction (empty denotes all)",
+                    valueProvider = JurisdictionValueProvider.class,
+                    value = {"jurisdiction"},
+                    defaultValue = "SE") Jurisdiction jurisdiction,
             @ShellOption(help = "race id by track or horse (empty denotes random)",
                     valueProvider = RaceValueProvider.class,
-                    value = {"race"}, defaultValue = ShellOption.NULL) String raceId,
-            @ShellOption(help = "bet stake to wager (in USD)", defaultValue = "5.00",
+                    value = {"race"},
+                    defaultValue = ShellOption.NULL) String raceId,
+            @ShellOption(help = "bet stake to wager (in USD)",
+                    defaultValue = "5.00",
                     valueProvider = StakeValueProvider.class) String stake,
-            @ShellOption(help = "number of bets per customer", defaultValue = "1") int count,
-            @ShellOption(help = "duration for placements in seconds (>0 overrides count)", defaultValue = "0")
-            int duration,
-            @ShellOption(help = "max bets per minute (if count > 1)", defaultValue = "120") int ratePerMin,
-            @ShellOption(help = "max bets per sec (if count > 1)", defaultValue = "5") int ratePerSec
+            @ShellOption(help = "number of bets per customer",
+                    defaultValue = "1") int count,
+            @ShellOption(help = "duration for placements in seconds (>0 overrides count)",
+                    defaultValue = "0") int duration,
+            @ShellOption(help = "max bets per minute (if count > 1)",
+                    defaultValue = "120") int ratePerMin,
+            @ShellOption(help = "max bets per sec (if count > 1)",
+                    defaultValue = "5") int ratePerSec
     ) {
         final Collection<Map<String, Object>> customerMap = new ArrayList<>();
 
@@ -102,6 +114,7 @@ public class OperatorCommand extends AbstractShellComponent {
                 PagedModel<Map<String, Object>> collection = hypermediaClient.traverseCustomerApi(
                         traverson -> Objects.requireNonNull(traverson
                                 .follow("customer:all")
+                                .withTemplateParameters(Map.of("jurisdiction", jurisdiction))
                                 .toObject(PAGED_MODEL_TYPE)));
                 customerMap.addAll(collection.getContent());
             } catch (RestClientException e) {
@@ -141,7 +154,7 @@ public class OperatorCommand extends AbstractShellComponent {
                 Predicate<Integer> completion =
                         ThrottledPredicates.timePredicate(Instant.now().plus(theDuration), ratePerMin, ratePerSec);
 
-                workloadExecutor.submit(Objects.toString(map.get("name")), c, completion);
+                workloadExecutor.submit("Placement - " + map.get("name"), c, completion);
             } else {
                 IntStream.rangeClosed(1, count).forEach(value -> {
                     try {
@@ -180,11 +193,11 @@ public class OperatorCommand extends AbstractShellComponent {
                     ? ThreadLocalRandom.current().nextBoolean() ? Outcome.win : Outcome.lose
                     : outcome;
             if (race != null) {
-                settleBets(counter.incrementAndGet(), raceService.getRaceById(UUID.fromString(race)), o);
+                settleBets(counter.incrementAndGet(), UUID.fromString(race), o);
             } else {
                 Page<Race> page = raceService.findRacesWithUnsettledBets(PageRequest.ofSize(pageSize));
                 for (; ; ) {
-                    page.forEach(x -> settleBets(counter.incrementAndGet(), x, o));
+                    page.forEach(x -> settleBets(counter.incrementAndGet(), x.getId(), o));
                     if (page.hasNext()) {
                         page = raceService.findRacesWithUnsettledBets(page.nextPageable());
                     } else {
@@ -202,7 +215,7 @@ public class OperatorCommand extends AbstractShellComponent {
             Predicate<Integer> completion =
                     ThrottledPredicates.timePredicate(Instant.now().plus(theDuration), ratePerMin, ratePerSec);
 
-            workloadExecutor.submit("settlement", c, completion);
+            workloadExecutor.submit("Settlement", c, completion);
         } else {
             IntStream.rangeClosed(1, count).forEach(value -> {
                 try {
@@ -214,10 +227,10 @@ public class OperatorCommand extends AbstractShellComponent {
         }
     }
 
-    private void settleBets(int count, Race race, Outcome outcome) {
+    private void settleBets(int count, UUID raceId, Outcome outcome) {
         logger.info("Bet settlement journey %d started with outcome %s: %s"
-                .formatted(count, outcome, race.toString()));
-        betSettlementService.settleBets(race, outcome);
+                .formatted(count, outcome, raceId.toString()));
+        betSettlementService.settleBets(raceId, outcome);
     }
 
     @ShellMethod(value = "Print and API index url", key = {"u", "url"})

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +22,12 @@ public interface BetRepository extends JpaRepository<Bet, UUID> {
             + "where b.settled = false and b.placementStatus = 'APPROVED' "
             + "order by b.createdAt desc")
     Page<Bet> findUnsettledBets(Pageable pageable);
+
+    @Query(value = "select b from Bet b "
+            + "join b.race r "
+            + "where b.settled = false and b.placementStatus = 'APPROVED' "
+            + "and r.id = ?1")
+    List<Bet> findUnsettledBetsWithRaceId(UUID raceId);
 
     @Query(value = "select b from Bet b "
             + "join fetch b.race r "

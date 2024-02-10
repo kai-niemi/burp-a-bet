@@ -10,6 +10,7 @@ import io.burpabet.betting.shell.CustomerValueProvider;
 import io.burpabet.betting.shell.RaceValueProvider;
 import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.ExitCommand;
+import io.burpabet.common.shell.JurisdictionValueProvider;
 import io.burpabet.common.shell.ToggleCommand;
 
 @Configuration
@@ -32,6 +33,11 @@ public class ShellConfiguration {
     @Bean
     public RaceValueProvider raceValueProvider() {
         return new RaceValueProvider();
+    }
+
+    @Bean
+    public JurisdictionValueProvider jurisdictionValueProvider() {
+        return new JurisdictionValueProvider();
     }
 
     @Bean

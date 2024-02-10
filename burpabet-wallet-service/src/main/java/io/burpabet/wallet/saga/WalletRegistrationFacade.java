@@ -1,6 +1,7 @@
 package io.burpabet.wallet.saga;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,13 +52,19 @@ public class WalletRegistrationFacade {
                 ? accountService.findOperatorAccountById(registration.getOperatorId())
                 : Optional.empty();
 
-        // Create mandatory operator account on demand - for easier demo purposes
+        if (optional.isEmpty()) {
+            // Lookup first operator by jurisdiction
+            List<OperatorAccount> accounts = accountService.findOperatorAccountsByJurisdiction(
+                    registration.getJurisdiction());
+            optional = accounts.isEmpty() ? optional : Optional.of(accounts.get(0));
+        }
+
+        // Create mandatory operator account on demand
         OperatorAccount operatorAccount = optional.orElseGet(() -> accountService.createOperatorAccount(
                 OperatorAccount.builder()
                         .withJurisdiction(registration.getJurisdiction())
                         .withBalance(Money.of("0.00", "USD"))
-                        .withName("operator-" + registration.getJurisdiction()
-                                + "-implicit-for-" + registration.getEmail())
+                        .withName("operator-implicit-" + registration.getJurisdiction())
                         .withAccountType(AccountType.LIABILITY)
                         .withDescription(RandomData.randomRoachFact())
                         .withAllowNegative(true)

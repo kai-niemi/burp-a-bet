@@ -1,15 +1,11 @@
 package io.burpabet.betting.service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
@@ -63,11 +59,8 @@ public class BetSettlementService {
 
     @TransactionBoundary
     @Retryable
-    public void settleBets(Race detached, Outcome outcome) {
-        Race race = raceRepository.findByIdForShare(detached.getId())
-                .orElseThrow(() -> new NoSuchRaceException(detached.getId().toString()));
-        race.setOutcome(outcome);
-        race.getBets()
+    public void settleBets(UUID raceId, Outcome outcome) {
+        betRepository.findUnsettledBetsWithRaceId(raceId)
                 .stream()
                 .filter(bet -> !bet.isSettled())
                 .forEach(bet -> {
@@ -85,6 +78,8 @@ public class BetSettlementService {
 
                     outboxRepository.writeEvent(settlement, "settlement");
                 });
+
+        raceRepository.updateRaceOutcome(raceId, outcome);
     }
 
     @TransactionBoundary
