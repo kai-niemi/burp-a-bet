@@ -3,23 +3,13 @@ ALTER DATABASE burp_wallet PRIMARY REGION "aws-eu-north-1";
 ALTER DATABASE burp_wallet ADD REGION "aws-eu-central-1";
 ALTER DATABASE burp_wallet ADD REGION "aws-eu-west-1";
 
+-- Notice that for multi-region deployments, its advised to use regional kafka clusters and
+-- then geo-filter the outbox table changefeeds.
+-- For ex:
+--    .. WHERE crdb_region = 'aws-eu-west-1'
+
 SET enable_multiregion_placement_policy=on;
 ALTER DATABASE burp_wallet PLACEMENT RESTRICTED;
-
--- Belgium	(BE)	Greece	(EL)	Lithuania	(LT)	Portugal	(PT)
--- Bulgaria	(BG)	Spain	(ES)	Luxembourg	(LU)	Romania	    (RO)
--- Czechia	(CZ)	France	(FR)	Hungary	    (HU)	Slovenia	(SI)
--- Denmark	(DK)	Croatia	(HR)	Malta   	(MT)	Slovakia	(SK)
--- Germany	(DE)	Italy	(IT)	Netherlands	(NL)	Finland 	(FI)
--- Estonia	(EE)	Cyprus	(CY)	Austria 	(AT)	Sweden  	(SE)
--- Ireland	(IE)	Latvia	(LV)	Poland  	(PL)
-
--- show create table account;
--- alter table account set locality regional;
--- set sql_safe_updates = false;
--- alter table account drop column crdb_region;
--- select crdb_internal.locality_value('region');
--- select id,region from account limit 1;
 
 ALTER TABLE account ADD COLUMN region crdb_internal_region AS (
     CASE

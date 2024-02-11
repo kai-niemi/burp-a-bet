@@ -123,9 +123,9 @@ public class OperatorCommand extends AbstractShellComponent {
     public void listCustomers() {
         Page<Customer> page = customerService.findAll(PageRequest.ofSize(64)
                 .withSort(Sort.by("jurisdiction").ascending()));
-        AtomicInteger n = new AtomicInteger();
+
         for (; ; ) {
-            printPage(page, n.getAndIncrement());
+            printPage(page);
             if (page.hasNext()) {
                 page = customerService.findAll(page.nextPageable());
             } else {
@@ -134,12 +134,12 @@ public class OperatorCommand extends AbstractShellComponent {
         }
     }
 
-    private void printPage(Page<Customer> page, int n) {
+    private void printPage(Page<Customer> page) {
         ansiConsole.cyan(TableUtils.prettyPrint(
                 new TableModel() {
                     @Override
                     public int getRowCount() {
-                        return page.getNumberOfElements();
+                        return page.getNumberOfElements() + 1;
                     }
 
                     @Override
@@ -173,7 +173,7 @@ public class OperatorCommand extends AbstractShellComponent {
                         Customer customer = page.getContent().get(row - 1);
                         switch (column) {
                             case 0 -> {
-                                return page.getNumber() + n;
+                                return row;
                             }
                             case 1 -> {
                                 return customer.getName();

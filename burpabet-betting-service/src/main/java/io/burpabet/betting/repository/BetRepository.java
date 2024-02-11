@@ -20,7 +20,7 @@ public interface BetRepository extends JpaRepository<Bet, UUID> {
     @Query(value = "select b from Bet b "
             + "join fetch b.race r "
             + "where b.settled = false and b.placementStatus = 'APPROVED' "
-            + "order by b.createdAt desc")
+            + "order by b.insertedAt desc")
     Page<Bet> findUnsettledBets(Pageable pageable);
 
     @Query(value = "select b from Bet b "
@@ -32,7 +32,7 @@ public interface BetRepository extends JpaRepository<Bet, UUID> {
     @Query(value = "select b from Bet b "
             + "join fetch b.race r "
             + "where b.settled = true and b.settlementStatus = 'APPROVED' "
-            + "order by b.createdAt desc")
+            + "order by b.insertedAt desc")
     Page<Bet> findSettledBets(Pageable pageable);
 
     @Override

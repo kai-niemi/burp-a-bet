@@ -155,6 +155,17 @@ Tail a topic, in this case `registration`:
 
     bin/kafka-console-consumer.sh --topic registration --from-beginning --bootstrap-server localhost:9092 --property print.key=true
 
+#### Multi-region Deployments
+
+For multi-region deployments, there are prepared `multi-region.sql` files in each service that will 
+setup table localities and partitions based on the [Jurisdiction](burpabet-common/src/main/java/io/burpabet/common/domain/Jurisdiction.java) 
+enum type.
+
+Its advised also to use separate regional kafka clusters and the geo-filter the outbox table changefeeds 
+accordingly by adding a region predicate:
+
+    .. WHERE crdb_region = 'aws-eu-west-1'
+
 ## Running Locally
 
 Burp-a-bet provides both built-in command line shells and REST (hypermedia driven) API endpoints

@@ -1,5 +1,14 @@
 package io.burpabet.common.domain;
 
+/**
+ * Belgium	(BE)	Greece	(EL)	Lithuania	(LT)	Portugal	(PT)
+ * Bulgaria	(BG)	Spain	(ES)	Luxembourg	(LU)	Romania	    (RO)
+ * Czechia	(CZ)	France	(FR)	Hungary	    (HU)	Slovenia	(SI)
+ * Denmark	(DK)	Croatia	(HR)	Malta   	(MT)	Slovakia	(SK)
+ * Germany	(DE)	Italy	(IT)	Netherlands	(NL)	Finland 	(FI)
+ * Estonia	(EE)	Cyprus	(CY)	Austria 	(AT)	Sweden  	(SE)
+ * Ireland	(IE)	Latvia	(LV)	Poland  	(PL)
+ */
 public enum Jurisdiction {
     BE("west-1", "Belgium"),
     IE("west-1", "Ireland"),

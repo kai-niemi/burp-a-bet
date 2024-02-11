@@ -1,27 +1,5 @@
 package io.burpabet.wallet.shell;
 
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.shell.standard.AbstractShellComponent;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.table.TableModel;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import io.burpabet.common.annotations.TimeTravel;
 import io.burpabet.common.annotations.TimeTravelMode;
 import io.burpabet.common.annotations.TransactionBoundary;
@@ -40,6 +18,27 @@ import io.burpabet.wallet.model.OperatorAccount;
 import io.burpabet.wallet.repository.AccountRepository;
 import io.burpabet.wallet.service.BatchService;
 import io.burpabet.wallet.service.NoSuchAccountException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.shell.standard.AbstractShellComponent;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.table.TableModel;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ShellComponent
 @ShellCommandGroup(CommandGroups.OPERATOR)
@@ -157,6 +156,11 @@ public class OperatorCommand extends AbstractShellComponent {
             operatorAccounts = batchService.findOperatorAccounts(jurisdiction);
         }
 
+        if (operatorAccounts.isEmpty()) {
+            ansiConsole.cyan("No accounts");
+            return;
+        }
+
         operatorAccounts.forEach(operatorAccount -> {
             Money total = batchService.grantBonus(operatorAccount, Money.of(amount, currency));
             ansiConsole.cyan("Granted %s in total for %s".formatted(total, operatorAccount.getName())).nl();
@@ -168,9 +172,8 @@ public class OperatorCommand extends AbstractShellComponent {
     public void printBalance() {
         Page<Account> page = accountRepository.findAll(PageRequest.ofSize(64)
                 .withSort(Sort.by("balance", "accountType").descending()));
-        AtomicInteger n = new AtomicInteger();
         for (; ; ) {
-            printPage(page, n.getAndIncrement());
+            printPage(page);
             if (page.hasNext()) {
                 page = accountRepository.findAll(page.nextPageable());
             } else {
@@ -179,12 +182,12 @@ public class OperatorCommand extends AbstractShellComponent {
         }
     }
 
-    private void printPage(Page<Account> page, int n) {
+    private void printPage(Page<Account> page) {
         ansiConsole.cyan(TableUtils.prettyPrint(
                 new TableModel() {
                     @Override
                     public int getRowCount() {
-                        return page.getNumberOfElements();
+                        return page.getNumberOfElements() + 1;
                     }
 
                     @Override
@@ -218,7 +221,7 @@ public class OperatorCommand extends AbstractShellComponent {
                         Account account = page.getContent().get(row - 1);
                         switch (column) {
                             case 0 -> {
-                                return page.getNumber()+n;
+                                return row;
                             }
                             case 1 -> {
                                 return account.getName();
@@ -260,5 +263,4 @@ public class OperatorCommand extends AbstractShellComponent {
     public void fact() {
         ansiConsole.cyan(RandomData.randomRoachFact()).nl();
     }
-
 }

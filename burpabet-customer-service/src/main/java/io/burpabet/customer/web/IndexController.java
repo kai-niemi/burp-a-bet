@@ -2,6 +2,7 @@ package io.burpabet.customer.web;
 
 import java.util.EnumSet;
 
+import io.burpabet.common.domain.Jurisdiction;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +23,18 @@ public class IndexController {
                 .withRel("all")
                 .withTitle("Collection of customers"));
 
+        EnumSet.allOf(Jurisdiction.class).forEach(jurisdiction -> {
+            index.add(linkTo(methodOn(CustomerController.class)
+                    .findAllWithJurisdiction(jurisdiction, null))
+                    .withRel("all-" + jurisdiction.toString().toLowerCase())
+                    .withTitle("Collection of customers"));
+        });
+
+
         EnumSet.allOf(Status.class).forEach(status -> {
             index.add(linkTo(methodOn(CustomerController.class)
                     .findAllWithStatus(status, null))
-                    .withRel("all-" + status.toString().toLowerCase())
+                    .withRel("status-" + status.toString().toLowerCase())
                     .withTitle("Collection of customers with status " + status));
         });
 

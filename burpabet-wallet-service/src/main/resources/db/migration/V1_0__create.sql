@@ -36,6 +36,9 @@ comment on column account.operator_id is 'Foreign entity ID relevant only for cu
 
 create index on account (foreign_id);
 
+create index on account (jurisdiction, account_class)
+    storing (balance, currency, name, description, account_type, closed, allow_negative, inserted_at, last_modified_at);
+
 create table if not exists transaction
 (
     id               uuid        not null default gen_random_uuid(),

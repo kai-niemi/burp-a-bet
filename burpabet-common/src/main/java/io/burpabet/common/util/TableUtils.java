@@ -50,6 +50,7 @@ public abstract class TableUtils {
         TableBuilder tableBuilder = new TableBuilder(model);
         tableBuilder.addInnerBorder(BorderStyle.fancy_light);
         tableBuilder.addHeaderBorder(BorderStyle.fancy_double);
-        return tableBuilder.build().render(120);
+        return tableBuilder
+                .build().render(120);
     }
 }
