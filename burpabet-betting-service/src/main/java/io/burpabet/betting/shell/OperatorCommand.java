@@ -41,7 +41,6 @@ import io.burpabet.common.domain.Outcome;
 import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.CommandGroups;
 import io.burpabet.common.shell.JurisdictionValueProvider;
-import io.burpabet.common.shell.ThrottledPredicates;
 import io.burpabet.common.util.Money;
 import io.burpabet.common.util.Networking;
 import io.burpabet.common.util.RandomData;
@@ -101,11 +100,7 @@ public class OperatorCommand extends AbstractShellComponent {
             @ShellOption(help = "number of bets per customer",
                     defaultValue = "1") int count,
             @ShellOption(help = "duration for placements in seconds (>0 overrides count)",
-                    defaultValue = "0") int duration,
-            @ShellOption(help = "max bets per minute (if count > 1)",
-                    defaultValue = "120") int ratePerMin,
-            @ShellOption(help = "max bets per sec (if count > 1)",
-                    defaultValue = "5") int ratePerSec
+                    defaultValue = "0") int duration
     ) {
         final Collection<Map<String, Object>> customerMap = new ArrayList<>();
 
@@ -148,13 +143,11 @@ public class OperatorCommand extends AbstractShellComponent {
             if (duration > 0) {
                 final Duration theDuration = Duration.ofSeconds(duration);
 
-                logger.info("Placing bets for %s with rate limit of %d per minute and %d per sec"
-                        .formatted(theDuration, ratePerMin, ratePerSec));
+                logger.info("Placing bets for %s"
+                        .formatted(theDuration));
 
-                Predicate<Integer> completion =
-                        ThrottledPredicates.timePredicate(Instant.now().plus(theDuration), ratePerMin, ratePerSec);
-
-                workloadExecutor.submit("Placement - " + map.get("name"), c, completion);
+                workloadExecutor.submit("Placement - " + map.get("name"), c,
+                        x -> Instant.now().isBefore(Instant.now().plus(theDuration)));
             } else {
                 IntStream.rangeClosed(1, count).forEach(value -> {
                     try {
@@ -180,9 +173,7 @@ public class OperatorCommand extends AbstractShellComponent {
             @ShellOption(help = "query page size when iterating all races", defaultValue = "64") int pageSize,
             @ShellOption(help = "number of settlements", defaultValue = "1") int count,
             @ShellOption(help = "duration for settlements in seconds (>0 overrides count)", defaultValue = "0")
-            int duration,
-            @ShellOption(help = "max settlements per minute", defaultValue = "30") int ratePerMin,
-            @ShellOption(help = "max settlements per sec", defaultValue = "2") int ratePerSec
+            int duration
     ) {
         final Duration theDuration = Duration.ofSeconds(duration);
 
@@ -209,13 +200,10 @@ public class OperatorCommand extends AbstractShellComponent {
         };
 
         if (duration > 0) {
-            logger.info("Settling bets for %s with rate limit of %d per minute and %d per sec"
-                    .formatted(theDuration, ratePerMin, ratePerSec));
+            logger.info("Settling bets for %s".formatted(theDuration));
 
-            Predicate<Integer> completion =
-                    ThrottledPredicates.timePredicate(Instant.now().plus(theDuration), ratePerMin, ratePerSec);
-
-            workloadExecutor.submit("Settlement", c, completion);
+            workloadExecutor.submit("Settlement", c,
+                    x -> Instant.now().isBefore(Instant.now().plus(theDuration)));
         } else {
             IntStream.rangeClosed(1, count).forEach(value -> {
                 try {

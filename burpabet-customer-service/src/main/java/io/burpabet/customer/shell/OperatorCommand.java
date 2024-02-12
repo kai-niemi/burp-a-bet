@@ -28,7 +28,6 @@ import io.burpabet.common.domain.Status;
 import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.CommandGroups;
 import io.burpabet.common.shell.JurisdictionValueProvider;
-import io.burpabet.common.shell.ThrottledPredicates;
 import io.burpabet.common.util.Networking;
 import io.burpabet.common.util.RandomData;
 import io.burpabet.common.util.TableUtils;
@@ -77,7 +76,6 @@ public class OperatorCommand extends AbstractShellComponent {
                 .asLongStream()
                 .unordered()
                 .parallel()
-                .takeWhile(ThrottledPredicates.longPredicate(ratePerMin, ratePerSec))
                 .forEach(value -> {
                     Pair<String, String> pair = RandomData.randomFullNameAndEmail("burpabet.io");
 
