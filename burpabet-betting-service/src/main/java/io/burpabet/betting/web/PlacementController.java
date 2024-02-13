@@ -35,7 +35,7 @@ public class PlacementController {
     @GetMapping(value = "/")
     public ResponseEntity<PlacementModel> getPlacementForm() {
         PlacementModel form = new PlacementModel();
-        form.setStake(Money.of("5.00", "USD"));
+        form.setStake(Money.of("5.00", Money.USD));
         form.setIdempotencyKey(UUID.randomUUID());
         form.setCustomerId(UUID.randomUUID());
         form.setRaceId(raceService.getRandomRace().getId());

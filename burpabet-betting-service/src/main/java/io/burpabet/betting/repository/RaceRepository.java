@@ -17,6 +17,12 @@ import io.burpabet.common.domain.Outcome;
 
 @Repository
 public interface RaceRepository extends JpaRepository<Race, UUID> {
+    @Override
+    @Query(value = "select r from Race r "
+            + "left join fetch r.bets b "
+            + "where r.id=?1")
+    Optional<Race> findById(UUID id);
+
     @Query(value = "select r.id from Race r "
             + "left join r.bets b "
             + "order by b.stake.amount desc, b.payout.amount desc")

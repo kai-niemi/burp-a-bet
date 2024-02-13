@@ -68,7 +68,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @ShellMethod(value = "Create a set of operator accounts (optional)", key = {"co", "create-operators"})
     public void createOperators(
             @ShellOption(help = "initial account balance (can go negative)", defaultValue = "0.00") String balance,
-            @ShellOption(help = "account currency", defaultValue = "USD") String currency,
+            @ShellOption(help = "account currency (ISO-4701 code)", defaultValue = "USD") String currency,
             @ShellOption(help = "number of accounts per jurisdiction", defaultValue = "10") int count,
             @ShellOption(help = "operator jurisdiction (all if omitted)", defaultValue = ShellOption.NULL,
                     valueProvider = JurisdictionValueProvider.class) String jurisdiction
@@ -99,7 +99,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @ShellMethod(value = "Create a set of customer accounts (optional)", key = {"cc", "create-customers"})
     public void createCustomers(
             @ShellOption(help = "initial account balance (can go negative)", defaultValue = "0.00") String balance,
-            @ShellOption(help = "account currency", defaultValue = "USD") String currency,
+            @ShellOption(help = "account currency (ISO-4701 code)", defaultValue = "USD") String currency,
             @ShellOption(help = "number of accounts per jurisdiction", defaultValue = "10") int count,
             @ShellOption(help = "operator jurisdiction (if picked by random)", defaultValue = "SE",
                     valueProvider = JurisdictionValueProvider.class) Jurisdiction jurisdiction,
@@ -138,7 +138,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @ShellMethod(value = "Grant extra bonus to operator customers", key = {"g", "grant"})
     public void grant(
             @ShellOption(help = "bonus amount", defaultValue = "50.00") String amount,
-            @ShellOption(help = "bonus currency", defaultValue = "USD") String currency,
+            @ShellOption(help = "bonus currency (ISO-4701 code)", defaultValue = "USD") String currency,
             @ShellOption(help = "operator id (all in jurisdiction if omitted)",
                     defaultValue = ShellOption.NULL,
                     valueProvider = OperatorValueProvider.class) String operator,

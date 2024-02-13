@@ -31,7 +31,6 @@ public abstract class OutboxEvent<T> {
     @JsonProperty("event_type")
     private EventType eventType;
 
-    // The meat on the bone
     private T payload;
 
     protected OutboxEvent() {

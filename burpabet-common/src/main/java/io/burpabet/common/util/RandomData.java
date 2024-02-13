@@ -6,11 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -23,12 +21,11 @@ public class RandomData {
 
     private static final List<String> firstNames = new ArrayList<>();
 
-    private static final List<String> lastNames = new ArrayList<>();
+    private static final List<String> surNames = new ArrayList<>();
 
     static {
-        firstNames.addAll(readLines("random/firstname_female.txt"));
-        firstNames.addAll(readLines("random/firstname_male.txt"));
-        lastNames.addAll(readLines(("random/surnames.txt")));
+        firstNames.addAll(readLines("random/firstnames.txt"));
+        surNames.addAll(readLines(("random/surnames.txt")));
     }
 
     private static List<String> readLines(String path) {
@@ -48,19 +45,6 @@ public class RandomData {
         return collection.get(ThreadLocalRandom.current().nextInt(collection.size()));
     }
 
-    public static <T> T selectRandom(Collection<T> items) {
-        if (items.isEmpty()) {
-            throw new IllegalArgumentException("Empty collection");
-        }
-        AtomicInteger c = new AtomicInteger();
-        int idx = ThreadLocalRandom.current().nextInt(items.size());
-        return items
-                .stream()
-                .skip(idx)
-                .findFirst()
-                .orElse(items.iterator().next());
-    }
-
     public static String randomFullName() {
         return randomFirstName() + " " + randomLastName();
     }
@@ -77,7 +61,7 @@ public class RandomData {
     }
 
     public static String randomLastName() {
-        return selectRandom(lastNames);
+        return selectRandom(surNames);
     }
 
     public static final List<String> FACTS = Arrays.asList(

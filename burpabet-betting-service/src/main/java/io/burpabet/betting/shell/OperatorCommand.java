@@ -129,7 +129,7 @@ public class OperatorCommand extends AbstractShellComponent {
                 BetPlacement betPlacement = new BetPlacement();
                 betPlacement.setEventId(UUID.randomUUID());
                 betPlacement.setCustomerId(UUID.fromString(map.get("id").toString()));
-                betPlacement.setStake(Money.of(stake, "USD"));
+                betPlacement.setStake(Money.of(stake, Money.USD));
 
                 if (raceId != null) {
                     betPlacement.setRaceId(UUID.fromString(raceId));
