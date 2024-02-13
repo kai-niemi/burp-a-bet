@@ -1,14 +1,5 @@
 package io.burpabet.customer.service;
 
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.util.Pair;
-
 import io.burpabet.common.annotations.OutboxOperation;
 import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.SagaCoordinator;
@@ -24,6 +15,14 @@ import io.burpabet.common.outbox.OutboxRepository;
 import io.burpabet.common.shell.DebugSupport;
 import io.burpabet.customer.model.Customer;
 import io.burpabet.customer.repository.CustomerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
+
+import java.util.Optional;
 
 @ServiceFacade
 @SagaCoordinator("registration")
@@ -59,6 +58,11 @@ public class CustomerService {
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public Page<Customer> findAll(Pageable pageable) {
         return customerRepository.findAll(pageable);
+    }
+
+    @TransactionBoundary
+    public Customer findByEmail(String email) {
+        return customerRepository.findByEmail(email).orElseThrow(() -> new NoSuchCustomerException(email));
     }
 
     @TransactionBoundary

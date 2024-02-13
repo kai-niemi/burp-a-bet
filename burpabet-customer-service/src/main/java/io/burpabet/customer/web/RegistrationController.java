@@ -1,7 +1,13 @@
 package io.burpabet.customer.web;
 
-import java.util.UUID;
-
+import io.burpabet.common.domain.Jurisdiction;
+import io.burpabet.common.domain.Registration;
+import io.burpabet.common.domain.Status;
+import io.burpabet.common.util.RandomData;
+import io.burpabet.customer.model.Customer;
+import io.burpabet.customer.service.CustomerService;
+import io.burpabet.customer.service.NoSuchCustomerException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.hateoas.Link;
@@ -15,13 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.burpabet.common.domain.Jurisdiction;
-import io.burpabet.common.domain.Registration;
-import io.burpabet.common.domain.Status;
-import io.burpabet.common.util.RandomData;
-import io.burpabet.customer.model.Customer;
-import io.burpabet.customer.service.CustomerService;
-import jakarta.validation.Valid;
+import java.util.UUID;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.afford;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -61,6 +61,18 @@ public class RegistrationController {
                 .withStatus(Status.PENDING)
                 .withOperatorId(form.getOperatorId())
                 .build();
+
+        try {
+            Customer c = customerService.findByEmail(form.getEmail());
+
+            RegistrationModel resource = new RegistrationModel();
+            resource.add(linkTo(methodOn(CustomerController.class)
+                    .getCustomer(c.getId()))
+                    .withSelfRel());
+            return ResponseEntity.status(HttpStatus.OK).body(resource);
+        } catch (NoSuchCustomerException e) {
+            // ok not found
+        }
 
         Registration registration = customerService.registerCustomer(customer);
 
