@@ -109,7 +109,7 @@ public class Race extends AbstractEntity<UUID> {
     @JsonIgnore
     public Money getTotalWager() {
         if (bets.isEmpty()) {
-            return Money.zero("USD");
+            return Money.zero(Money.USD);
         }
         final AtomicReference<Money> total = new AtomicReference<>();
         bets.forEach(bet -> {
@@ -136,7 +136,7 @@ public class Race extends AbstractEntity<UUID> {
                     }
                 });
         if (total.get() == null) {
-            return Money.zero("USD");
+            return Money.zero(Money.USD);
         }
         return total.get();
     }

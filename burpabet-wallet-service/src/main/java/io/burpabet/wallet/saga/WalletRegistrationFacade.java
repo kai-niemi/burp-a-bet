@@ -28,7 +28,7 @@ import io.burpabet.wallet.service.TransferService;
 
 @ServiceFacade
 public class WalletRegistrationFacade {
-    private static final Money WELCOME_BONUS = Money.of("50.00", "USD");
+    private static final Money WELCOME_BONUS = Money.of("50.00", Money.USD);
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -63,7 +63,7 @@ public class WalletRegistrationFacade {
         OperatorAccount operatorAccount = optional.orElseGet(() -> accountService.createOperatorAccount(
                 OperatorAccount.builder()
                         .withJurisdiction(registration.getJurisdiction())
-                        .withBalance(Money.of("0.00", "USD"))
+                        .withBalance(Money.of("0.00", Money.USD))
                         .withName("operator-implicit-" + registration.getJurisdiction())
                         .withAccountType(AccountType.LIABILITY)
                         .withDescription(RandomData.randomRoachFact())
@@ -75,7 +75,7 @@ public class WalletRegistrationFacade {
                         .withJurisdiction(registration.getJurisdiction())
                         .withForeignId(registration.getEntityId())
                         .withOperatorId(operatorAccount.getId())
-                        .withBalance(Money.of("0.00", "USD"))
+                        .withBalance(Money.of("0.00", Money.USD))
                         .withName(registration.getName())
                         .withAccountType(AccountType.EXPENSE)
                         .withDescription(RandomData.randomRoachFact())

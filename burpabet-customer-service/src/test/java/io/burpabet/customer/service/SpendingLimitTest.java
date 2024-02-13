@@ -12,14 +12,14 @@ public class SpendingLimitTest {
     @Test
     public void whenSpendingOverBudget_expectLimiting() {
         SpendingLimit spendingLimit = new SimpleSpendingLimit(
-                Money.of("100.00", "USD"), Duration.ofSeconds(5));
+                Money.of("100.00", Money.USD), Duration.ofSeconds(5));
 
         IntStream.rangeClosed(1, 100).forEach(value -> {
             System.out.println(spendingLimit);
-            Assertions.assertTrue(spendingLimit.acquirePermission(Money.of("1.00", "USD")));
+            Assertions.assertTrue(spendingLimit.acquirePermission(Money.of("1.00", Money.USD)));
         });
 
-        Assertions.assertFalse(spendingLimit.acquirePermission(Money.of("1.00", "USD")));
+        Assertions.assertFalse(spendingLimit.acquirePermission(Money.of("1.00", Money.USD)));
 
         try {
             Thread.sleep(5 * 1_000);
@@ -29,9 +29,9 @@ public class SpendingLimitTest {
 
         IntStream.rangeClosed(1, 100).forEach(value -> {
             System.out.println(spendingLimit);
-            Assertions.assertTrue(spendingLimit.acquirePermission(Money.of("1.00", "USD")));
+            Assertions.assertTrue(spendingLimit.acquirePermission(Money.of("1.00", Money.USD)));
         });
 
-        Assertions.assertFalse(spendingLimit.acquirePermission(Money.of("1.00", "USD")));
+        Assertions.assertFalse(spendingLimit.acquirePermission(Money.of("1.00", Money.USD)));
     }
 }
