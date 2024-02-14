@@ -1,12 +1,13 @@
 package io.burpabet.customer.web;
 
+import java.util.EnumSet;
+
 import io.burpabet.common.domain.Jurisdiction;
-import io.burpabet.common.domain.Status;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.EnumSet;
+import io.burpabet.common.domain.Status;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -18,21 +19,26 @@ public class IndexController {
     public IndexModel index() {
         IndexModel index = new IndexModel();
         index.add(linkTo(methodOn(CustomerController.class)
-                .findAll(null))
+                .findAll( null))
                 .withRel("all")
                 .withTitle("Collection of customers"));
 
+        index.add(linkTo(methodOn(CustomerController.class)
+                .findAnyCustomer())
+                .withRel("one")
+                .withTitle("Any customer"));
+
         EnumSet.allOf(Jurisdiction.class).forEach(jurisdiction -> {
             index.add(linkTo(methodOn(CustomerController.class)
-                    .findAllByJurisdiction(jurisdiction, null))
-                    .withRel("all-" + jurisdiction.toString().toLowerCase())
-                    .withTitle("Collection of customers"));
+                    .findAllWithJurisdiction(jurisdiction, null))
+                    .withRel("jurisdiction")
+                    .withTitle("Collection of customers in a given jurisdiction"));
         });
 
         EnumSet.allOf(Status.class).forEach(status -> {
             index.add(linkTo(methodOn(CustomerController.class)
                     .findAllWithStatus(status, null))
-                    .withRel("status-" + status.toString().toLowerCase())
+                    .withRel("status")
                     .withTitle("Collection of customers with status " + status));
         });
 

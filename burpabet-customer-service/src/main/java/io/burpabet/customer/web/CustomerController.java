@@ -1,13 +1,7 @@
 package io.burpabet.customer.web;
 
-import io.burpabet.common.annotations.TimeTravel;
-import io.burpabet.common.annotations.TimeTravelMode;
-import io.burpabet.common.annotations.TransactionBoundary;
-import io.burpabet.common.domain.Jurisdiction;
-import io.burpabet.common.domain.Status;
-import io.burpabet.customer.model.Customer;
-import io.burpabet.customer.repository.CustomerRepository;
-import io.burpabet.customer.service.NoSuchCustomerException;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +19,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
+import io.burpabet.common.annotations.TransactionBoundary;
+import io.burpabet.common.domain.Jurisdiction;
+import io.burpabet.common.domain.Status;
+import io.burpabet.customer.model.Customer;
+import io.burpabet.customer.repository.CustomerRepository;
+import io.burpabet.customer.service.NoSuchCustomerException;
 
 @RestController
 @RequestMapping(path = "/api/customer")
@@ -41,15 +42,16 @@ public class CustomerController {
 
     @GetMapping(value = "/")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
-    public HttpEntity<PagedModel<EntityModel<Customer>>> findAll(@PageableDefault(size = 15) Pageable page) {
+    public HttpEntity<PagedModel<EntityModel<Customer>>> findAll(
+            @PageableDefault(size = 15) Pageable page) {
         Page<Customer> customerPage = customerRepository.findAll(page);
         return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
     }
 
     @GetMapping(value = "/jurisdiction/{jurisdiction}")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
-    public HttpEntity<PagedModel<EntityModel<Customer>>> findAllByJurisdiction(
-            @PathVariable(value = "jurisdiction") Jurisdiction jurisdiction,
+    public HttpEntity<PagedModel<EntityModel<Customer>>> findAllWithJurisdiction(
+            @PathVariable("jurisdiction") Jurisdiction jurisdiction,
             @PageableDefault(size = 15) Pageable page) {
         Page<Customer> customerPage = customerRepository.findAllWithJurisdiction(jurisdiction, page);
         return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
@@ -62,6 +64,14 @@ public class CustomerController {
             @PageableDefault(size = 15) Pageable page) {
         Page<Customer> customerPage = customerRepository.findAllWithStatus(status, page);
         return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
+    }
+
+    @GetMapping(value = "/any")
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    public HttpEntity<EntityModel<Customer>> findAnyCustomer() {
+        return ResponseEntity.ok(customerResourceAssembler
+                .toModel(customerRepository.findAny()
+                        .orElseThrow(() -> new NoSuchCustomerException("No customers"))));
     }
 
     @GetMapping(value = "/{id}")

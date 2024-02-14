@@ -21,4 +21,10 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     @Query(value = "select c "
             + "from Customer c where c.jurisdiction = ?1")
     Page<Customer> findAllWithJurisdiction(Jurisdiction jurisdiction, Pageable pageable);
+
+    @Query(value = "select c "
+            + "from Customer c "
+            + "order by random() "
+            + "limit 1")
+    Optional<Customer> findAny();
 }
