@@ -37,7 +37,8 @@ public class SettlementController {
     public ResponseEntity<SettlementModel> getSettlementForm() {
         SettlementModel form = new SettlementModel();
         form.setOutcome(Outcome.win);
-        form.setRaceId(raceService.getRandomRace().getId());
+        form.setPageSize(64);
+//        form.setRaceId(raceService.getRandomRace().getId());
 
         form.add(Affordances.of(linkTo(methodOn(getClass()).getSettlementForm())
                         .withSelfRel()

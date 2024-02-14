@@ -299,42 +299,8 @@ For more help, type:
 
 ## API Testing
 
-The services also provide REST APIs for initiating the bet placement, bet settlement and registration journeys.
-
-### Registration
-
-First request a form template:
-
-    curl -X GET http://localhost:8090/api/registration > registration.json
-
-Post back the form to the self href specified in the response:
-
-    curl -d "@registration.json" -H "Content-Type:application/json" -X POST http://localhost:8090/api/registration
-
-### Bet Placement
-
-First request a form template:
-
-    curl -X GET http://localhost:8092/api/placement > place-bet.json
-
-Then adjust the IDs in the form. Note that you need to supply a valid customer UUID that
-you can get from the customer service API. There's also an optional idempotency key. If
-omitted, there will be one placement per request. If not omitted, the placements are
-de-duped.
-
-Post back the form to the self href specified in the response:
-
-    curl -d "@place-bet.json" -H "Content-Type:application/json" -X POST http://localhost:8092/api/placement
-
-### Bet Settlement
-
-First request a form template:
-
-    curl -X GET http://localhost:8092/api/settlement/form > settle-bets.json
-
-Post back the form to the self href specified in the response:
-
-    curl -d "@settle-bet.json" -H "Content-Type:application/json" -X POST http://localhost:8092/api/settlement
+The services also provide REST APIs for initiating the bet placement, bet settlement 
+and registration journeys. See [API Demo](docs/DEMO.md) for a tutorial.
 
 ## Rule Invariants
 
@@ -360,8 +326,8 @@ Customer service:
 ## Additional Documentation
 
 - [Design Notes](docs/README.md) - Details including architectural patterns and mechanisms.
-- [Service Description](docs/diagrams.okso) - [C4 model](https://c4model.com/) diagrams drawn with [okso](https://okso.app/) app _(open the file using the app)_.
-- [Registration Journey Diagram](docs/registration-sequence.txt) - Using a [websequence](https://www.websequencediagrams.com/) diagram.
+- [Service Description](docs/diagrams.png) - [C4 model](https://c4model.com/) diagrams drawn using [okso](https://okso.app/) _(open the [diagrams.okso](docs/diagrams.okso) file)_.
+- [Registration Journey Diagram](docs/registration-sequence.png) - Using a [websequence](https://www.websequencediagrams.com/) diagram.
 
 # Terms of Use
 

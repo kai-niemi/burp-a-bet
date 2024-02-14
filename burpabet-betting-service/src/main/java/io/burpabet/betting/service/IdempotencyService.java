@@ -1,16 +1,14 @@
 package io.burpabet.betting.service;
 
-import java.time.Instant;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-
 import io.burpabet.betting.model.IdempotencyKey;
 import io.burpabet.betting.repository.IdempotencyRepository;
 import io.burpabet.common.annotations.ControlService;
-import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.common.annotations.TransactionMandatory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @ControlService
 public class IdempotencyService {

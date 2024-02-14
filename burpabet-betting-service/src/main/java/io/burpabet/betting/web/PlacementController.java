@@ -1,14 +1,17 @@
 package io.burpabet.betting.web;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-
+import io.burpabet.betting.service.BetPlacementService;
+import io.burpabet.betting.service.DuplicatePlacementException;
+import io.burpabet.betting.service.RaceService;
+import io.burpabet.betting.shell.HypermediaClient;
+import io.burpabet.common.domain.BetPlacement;
+import io.burpabet.common.util.Money;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.mediatype.Affordances;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,15 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 
-import io.burpabet.betting.service.BetPlacementService;
-import io.burpabet.betting.service.RaceService;
-import io.burpabet.betting.shell.HypermediaClient;
-import io.burpabet.common.domain.BetPlacement;
-import io.burpabet.common.util.Money;
-import io.burpabet.common.util.RandomData;
-import jakarta.validation.Valid;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
-import static io.burpabet.betting.shell.HypermediaClient.PAGED_MODEL_TYPE;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.afford;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -78,7 +76,15 @@ public class PlacementController {
         betPlacement.setRaceId(form.getRaceId());
         betPlacement.setStake(form.getStake());
 
-        betPlacement = betPlacementService.placeBet(betPlacement);
+        try {
+            betPlacement = betPlacementService.placeBet(betPlacement);
+        } catch (DuplicatePlacementException e) {
+            PlacementModel resource = new PlacementModel();
+            resource.add(linkTo(methodOn(BetController.class)
+                    .getBet(betPlacement.getEntityId()))
+                    .withSelfRel());
+            return ResponseEntity.status(HttpStatus.OK).body(resource);
+        }
 
         Link selfLink = linkTo(methodOn(BetController.class)
                 .getBet(betPlacement.getEntityId()))

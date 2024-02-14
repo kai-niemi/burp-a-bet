@@ -1,16 +1,15 @@
 package io.burpabet.betting.web;
 
-import java.util.UUID;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.burpabet.common.domain.Outcome;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import io.burpabet.common.domain.Outcome;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import java.util.UUID;
 
 @Relation(value = "betting:settle")
 @JsonPropertyOrder({"links"})
@@ -21,7 +20,8 @@ public class SettlementModel extends RepresentationModel<SettlementModel> {
     @NotNull
     private Outcome outcome;
 
-    @Size(min = 1, max = 1024)
+    @DecimalMin(value = "1")
+    @DecimalMax(value = "1024")
     private int pageSize;
 
     public Outcome getOutcome() {
