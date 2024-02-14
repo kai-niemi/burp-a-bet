@@ -37,7 +37,7 @@ spring:
     noninteractive:
       enabled: false
     history:
-      name: betting-shell.history
+      name: .tmp/betting-service.history
   output:
     ansi:
       enabled: ALWAYS
@@ -87,8 +87,7 @@ spring:
 #############################
 logging:
   file:
-    name: betting-service.log
-    path: .
+    name: .tmp/betting-service.log
   pattern:
     console: "%clr(%d{${LOG_DATEFORMAT_PATTERN:HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) [%t] %clr([%logger{39}]){cyan} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
     file: "%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:%5p} [%t] %logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
