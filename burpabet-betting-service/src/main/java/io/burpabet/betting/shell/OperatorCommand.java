@@ -142,10 +142,7 @@ public class OperatorCommand extends AbstractShellComponent {
 
             if (duration > 0) {
                 final Duration theDuration = Duration.ofSeconds(duration);
-
-                logger.info("Placing bets for %s"
-                        .formatted(theDuration));
-
+                logger.info("Placing bets for %s".formatted(theDuration));
                 workloadExecutor.submit("Placement - " + map.get("name"), c,
                         x -> Instant.now().isBefore(Instant.now().plus(theDuration)));
             } else {
@@ -157,6 +154,9 @@ public class OperatorCommand extends AbstractShellComponent {
                         throw new RuntimeException(e);
                     }
                 });
+                if (count > 1) {
+                    logger.info("All bets placements (%d) started".formatted(count));
+                }
             }
         });
     }
@@ -201,7 +201,6 @@ public class OperatorCommand extends AbstractShellComponent {
 
         if (duration > 0) {
             logger.info("Settling bets for %s".formatted(theDuration));
-
             workloadExecutor.submit("Settlement", c,
                     x -> Instant.now().isBefore(Instant.now().plus(theDuration)));
         } else {

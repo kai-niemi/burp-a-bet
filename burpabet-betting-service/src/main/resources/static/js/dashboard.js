@@ -10,7 +10,6 @@ AppDashboard.prototype = {
 
         this.loadInitialBets();
         this.loadInitialRaces();
-
         this.addWebsocketListener();
     },
 
@@ -45,9 +44,6 @@ AppDashboard.prototype = {
             if (bet.race.outcome==='lose') {
                 colorClass='table-danger';
             }
-            // if (bet.payout.amount>50) {
-            //     colorClass='table-success';
-            // }
 
             return $('<tr>')
                 .attr('class', colorClass)
@@ -151,18 +147,12 @@ AppDashboard.prototype = {
                 _this = this;
 
         stompClient.connect({}, function (frame) {
-            stompClient.subscribe(_this.settings.topics.betSummary, function (report) {
-                var event = JSON.parse(report.body);
-                // console.log("Stomp event: " + event);
-                _this.handleBetSummaryUpdate(event);
+            stompClient.subscribe(_this.settings.topics.betSummary, function (summary) {
+                // var _event = JSON.parse(summary.body);
+                // console.log("Stomp event: " + _event);
+                _this.loadInitialBets();
             });
         });
-    },
-
-    handleBetSummaryUpdate: function (summary) {
-        var _this = this;
-
-        _this.loadInitialBets();
     },
 
     formatMoney: function (number, currency) {

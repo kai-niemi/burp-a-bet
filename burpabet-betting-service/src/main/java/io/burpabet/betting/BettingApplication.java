@@ -59,7 +59,7 @@ public class BettingApplication implements PromptProvider {
         int fg =
                 switch (logger.getLevel().toInt()) {
                     case Level.TRACE_INT -> AttributedStyle.MAGENTA;
-                    case Level.DEBUG_INT -> AttributedStyle.BLUE;
+                    case Level.DEBUG_INT -> AttributedStyle.CYAN;
                     case Level.INFO_INT -> AttributedStyle.GREEN;
                     case Level.WARN_INT -> AttributedStyle.YELLOW;
                     case Level.ERROR_INT -> AttributedStyle.RED;

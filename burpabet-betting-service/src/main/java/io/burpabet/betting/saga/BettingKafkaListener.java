@@ -46,7 +46,7 @@ public class BettingKafkaListener {
             logger.info("Registration approved: {}", registration);
             outboxRepository.writeEvent(registration, "registration");
         } else {
-            logger.debug("Registration event received with status: %s".formatted(registration.getStatus()));
+            logger.info("Registration event received with status: %s".formatted(registration.getStatus()));
         }
     }
 }

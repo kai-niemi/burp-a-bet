@@ -13,7 +13,7 @@ public class ToggleCommand {
 
     public static final String SQL_TRACE_LOGGER = "io.burpabet.SQL_TRACE";
 
-    @ShellMethod(value = "Cycle log levels", key = {"l", "log-level"})
+    @ShellMethod(value = "Cycle log levels", key = {"ll", "log-level"})
     public void cycleLogLevels() {
         cycleLevel(TRACE_LOGGER, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR);
         cycleLevel(SQL_TRACE_LOGGER, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR);

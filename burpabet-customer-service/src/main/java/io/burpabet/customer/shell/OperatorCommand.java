@@ -1,16 +1,12 @@
 package io.burpabet.customer.shell;
 
-import io.burpabet.common.domain.Jurisdiction;
-import io.burpabet.common.domain.Registration;
-import io.burpabet.common.domain.Status;
-import io.burpabet.common.shell.AnsiConsole;
-import io.burpabet.common.shell.CommandGroups;
-import io.burpabet.common.shell.JurisdictionValueProvider;
-import io.burpabet.common.util.Networking;
-import io.burpabet.common.util.RandomData;
-import io.burpabet.common.util.TableUtils;
-import io.burpabet.customer.model.Customer;
-import io.burpabet.customer.service.CustomerService;
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +23,17 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.table.TableModel;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.IntStream;
+import io.burpabet.common.domain.Jurisdiction;
+import io.burpabet.common.domain.Registration;
+import io.burpabet.common.domain.Status;
+import io.burpabet.common.shell.AnsiConsole;
+import io.burpabet.common.shell.CommandGroups;
+import io.burpabet.common.shell.JurisdictionValueProvider;
+import io.burpabet.common.util.Networking;
+import io.burpabet.common.util.RandomData;
+import io.burpabet.common.util.TableUtils;
+import io.burpabet.customer.model.Customer;
+import io.burpabet.customer.service.CustomerService;
 
 @ShellComponent
 @ShellCommandGroup(CommandGroups.OPERATOR)
@@ -66,17 +67,7 @@ public class OperatorCommand extends AbstractShellComponent {
             @ShellOption(help = "number of registrations",
                     defaultValue = "1") int count
     ) {
-        final Jurisdiction jur;
-        if (jurisdiction == null) {
-            EnumSet<Jurisdiction> all = EnumSet.allOf(Jurisdiction.class);
-            jur = all
-                    .stream()
-                    .skip(ThreadLocalRandom.current().nextInt(all.size()))
-                    .findFirst()
-                    .get();
-        } else {
-            jur = jurisdiction;
-        }
+        final EnumSet<Jurisdiction> all = EnumSet.allOf(Jurisdiction.class);
 
         IntStream.rangeClosed(1, count)
                 .asLongStream()
@@ -84,6 +75,12 @@ public class OperatorCommand extends AbstractShellComponent {
                 .parallel()
                 .forEach(value -> {
                     Pair<String, String> pair = RandomData.randomFullNameAndEmail("burpabet.io");
+
+                    Jurisdiction jur = jurisdiction == null
+                            ? all.stream()
+                            .skip(ThreadLocalRandom.current().nextInt(all.size()))
+                            .findFirst().get()
+                            : jurisdiction;
 
                     Registration registration = customerService.registerCustomer(Customer.builder()
                             .withName(pair.getFirst())
@@ -96,6 +93,10 @@ public class OperatorCommand extends AbstractShellComponent {
                     logger.info("Registration journey %d/%d started: %s"
                             .formatted(value, count, registration.toString()));
                 });
+
+        if (count > 1) {
+            logger.info("All registration journeys (%d) started".formatted(count));
+        }
     }
 
     @ShellMethod(value = "Print and API index url", key = {"u", "url"})
