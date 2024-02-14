@@ -42,7 +42,7 @@ public class CustomerKafkaListener {
         } else if (placement.getStatus().equals(Status.ROLLBACK)) {
             customerBettingFacade.releaseSpendingCredits(placement);
         } else {
-            logger.debug("BetPlacement event received with status: %s".formatted(placement.getStatus()));
+            logger.info("BetPlacement event received with status: %s".formatted(placement.getStatus()));
         }
     }
 
@@ -54,7 +54,7 @@ public class CustomerKafkaListener {
         if (settlement.getStatus().equals(Status.PENDING)) {
             customerBettingFacade.approveSettlement(settlement);
         } else {
-            logger.debug("BetSettlement event received with status: %s".formatted(settlement.getStatus()));
+            logger.info("BetSettlement event received with status: %s".formatted(settlement.getStatus()));
         }
     }
 }

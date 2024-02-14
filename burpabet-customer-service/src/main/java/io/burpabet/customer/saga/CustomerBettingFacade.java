@@ -1,5 +1,16 @@
 package io.burpabet.customer.saga;
 
+import java.time.Duration;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import io.burpabet.common.annotations.OutboxOperation;
 import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.ServiceFacade;
@@ -12,15 +23,6 @@ import io.burpabet.customer.model.Customer;
 import io.burpabet.customer.repository.CustomerRepository;
 import io.burpabet.customer.service.SimpleSpendingLimit;
 import io.burpabet.customer.service.SpendingLimit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @ServiceFacade
 public class CustomerBettingFacade {
@@ -30,6 +32,10 @@ public class CustomerBettingFacade {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    private SpendingLimit defaultSpendingLimit(Currency currency) {
+        return new SimpleSpendingLimit(Money.of("50.00", currency), Duration.ofSeconds(60));
+    }
 
     @TransactionBoundary
     @Retryable
@@ -58,9 +64,9 @@ public class CustomerBettingFacade {
         final Money wager = placement.getStake();
 
         boolean permitted = customerSpendingLimits.computeIfAbsent(placement.getCustomerId(),
-                        x -> new SimpleSpendingLimit(Money.of("50.00", wager.getCurrency()),
-                                Duration.ofSeconds(60)))
+                        x -> defaultSpendingLimit(wager.getCurrency()))
                 .acquirePermission(placement.getStake());
+
         if (permitted) {
             placement.setStatus(Status.APPROVED);
             placement.setStatusDetail("Within spending budget");

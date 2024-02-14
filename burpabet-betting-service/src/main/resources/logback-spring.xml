@@ -11,12 +11,12 @@
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.springframework.batch" level="INFO" additivity="true"/>
 
-    <springProfile name="verbose">
-        <logger name="io.burpabet" level="TRACE"/>
-        <logger name="io.burpabet.SQL_TRACE" level="TRACE"/>
+    <springProfile name="silent">
+        <logger name="io.burpabet" level="WARN"/>
+        <logger name="io.burpabet.SQL_TRACE" level="WARN"/>
     </springProfile>
 
-    <springProfile name="!verbose">
+    <springProfile name="!silent">
         <logger name="io.burpabet" level="INFO"/>
         <logger name="io.burpabet.SQL_TRACE" level="INFO"/>
     </springProfile>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__params="\
+params="\
 --spring.profiles.active=local \
 --spring.datasource.url=jdbc:postgresql://192.168.1.99:26257/burp_wallet?sslmode=disable \
 --spring.datasource.username=root \
