@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface CustomerRepository extends JpaRepository<Customer, UUID> {
@@ -18,4 +19,10 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     @Query(value = "select c "
             + "from Customer c where c.jurisdiction = ?1")
     Page<Customer> findAllWithJurisdiction(Jurisdiction jurisdiction, Pageable pageable);
+
+    @Query(value = "select c "
+            + "from Customer c "
+            + "order by random() "
+            + "limit 1")
+    Optional<Customer> findAny();
 }

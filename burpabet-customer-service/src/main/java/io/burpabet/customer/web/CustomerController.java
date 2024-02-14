@@ -40,6 +40,14 @@ public class CustomerController {
     @Autowired
     private PagedResourcesAssembler<Customer> customerPagedResourcesAssembler;
 
+    @GetMapping(value = "/")
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    public HttpEntity<PagedModel<EntityModel<Customer>>> findAll(
+            @PageableDefault(size = 15) Pageable page) {
+        Page<Customer> customerPage = customerRepository.findAll(page);
+        return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
+    }
+
     @GetMapping(value = "/jurisdiction/{jurisdiction}")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<EntityModel<Customer>>> findAllWithJurisdiction(
@@ -56,6 +64,14 @@ public class CustomerController {
             @PageableDefault(size = 15) Pageable page) {
         Page<Customer> customerPage = customerRepository.findAllWithStatus(status, page);
         return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
+    }
+
+    @GetMapping(value = "/any")
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    public HttpEntity<EntityModel<Customer>> findAnyCustomer() {
+        return ResponseEntity.ok(customerResourceAssembler
+                .toModel(customerRepository.findAny()
+                        .orElseThrow(() -> new NoSuchCustomerException("No customers"))));
     }
 
     @GetMapping(value = "/{id}")

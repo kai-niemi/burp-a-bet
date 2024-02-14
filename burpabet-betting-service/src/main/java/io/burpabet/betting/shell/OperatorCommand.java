@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -89,7 +88,7 @@ public class OperatorCommand extends AbstractShellComponent {
             @ShellOption(help = "customer jurisdiction (empty denotes all)",
                     valueProvider = JurisdictionValueProvider.class,
                     value = {"jurisdiction"},
-                    defaultValue = "SE") Jurisdiction jurisdiction,
+                    defaultValue = ShellOption.NULL) Jurisdiction jurisdiction,
             @ShellOption(help = "race id by track or horse (empty denotes random)",
                     valueProvider = RaceValueProvider.class,
                     value = {"race"},
@@ -108,9 +107,10 @@ public class OperatorCommand extends AbstractShellComponent {
             try {
                 PagedModel<Map<String, Object>> collection = hypermediaClient.traverseCustomerApi(
                         traverson -> Objects.requireNonNull(traverson
-                                .follow("customer:all")
-                                .withTemplateParameters(Map.of("jurisdiction", jurisdiction))
-                                .toObject(PAGED_MODEL_TYPE)));
+                                        .follow(jurisdiction != null ? "customer:jurisdiction" : "customer:all")
+                                        .withTemplateParameters(jurisdiction != null
+                                                ? Map.of("jurisdiction", jurisdiction) : Map.of()))
+                                .toObject(PAGED_MODEL_TYPE));
                 customerMap.addAll(collection.getContent());
             } catch (RestClientException e) {
                 logger.warn("Customer API error: " + e.getMessage());

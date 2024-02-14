@@ -10,7 +10,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import io.burpabet.betting.model.Bet;
-import io.burpabet.betting.model.Race;
 import io.burpabet.betting.repository.BetRepository;
 import io.burpabet.betting.repository.RaceRepository;
 import io.burpabet.common.annotations.Retryable;
@@ -125,6 +124,7 @@ public class BetSettlementService {
         settlement.setEventId(fromWallet.getEventId());
         settlement.setOrigin(origin);
 
+        // Should actually delay sending with 5s due to follower reads so some UI updates may be no-ops
         simpMessagingTemplate.convertAndSend(TOPIC_BET_SUMMARY, settlement);
 
         return new BetSettlementEvent(fromWallet.getEventId(), EventType.insert, settlement);
