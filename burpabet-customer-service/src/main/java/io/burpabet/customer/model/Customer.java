@@ -3,12 +3,14 @@ package io.burpabet.customer.model;
 import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Status;
 import io.burpabet.common.jpa.AbstractEntity;
+import io.burpabet.common.util.Money;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.hateoas.server.core.Relation;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -39,6 +41,9 @@ public class Customer extends AbstractEntity<UUID> {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "spending_budget_pm", updatable = false)
+    private BigDecimal spendingBudgetPerMinute;
+
     protected Customer() {
     }
 
@@ -46,6 +51,14 @@ public class Customer extends AbstractEntity<UUID> {
     @NotNull
     public UUID getId() {
         return id;
+    }
+
+    public BigDecimal getSpendingBudgetPerMinute() {
+        return spendingBudgetPerMinute;
+    }
+
+    public void setSpendingBudgetPerMinute(BigDecimal spendingBudgetPerMinute) {
+        this.spendingBudgetPerMinute = spendingBudgetPerMinute;
     }
 
     public UUID getOperatorId() {
@@ -136,6 +149,11 @@ public class Customer extends AbstractEntity<UUID> {
 
         public Builder withStatus(Status status) {
             instance.status = status;
+            return this;
+        }
+
+        public Builder withSpendingBudget(BigDecimal spendingBudget) {
+            instance.spendingBudgetPerMinute = spendingBudget;
             return this;
         }
 

@@ -28,6 +28,11 @@ public class IndexController {
                 .withRel("one")
                 .withTitle("Any customer"));
 
+        index.add(linkTo(methodOn(CustomerController.class)
+                .findAllWithJurisdiction(null, null))
+                .withRel("jurisdiction")
+                .withTitle("Collection of customers in a given jurisdiction"));
+
         EnumSet.allOf(Jurisdiction.class).forEach(jurisdiction -> {
             index.add(linkTo(methodOn(CustomerController.class)
                     .findAllWithJurisdiction(jurisdiction, null))

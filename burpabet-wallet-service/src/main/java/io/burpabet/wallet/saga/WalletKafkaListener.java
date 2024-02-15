@@ -45,7 +45,7 @@ public class WalletKafkaListener {
         } else if (registration.getStatus().equals(Status.ROLLBACK)) {
             registrationFacade.reverseAccounts(registration);
         } else {
-            logger.info("RegistrationEvent received with status: %s".formatted(registration.getStatus()));
+            logger.debug("RegistrationEvent received with status: %s".formatted(registration.getStatus()));
         }
     }
 
@@ -59,7 +59,7 @@ public class WalletKafkaListener {
         } else if (placement.getStatus().equals(Status.ROLLBACK)) {
             bettingFacade.reverseWager(placement);
         } else {
-            logger.info("BetPlacementEvent received with status: %s".formatted(placement.getStatus()));
+            logger.debug("BetPlacementEvent received with status: %s".formatted(placement.getStatus()));
         }
     }
 
@@ -71,7 +71,7 @@ public class WalletKafkaListener {
         if (settlement.getStatus().equals(Status.PENDING)) {
             bettingFacade.transferPayout(settlement);
         } else {
-            logger.info("BetSettlementEvent received with status: %s".formatted(settlement.getStatus()));
+            logger.debug("BetSettlementEvent received with status: %s".formatted(settlement.getStatus()));
         }
     }
 }

@@ -1,5 +1,28 @@
 package io.burpabet.wallet.shell;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.shell.standard.AbstractShellComponent;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.table.TableModel;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import io.burpabet.common.annotations.TimeTravel;
 import io.burpabet.common.annotations.TimeTravelMode;
 import io.burpabet.common.annotations.TransactionBoundary;
@@ -18,27 +41,6 @@ import io.burpabet.wallet.model.OperatorAccount;
 import io.burpabet.wallet.repository.AccountRepository;
 import io.burpabet.wallet.service.BatchService;
 import io.burpabet.wallet.service.NoSuchAccountException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.shell.standard.AbstractShellComponent;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.table.TableModel;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @ShellComponent
 @ShellCommandGroup(CommandGroups.OPERATOR)
@@ -71,17 +73,14 @@ public class OperatorCommand extends AbstractShellComponent {
             @ShellOption(help = "account currency (ISO-4701 code)", defaultValue = "USD") String currency,
             @ShellOption(help = "number of accounts per jurisdiction", defaultValue = "10") int count,
             @ShellOption(help = "operator jurisdiction (all if omitted)", defaultValue = ShellOption.NULL,
-                    valueProvider = JurisdictionValueProvider.class) String jurisdiction
+                    valueProvider = JurisdictionValueProvider.class) Jurisdiction jurisdiction
     ) {
-        EnumSet<Jurisdiction> jurisdictions;
-        if (jurisdiction == null) {
-            jurisdictions = EnumSet.allOf(Jurisdiction.class);
-        } else {
-            jurisdictions = EnumSet.of(Jurisdiction.valueOf(jurisdiction));
-        }
+        EnumSet<Jurisdiction> jurisdictions = jurisdiction != null
+                ? EnumSet.of(jurisdiction) : EnumSet.allOf(Jurisdiction.class);
 
         jurisdictions
                 .parallelStream()
+                .unordered()
                 .forEach(jur -> batchService.createOperatorAccounts(count,
                         () -> OperatorAccount.builder()
                                 .withJurisdiction(jur)
@@ -143,28 +142,34 @@ public class OperatorCommand extends AbstractShellComponent {
                     defaultValue = ShellOption.NULL,
                     valueProvider = OperatorValueProvider.class) String operator,
             @ShellOption(help = "operator jurisdiction (if picked by random)",
-                    defaultValue = "SE",
+                    defaultValue = ShellOption.NULL,
                     valueProvider = JurisdictionValueProvider.class) Jurisdiction jurisdiction
     ) {
-        List<OperatorAccount> operatorAccounts;
+        final List<OperatorAccount> operatorAccounts = new ArrayList<>();
+
+        EnumSet<Jurisdiction> jurisdictions = jurisdiction != null
+                ? EnumSet.of(jurisdiction) : EnumSet.allOf(Jurisdiction.class);
 
         if (Objects.nonNull(operator)) {
             UUID id = UUID.fromString(operator);
-            operatorAccounts = List.of(batchService.findOperatorAccountById(id)
+            operatorAccounts.add(batchService.findOperatorAccountById(id)
                     .orElseThrow(() -> new NoSuchAccountException(id)));
         } else {
-            operatorAccounts = batchService.findOperatorAccounts(jurisdiction);
+            jurisdictions.forEach(j -> operatorAccounts.addAll(batchService.findOperatorAccounts(j)));
         }
 
         if (operatorAccounts.isEmpty()) {
-            ansiConsole.cyan("No accounts");
+            ansiConsole.cyan("No operator accounts").nl();
             return;
         }
 
-        operatorAccounts.forEach(operatorAccount -> {
-            Money total = batchService.grantBonus(operatorAccount, Money.of(amount, currency));
-            ansiConsole.cyan("Granted %s in total for %s".formatted(total, operatorAccount.getName())).nl();
-        });
+        operatorAccounts
+                .parallelStream()
+                .unordered()
+                .forEach(operatorAccount -> {
+                    Money total = batchService.grantBonus(operatorAccount, Money.of(amount, currency));
+                    ansiConsole.cyan("Granted %s in total for %s".formatted(total, operatorAccount.getName())).nl();
+                });
     }
 
     @ShellMethod(value = "Print account balances", key = {"b", "balance"})

@@ -43,8 +43,8 @@ public class PlacementController {
     @GetMapping(value = "/")
     public ResponseEntity<PlacementModel> getPlacementForm() {
         PlacementModel form = new PlacementModel();
-        form.setStake(Money.of("5.00", Money.USD));
         form.setIdempotencyKey(UUID.randomUUID());
+        form.setStake(Money.of("5.00", Money.USD));
         form.setRaceId(raceService.getRandomRace().getId());
 
         // Query customer API and pick a random customer

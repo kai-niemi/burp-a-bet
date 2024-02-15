@@ -16,10 +16,6 @@ import jakarta.persistence.Embeddable;
  */
 @Embeddable  // Support for JPA only (cant use final modifier)
 public class Money implements Serializable, Comparable<Money> {
-    public static final Currency SEK = Currency.getInstance("SEK");
-
-    public static final Currency EUR = Currency.getInstance("EUR");
-
     public static final Currency USD = Currency.getInstance("USD");
 
     private static final BigDecimal ZERO = BigDecimal.ZERO;
@@ -38,7 +34,7 @@ public class Money implements Serializable, Comparable<Money> {
     /**
      * Creates a new Money instance.
      *
-     * @param amount the decimal amount (required)
+     * @param amount   the decimal amount (required)
      * @param currency the currency (required)
      */
     public Money(BigDecimal amount, Currency currency) {

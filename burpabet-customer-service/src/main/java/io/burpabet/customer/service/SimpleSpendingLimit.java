@@ -30,6 +30,12 @@ public class SimpleSpendingLimit implements SpendingLimit {
     }
 
     @Override
+    public String description() {
+        return limitForPeriod.toString() + " / "
+                + limitRefreshPeriod.toSeconds() + "s";
+    }
+
+    @Override
     public boolean acquirePermission(Money amount) {
         try {
             lock.lock();

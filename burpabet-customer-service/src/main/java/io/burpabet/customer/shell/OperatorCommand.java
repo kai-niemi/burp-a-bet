@@ -1,6 +1,8 @@
 package io.burpabet.customer.shell;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
@@ -65,7 +67,9 @@ public class OperatorCommand extends AbstractShellComponent {
                     defaultValue = ShellOption.NULL,
                     valueProvider = JurisdictionValueProvider.class) Jurisdiction jurisdiction,
             @ShellOption(help = "number of registrations",
-                    defaultValue = "1") int count
+                    defaultValue = "1") int count,
+            @ShellOption(help = "spending budget per minute (rate limit)",
+                    defaultValue = "50.00") String spendingBudget
     ) {
         final EnumSet<Jurisdiction> all = EnumSet.allOf(Jurisdiction.class);
 
@@ -88,6 +92,8 @@ public class OperatorCommand extends AbstractShellComponent {
                             .withJurisdiction(jur)
                             .withStatus(Status.PENDING)
                             .withOperatorId(Objects.nonNull(operatorId) ? UUID.fromString(operatorId) : null)
+                            .withSpendingBudget(new BigDecimal(spendingBudget)
+                                    .setScale(2, RoundingMode.UNNECESSARY))
                             .build());
 
                     logger.info("Registration journey %d/%d started: %s"

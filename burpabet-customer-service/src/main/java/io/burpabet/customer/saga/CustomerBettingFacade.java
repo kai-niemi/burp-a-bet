@@ -1,5 +1,6 @@
 package io.burpabet.customer.saga;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Currency;
 import java.util.HashMap;
@@ -33,8 +34,30 @@ public class CustomerBettingFacade {
     @Autowired
     private CustomerRepository customerRepository;
 
-    private SpendingLimit defaultSpendingLimit(Currency currency) {
-        return new SimpleSpendingLimit(Money.of("50.00", currency), Duration.ofSeconds(60));
+    /**
+     * Transient (in-memory) spending limits for simplicity.
+     */
+    private SpendingLimit createSpendingLimit(BigDecimal budget, Currency currency) {
+        if (budget == null) {
+            return new SpendingLimit() {
+                @Override
+                public boolean acquirePermission(Money amount) {
+                    return true;
+                }
+
+                @Override
+                public void releasePermission(Money amount) {
+
+                }
+
+                @Override
+                public String description() {
+                    return "unlimited";
+                }
+            };
+        }
+        return new SimpleSpendingLimit(Money.of(budget, currency),
+                Duration.ofMinutes(1));
     }
 
     @TransactionBoundary
@@ -63,18 +86,17 @@ public class CustomerBettingFacade {
 
         final Money wager = placement.getStake();
 
-        boolean permitted = customerSpendingLimits.computeIfAbsent(placement.getCustomerId(),
-                        x -> defaultSpendingLimit(wager.getCurrency()))
-                .acquirePermission(placement.getStake());
+        SpendingLimit spendingLimit = customerSpendingLimits.computeIfAbsent(placement.getCustomerId(),
+                x -> createSpendingLimit(customer.getSpendingBudgetPerMinute(), wager.getCurrency()));
 
-        if (permitted) {
+        if (spendingLimit.acquirePermission(placement.getStake())) {
             placement.setStatus(Status.APPROVED);
-            placement.setStatusDetail("Within spending budget");
+            placement.setStatusDetail("Within spending budget: " + spendingLimit.description());
 
             logger.info("Bet placement approved (in spending budget): {}", placement);
         } else {
             placement.setStatus(Status.REJECTED);
-            placement.setStatusDetail("Exhausted spending budget of $50/min");
+            placement.setStatusDetail("Exhausted spending budget: " + spendingLimit.description());
 
             logger.warn("Bet placement rejected (exhausted spending budget): {}", placement);
         }

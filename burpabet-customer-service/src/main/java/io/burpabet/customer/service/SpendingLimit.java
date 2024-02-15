@@ -6,4 +6,6 @@ public interface SpendingLimit {
     boolean acquirePermission(Money amount);
 
     void releasePermission(Money amount);
+
+    String description();
 }
