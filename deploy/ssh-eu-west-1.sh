@@ -1,0 +1,1 @@
+ssh -i "odin-west-1.pem" ubuntu@9.10.11.12

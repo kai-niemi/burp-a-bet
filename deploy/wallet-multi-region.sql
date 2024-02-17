@@ -3,11 +3,6 @@ ALTER DATABASE burp_wallet PRIMARY REGION "aws-eu-north-1";
 ALTER DATABASE burp_wallet ADD REGION "aws-eu-central-1";
 ALTER DATABASE burp_wallet ADD REGION "aws-eu-west-1";
 
--- Notice that for multi-region deployments, its advised to use regional kafka clusters and
--- then geo-filter the outbox table changefeeds.
--- For ex:
---    .. WHERE crdb_region = 'aws-eu-west-1'
-
 SET enable_multiregion_placement_policy=on;
 ALTER DATABASE burp_wallet PLACEMENT RESTRICTED;
 

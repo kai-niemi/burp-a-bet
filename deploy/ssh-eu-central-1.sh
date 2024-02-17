@@ -1,0 +1,1 @@
+ssh -i "odin-central-1.pem" ubuntu@1.2.3.4

@@ -3,9 +3,6 @@ ALTER DATABASE burp_betting PRIMARY REGION "aws-eu-north-1";
 ALTER DATABASE burp_betting ADD REGION "aws-eu-central-1";
 ALTER DATABASE burp_betting ADD REGION "aws-eu-west-1";
 
--- show regions;
--- ALTER DATABASE burp_betting SET PRIMARY REGION "aws-eu-north-1";
-
 SET enable_multiregion_placement_policy=on;
 ALTER DATABASE burp_betting PLACEMENT RESTRICTED;
 

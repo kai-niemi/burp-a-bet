@@ -155,17 +155,6 @@ Tail a topic, in this case `registration`:
 
     bin/kafka-console-consumer.sh --topic registration --from-beginning --bootstrap-server localhost:9092 --property print.key=true
 
-#### Multi-region Deployments
-
-For multi-region deployments, there are prepared `multi-region.sql` files in each service that will 
-setup table localities and partitions based on the [Jurisdiction](burpabet-common/src/main/java/io/burpabet/common/domain/Jurisdiction.java) 
-enum type.
-
-Its advised also to use separate regional kafka clusters and the geo-filter the outbox table changefeeds 
-accordingly by adding a region predicate:
-
-    .. WHERE crdb_region = 'aws-eu-west-1'
-
 ## Running Locally
 
 Burp-a-bet provides both built-in command line shells and REST (hypermedia driven) API endpoints
@@ -218,6 +207,12 @@ To run any of the service in the background without an interactive shell, you ca
 put the above in a script and use the `--noshell` arg:
 
     nohup ./run-wallet.sh --noshell > wallet.txt &
+
+## Multi-region Deployments
+
+For multi-region deployments using CockroachCloud on either AWS, GCP or Azure, there are 
+prepared template script and SQL files in the [deploy](deploy/) directory. It describes a 
+manual process for a bit more advanced demos involving multi-region patterns.
 
 ## Usage
 
