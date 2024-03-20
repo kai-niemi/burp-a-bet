@@ -43,6 +43,7 @@ public class BettingKafkaListener {
         if (registration.getStatus().equals(Status.PENDING)) {
             registration.setStatus(Status.APPROVED);
             registration.setOrigin("betting-service");
+
             logger.info("Registration approved: {}", registration);
             outboxRepository.writeEvent(registration, "registration");
         } else {

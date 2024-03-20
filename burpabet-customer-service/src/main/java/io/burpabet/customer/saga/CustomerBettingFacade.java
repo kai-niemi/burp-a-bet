@@ -27,6 +27,8 @@ import io.burpabet.customer.service.SpendingLimit;
 
 @ServiceFacade
 public class CustomerBettingFacade {
+    private boolean spendingLimitsEnabled = true;
+
     private final Map<UUID, SpendingLimit> customerSpendingLimits = new HashMap<>();
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,26 +40,16 @@ public class CustomerBettingFacade {
      * Transient (in-memory) spending limits for simplicity.
      */
     private SpendingLimit createSpendingLimit(BigDecimal budget, Currency currency) {
-        if (budget == null) {
-            return new SpendingLimit() {
-                @Override
-                public boolean acquirePermission(Money amount) {
-                    return true;
-                }
-
-                @Override
-                public void releasePermission(Money amount) {
-
-                }
-
-                @Override
-                public String description() {
-                    return "unlimited";
-                }
-            };
+        if (!spendingLimitsEnabled || budget == null) {
+            return new UnlimitedSpendingLimit();
         }
-        return new SimpleSpendingLimit(Money.of(budget, currency),
-                Duration.ofMinutes(1));
+        return new SimpleSpendingLimit(Money.of(budget, currency), Duration.ofMinutes(1));
+    }
+
+    public void toggleSpendingLimits() {
+        this.spendingLimitsEnabled = !this.spendingLimitsEnabled;
+        this.customerSpendingLimits.clear();
+        logger.info("Spending limits %s".formatted(spendingLimitsEnabled ? "enabled" : "disabled"));
     }
 
     @TransactionBoundary

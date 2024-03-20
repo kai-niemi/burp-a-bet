@@ -35,6 +35,7 @@ import io.burpabet.common.util.Networking;
 import io.burpabet.common.util.RandomData;
 import io.burpabet.common.util.TableUtils;
 import io.burpabet.customer.model.Customer;
+import io.burpabet.customer.saga.CustomerBettingFacade;
 import io.burpabet.customer.service.CustomerService;
 
 @ShellComponent
@@ -46,6 +47,9 @@ public class OperatorCommand extends AbstractShellComponent {
     private CustomerService customerService;
 
     @Autowired
+    private CustomerBettingFacade customerBettingFacade;
+
+    @Autowired
     private AnsiConsole ansiConsole;
 
     @Value("${server.port}")
@@ -55,6 +59,11 @@ public class OperatorCommand extends AbstractShellComponent {
     public void reset() {
         customerService.deleteAllInBatch();
         ansiConsole.cyan("Done!").nl();
+    }
+
+    @ShellMethod(value = "Toggle spending limit check", key = {"toggle-limits","tl"})
+    public void toggleSpendingLimit() {
+        customerBettingFacade.toggleSpendingLimits();
     }
 
     @ShellMethod(value = "Register a new customer", key = {"r", "register"})
@@ -114,6 +123,7 @@ public class OperatorCommand extends AbstractShellComponent {
                         .port(port)
                         .build()
                         .toUriString())).nl();
+
         ansiConsole.cyan("Local URL: %s"
                 .formatted(ServletUriComponentsBuilder.newInstance()
                         .scheme("http")

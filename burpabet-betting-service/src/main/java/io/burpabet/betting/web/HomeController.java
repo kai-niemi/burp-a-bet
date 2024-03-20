@@ -18,9 +18,14 @@ public class HomeController {
         return "notice";
     }
 
-    @GetMapping("/bets")
-    public String betsPage(Model model) {
-        return "bets";
+    @GetMapping("/bets-placed")
+    public String betPlacedPage(Model model) {
+        return "bet-placed";
+    }
+
+    @GetMapping("/bets-settled")
+    public String betSettledPage(Model model) {
+        return "bet-settled";
     }
 
     @GetMapping("/races")

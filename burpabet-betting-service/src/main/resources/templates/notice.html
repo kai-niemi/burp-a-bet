@@ -107,7 +107,8 @@
             </a>
 
             <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-                <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/bets">Bets</a>
+                <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/bets-placed">Placed Bets</a>
+                <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/bets-settled">Settled Bets</a>
                 <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/races">Races</a>
                 <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/api">API</a>
                 <a class="py-2 link-body-emphasis text-decoration-none" href="/notice">Contact</a>
@@ -126,42 +127,90 @@
         </div>
     </header>
 
-    <main>
-    </main>
-
     <footer class="pt-4 my-md-5 pt-md-5 border-top">
         <div class="row">
             <div class="col-12 col-md">
-                <img class="mb-2" alt="" width="64" height="64"
-                     th:src="@{/logo.png}">
-                <small class="d-block mb-3 text-body-secondary">&copy; 2024 - <a href="https://github.com/kai-niemi/burp-a-bet">Betting and Auctioning</a></small>
+                <img class="mb-2" alt="" width="64" height="64" th:src="@{/logo.png}">
+                <small class="d-block mb-3 text-body-secondary">&copy; 2024</small>
             </div>
+
             <div class="col-6 col-md">
-                <h5>Features</h5>
+                <h5>Get Started</h5>
                 <ul class="list-unstyled text-small">
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Cool stuff</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Random feature</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Team feature</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Stuff for developers</a>
+                    <li><a class="text-muted" href="https://university.cockroachlabs.com/catalog">Online Training</a>
                     </li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/install-cockroachdb.html">Install
+                        CockroachDB</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/start-a-local-cluster.html">Start
+                        a Local Cluster</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/learn-cockroachdb-sql.html">Learn
+                        CockroachDB SQL</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/build-an-app-with-cockroachdb.html">Hello,
+                        World!</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/demo-fault-tolerance-and-recovery.html">Explore
+                        Capabilities</a></li>
                 </ul>
             </div>
             <div class="col-6 col-md">
-                <h5>Resources</h5>
+                <h5>Develop</h5>
                 <ul class="list-unstyled text-small">
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Resource</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Resource name</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Another resource</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Final resource</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/install-client-drivers.html">Client
+                        Drivers</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/connection-parameters.html">Connection
+                        Parameters</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/performance-best-practices-overview.html">SQL
+                        Best Practices</a></li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/sql-statements.html">SQL
+                        Statements</a></li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/data-types.html">SQL Data
+                        Types</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/sql-tuning-with-explain.html">SQL
+                        Tuning</a></li>
                 </ul>
             </div>
             <div class="col-6 col-md">
-                <h5>About</h5>
+                <h5>Deployment</h5>
                 <ul class="list-unstyled text-small">
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Team</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Locations</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Privacy</a></li>
-                    <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Terms</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/recommended-production-settings.html">Production
+                        Checklist</a></li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/topology-patterns.html">Topology
+                        Patterns</a></li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/manual-deployment.html">Manual
+                        Deployment</a></li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/orchestration.html">Orchestration</a>
+                    </li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/performance.html">Performance</a></li>
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/upgrade-cockroach-version.html">Rolling
+                        Upgrade</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>FAQs</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted"
+                           href="https://www.cockroachlabs.com/docs/stable/frequently-asked-questions.html">Product
+                        FAQs</a>
+                    </li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/sql-faqs.html">SQL
+                        FAQs</a>
+                    </li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/operational-faqs.html">Operational
+                        FAQs</a></li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/operational-faqs.html">Availability
+                        FAQs</a></li>
+                    <li><a class="text-muted" href="https://www.cockroachlabs.com/docs/stable/licensing-faqs.html">Licensing
+                        FAQs</a></li>
                 </ul>
             </div>
         </div>

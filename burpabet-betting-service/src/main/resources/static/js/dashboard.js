@@ -5,7 +5,8 @@ var AppDashboard = function (settings) {
 
 AppDashboard.prototype = {
     init: function () {
-        this.betSummaryContainer = this.getElement(this.settings.elements.betSummaryContainer);
+        this.betPlacedContainer = this.getElement(this.settings.elements.betPlacedContainer);
+        this.betSettledContainer = this.getElement(this.settings.elements.betSettledContainer);
         this.raceSummaryContainer = this.getElement(this.settings.elements.raceSummaryContainer);
 
         this.loadInitialBets();
@@ -17,7 +18,18 @@ AppDashboard.prototype = {
         var _this = this;
 
         $.get(this.settings.endpoints.settledBets, function (data) {
-            _this.createBetElements(data['_embedded']['betting:bet-list']);
+            // todo
+            // console.log(data);
+            var _container = _this.createSettledBetElements(data['_embedded']['betting:bet-list']);
+            _this.betSettledContainer.empty();
+            _this.betSettledContainer.append(_container);
+        });
+
+        $.get(this.settings.endpoints.unsettledBets, function (data) {
+            // console.log(data);
+            var _container = _this.createUnsettledBetElements(data['_embedded']['betting:bet-list']);
+            _this.betPlacedContainer.empty();
+            _this.betPlacedContainer.append(_container);
         });
     },
 
@@ -33,7 +45,7 @@ AppDashboard.prototype = {
         return $('#' + id);
     },
 
-    createBetElements: function (data) {
+    createSettledBetElements: function (data) {
         var _this = this, report;
 
         // console.log(data);
@@ -46,7 +58,7 @@ AppDashboard.prototype = {
             }
 
             return $('<tr>')
-                .attr('class', colorClass)
+                // .attr('class', colorClass)
                 .append(
                     $('<td>')
                         .attr('scope', 'row')
@@ -81,8 +93,53 @@ AppDashboard.prototype = {
                 )
         });
 
-        this.betSummaryContainer.empty();
-        this.betSummaryContainer.append(report);
+        return report;
+    },
+
+    createUnsettledBetElements: function (data) {
+        var _this = this, report;
+
+        // console.log(data);
+
+        report = data.map(function (bet) {
+            var colorClass = '';
+
+            if (bet.race.outcome==='lose') {
+                colorClass='table-danger';
+            }
+
+            return $('<tr>')
+                // .attr('class', colorClass)
+                .append(
+                    $('<td>')
+                        .attr('scope', 'row')
+                        .append($('<a>')
+                            .attr('href', bet._links.self.href)
+                            .text(bet.customerName))
+                )
+                .append(
+                    $('<td>')
+                        // .attr('scope', 'row')
+                        .text(bet.race.track)
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "horse")
+                        .text(bet.race.horse)
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "odds")
+                        .text(bet.race.odds)
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "stake")
+                        .text(_this.formatMoney(bet.stake.amount, bet.stake.currency))
+                )
+        });
+
+        return report;
     },
 
     createRaceElements: function (data) {
@@ -97,7 +154,7 @@ AppDashboard.prototype = {
                 colorClass = 'table-danger';
             }
             return $('<tr>')
-                    .attr('class', colorClass)
+                    // .attr('class', colorClass)
                     .append(
                             $('<td>')
                                     .attr('scope', 'row')
@@ -168,6 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new AppDashboard({
         endpoints: {
             settledBets: '/api/bet/settled',
+            unsettledBets: '/api/bet/unsettled',
             allRaces: '/api/race',
             socket: '/burpabet-betting'
         },
@@ -177,7 +235,8 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         elements: {
-            betSummaryContainer: 'bet-summary-container',
+            betSettledContainer: 'bet-settled-container',
+            betPlacedContainer: 'bet-placed-container',
             raceSummaryContainer: 'race-summary-container'
         }
     });
