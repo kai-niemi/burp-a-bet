@@ -90,6 +90,13 @@ public class AccountController {
                 customerAccountRepository.findById(id).orElseThrow(() -> new NoSuchAccountException(id))));
     }
 
+    @GetMapping(value = "/customer/foreign/{id}")
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    public HttpEntity<EntityModel<CustomerAccount>> getCustomerAccountByForeignId(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(customerAccountResourceAssembler.toModel(
+                customerAccountRepository.findByForeignId(id).orElseThrow(() -> new NoSuchAccountException(id))));
+    }
+
     @PatchMapping(value = "/{id}")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public ResponseEntity<?> updateAccount(@PathVariable("id") UUID id, @RequestBody Account account) {

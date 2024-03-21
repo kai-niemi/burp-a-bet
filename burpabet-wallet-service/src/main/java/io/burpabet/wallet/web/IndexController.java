@@ -26,6 +26,11 @@ public class IndexController {
                 .withRel("all-customers")
                 .withTitle("Customer account collection resource"));
 
+        index.add(linkTo(methodOn(AccountController.class)
+                .getCustomerAccountByForeignId(null))
+                .withRel("customer")
+                .withTitle("Customer account resource"));
+
         index.add(Link.of(ServletUriComponentsBuilder.fromCurrentContextPath()
                         .pathSegment("actuator")
                         .buildAndExpand()

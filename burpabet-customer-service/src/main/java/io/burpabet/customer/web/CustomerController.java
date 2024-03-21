@@ -1,9 +1,16 @@
 package io.burpabet.customer.web;
 
-import java.util.UUID;
-
+import io.burpabet.common.annotations.TimeTravel;
+import io.burpabet.common.annotations.TimeTravelMode;
+import io.burpabet.common.annotations.TransactionBoundary;
+import io.burpabet.common.domain.Jurisdiction;
+import io.burpabet.common.domain.Status;
+import io.burpabet.customer.model.Customer;
+import io.burpabet.customer.repository.CustomerRepository;
+import io.burpabet.customer.service.NoSuchCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -17,16 +24,11 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.burpabet.common.annotations.TimeTravel;
-import io.burpabet.common.annotations.TimeTravelMode;
-import io.burpabet.common.annotations.TransactionBoundary;
-import io.burpabet.common.domain.Jurisdiction;
-import io.burpabet.common.domain.Status;
-import io.burpabet.customer.model.Customer;
-import io.burpabet.customer.repository.CustomerRepository;
-import io.burpabet.customer.service.NoSuchCustomerException;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/api/customer")
@@ -43,8 +45,11 @@ public class CustomerController {
     @GetMapping(value = "/")
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public HttpEntity<PagedModel<EntityModel<Customer>>> findAll(
-            @PageableDefault(size = 15) Pageable page) {
-        Page<Customer> customerPage = customerRepository.findAll(page);
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("size") Optional<Integer> size) {
+        int currentPage = page.orElse(0);
+        int pageSize = size.orElse(10);
+        Page<Customer> customerPage = customerRepository.findAll(PageRequest.of(currentPage, pageSize));
         return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
     }
 

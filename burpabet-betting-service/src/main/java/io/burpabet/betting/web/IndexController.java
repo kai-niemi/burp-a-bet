@@ -44,6 +44,11 @@ public class IndexController {
                 .withRel("settlement")
                 .withTitle("Form template for settling bets"));
 
+//        index.add(linkTo(methodOn(CustomerController.class)
+//                .findAll(null,null))
+//                .withRel("customer:customer-list")
+//                .withTitle("Collection of customers (relay to betting-customer service)"));
+
         return index;
     }
 

@@ -11,6 +11,7 @@ AppDashboard.prototype = {
 
         this.loadInitialBets();
         this.loadInitialRaces();
+
         this.addWebsocketListener();
     },
 
@@ -18,18 +19,21 @@ AppDashboard.prototype = {
         var _this = this;
 
         $.get(this.settings.endpoints.settledBets, function (data) {
-            // todo
-            // console.log(data);
-            var _container = _this.createSettledBetElements(data['_embedded']['betting:bet-list']);
-            _this.betSettledContainer.empty();
-            _this.betSettledContainer.append(_container);
+            var _e = data['_embedded'];
+            if (_e && _e['betting:bet-list']) {
+                var _container = _this.createSettledBetElements(_e['betting:bet-list']);
+                _this.betSettledContainer.empty();
+                _this.betSettledContainer.append(_container);
+            }
         });
 
         $.get(this.settings.endpoints.unsettledBets, function (data) {
-            // console.log(data);
-            var _container = _this.createUnsettledBetElements(data['_embedded']['betting:bet-list']);
-            _this.betPlacedContainer.empty();
-            _this.betPlacedContainer.append(_container);
+            var _e = data['_embedded'];
+            if (_e && _e['betting:bet-list']) {
+                var _container = _this.createUnsettledBetElements(_e['betting:bet-list']);
+                _this.betPlacedContainer.empty();
+                _this.betPlacedContainer.append(_container);
+            }
         });
     },
 
@@ -53,8 +57,8 @@ AppDashboard.prototype = {
         report = data.map(function (bet) {
             var colorClass = '';
 
-            if (bet.race.outcome==='lose') {
-                colorClass='table-danger';
+            if (bet.race.outcome === 'lose') {
+                colorClass = 'table-danger';
             }
 
             return $('<tr>')
@@ -88,6 +92,11 @@ AppDashboard.prototype = {
                 )
                 .append(
                     $('<td>')
+                        .attr('id', "stake")
+                        .text(_this.formatMoney(bet.stake.amount, bet.stake.currency))
+                )
+                .append(
+                    $('<td>')
                         .attr('id', "winnings")
                         .text(_this.formatMoney(bet.payout.amount, bet.payout.currency))
                 )
@@ -104,8 +113,8 @@ AppDashboard.prototype = {
         report = data.map(function (bet) {
             var colorClass = '';
 
-            if (bet.race.outcome==='lose') {
-                colorClass='table-danger';
+            if (bet.race.outcome === 'lose') {
+                colorClass = 'table-danger';
             }
 
             return $('<tr>')
@@ -154,44 +163,44 @@ AppDashboard.prototype = {
                 colorClass = 'table-danger';
             }
             return $('<tr>')
-                    // .attr('class', colorClass)
-                    .append(
-                            $('<td>')
-                                    .attr('scope', 'row')
-                                    .append($('<a>')
-                                        .attr('href', race._links.self.href)
-                                        .text(race.track))
-                    )
-                    .append(
-                            $('<td>')
-                                    .attr('id', "horse")
-                                    .text(race.horse)
-                    )
-                    .append(
-                            $('<td>')
-                                    .attr('id', "odds")
-                                    .text(race.odds)
-                    )
-                    .append(
-                            $('<td>')
-                                    .attr('id', "outcome")
-                                    .text(race.outcome)
-                    )
-                    .append(
-                            $('<td>')
-                                    .attr('id', "totalBets")
-                                    .text(race.totalBets)
-                    )
-                    .append(
-                            $('<td>')
-                                    .attr('id', "totalWager")
-                                    .text(_this.formatMoney(race.totalWager.amount, race.totalWager.currency))
-                    )
-                    .append(
-                            $('<td>')
-                                    .attr('id', "totalPayout")
-                                    .text(_this.formatMoney(race.totalPayout.amount, race.totalPayout.currency))
-                    )
+                // .attr('class', colorClass)
+                .append(
+                    $('<td>')
+                        .attr('scope', 'row')
+                        .append($('<a>')
+                            .attr('href', race._links.self.href)
+                            .text(race.track))
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "horse")
+                        .text(race.horse)
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "odds")
+                        .text(race.odds)
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "outcome")
+                        .text(race.outcome)
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "totalBets")
+                        .text(race.totalBets)
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "totalWager")
+                        .text(_this.formatMoney(race.totalWager.amount, race.totalWager.currency))
+                )
+                .append(
+                    $('<td>')
+                        .attr('id', "totalPayout")
+                        .text(_this.formatMoney(race.totalPayout.amount, race.totalPayout.currency))
+                )
         });
 
         this.raceSummaryContainer.empty();
@@ -200,8 +209,8 @@ AppDashboard.prototype = {
 
     addWebsocketListener: function () {
         var socket = new SockJS(this.settings.endpoints.socket),
-                stompClient = Stomp.over(socket),
-                _this = this;
+            stompClient = Stomp.over(socket),
+            _this = this;
 
         stompClient.connect({}, function (frame) {
             stompClient.subscribe(_this.settings.topics.betSummary, function (summary) {

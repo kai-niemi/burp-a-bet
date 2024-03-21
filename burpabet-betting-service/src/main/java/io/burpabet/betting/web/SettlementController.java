@@ -1,7 +1,10 @@
 package io.burpabet.betting.web;
 
-import java.util.UUID;
-
+import io.burpabet.betting.model.Race;
+import io.burpabet.betting.service.BetSettlementService;
+import io.burpabet.betting.service.RaceService;
+import io.burpabet.common.domain.Outcome;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,16 +12,14 @@ import org.springframework.hateoas.mediatype.Affordances;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
-import io.burpabet.betting.model.Race;
-import io.burpabet.betting.service.BetSettlementService;
-import io.burpabet.betting.service.RaceService;
-import io.burpabet.common.domain.Outcome;
-import jakarta.validation.Valid;
+import java.util.UUID;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.afford;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -70,5 +71,19 @@ public class SettlementController {
             }
         }
         return ResponseEntity.accepted().build();
+    }
+
+    @GetMapping(value = "/all/{outcome}")
+    public RedirectView settleAllBets(@PathVariable("outcome") Outcome outcome) {
+        Page<Race> page = raceService.findRacesWithUnsettledBets(PageRequest.ofSize(100));
+        for (; ; ) {
+            page.forEach(x -> betSettlementService.settleBets(x.getId(), outcome));
+            if (page.hasNext()) {
+                page = raceService.findRacesWithUnsettledBets(page.nextPageable());
+            } else {
+                break;
+            }
+        }
+        return new RedirectView("/bets-settled");
     }
 }

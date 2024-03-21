@@ -1,0 +1,107 @@
+<!--
+  ~ Copyright (c) 2024 Kai Niemi.
+  ~
+  ~ Use of this source code is governed by an MIT-style license that can be
+  ~ found in the LICENSE file or at https://opensource.org/licenses/MIT.
+  -->
+
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Burp-a-bet</title>
+
+    <link rel="canonical" href="https://github.com/kai-niemi/burp-a-bet/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link href="/webjars/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+    </style>
+
+    <!-- Custom styles for this template -->
+    <link href="../static/css/main.css" rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+
+<div th:replace="~{fragments/theme :: theme}"></div>
+
+<div class="container py-3">
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">Customers</h1>
+        <p class="fs-5 text-body-secondary">List of registered customers.</p>
+    </div>
+
+    <main>
+        <div class="table-responsive-xl">
+            <table class="table table-striped table-bordered table-hover table-sm">
+                <thead class="thead-light">
+                <tr>
+                    <th>Name</th>
+                    <th>E-mail</th>
+                    <th>Jurisdiction</th>
+                    <th>Status</th>
+                    <th>Resources</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="customer, iStat : ${customerPage.content}"
+                        th:style="${iStat.odd}? 'font-weight: bold;'"
+                        th:alt-title="${iStat.even}? 'even' : 'odd'">
+                        <td scope="row" >
+                            <a th:href="${customer.getRequiredLink('self').href}" th:text="${customer.name}"></a>
+                        </td>
+                        <td th:text="${customer.email}" />
+                        <td th:text="${customer.jurisdiction}" />
+                        <td th:text="${customer.status}" />
+                        <td scope="row" >
+                            <a th:href="${customer.getRequiredLink('wallet:customer').href}">Wallet</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <nav th:if="${customerPage.metadata.totalPages > 0}">
+                <ul class="pagination" >
+                    <li class="page-item" th:class="${!customerPage.previousLink.isPresent()} ? disabled">
+                        <a class="page-link"
+                           th:href="@{/customers(size=${customerPage.metadata.size}, page=${previousPageNumber})}">
+                            <span aria-hidden="true">&laquo;</span></a>
+                    </li>
+
+                    <li class="page-item" th:each="pageNumber: ${pageNumbers}"
+                        th:class="${pageNumber==customerPage.metadata.number} ? active">
+                        <a class ="page-link"
+                           th:href="@{/customers(size=${customerPage.metadata.size}, page=${pageNumber})}"
+                           th:text=${pageNumber}></a>
+                    </li>
+
+                    <li class="page-item" th:class="${!customerPage.nextLink.isPresent()} ? disabled">
+                        <a class="page-link"
+                           th:href="@{/customers(size=${customerPage.metadata.size}, page=${nextPageNumber})}">
+                            <span aria-hidden="true">&raquo;</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://code.jquery.com/ui/1.13/jquery-ui.js"></script>
+<script src="https://code.jquery.com/color/jquery.color-2.2.0.js"></script>
+
+<script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="/webjars/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="/webjars/stomp-websocket/2.3.4/stomp.min.js"></script>
+
+<script src="js/dashboard.js"></script>
+<script src="js/color-modes.js"></script>
+
+</body>
+</html>

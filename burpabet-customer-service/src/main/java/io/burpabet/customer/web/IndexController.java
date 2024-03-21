@@ -1,13 +1,13 @@
 package io.burpabet.customer.web;
 
-import java.util.EnumSet;
-
 import io.burpabet.common.domain.Jurisdiction;
+import io.burpabet.common.domain.Status;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.burpabet.common.domain.Status;
+import java.util.EnumSet;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -19,7 +19,7 @@ public class IndexController {
     public IndexModel index() {
         IndexModel index = new IndexModel();
         index.add(linkTo(methodOn(CustomerController.class)
-                .findAll( null))
+                .findAll(null, null))
                 .withRel("all")
                 .withTitle("Collection of customers"));
 
