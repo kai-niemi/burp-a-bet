@@ -32,7 +32,7 @@
 
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h1 class="display-4 fw-normal text-body-emphasis">Customers</h1>
-        <p class="fs-5 text-body-secondary">List of registered customers.</p>
+        <p class="fs-5 text-body-secondary">All registered customers.</p>
     </div>
 
     <main>
@@ -48,9 +48,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="customer, iStat : ${customerPage.content}"
-                        th:style="${iStat.odd}? 'font-weight: bold;'"
-                        th:alt-title="${iStat.even}? 'even' : 'odd'">
+                    <tr th:each="customer, iStat : ${customerPage.content}">
                         <td scope="row" >
                             <a th:href="${customer.getRequiredLink('self').href}" th:text="${customer.name}"></a>
                         </td>

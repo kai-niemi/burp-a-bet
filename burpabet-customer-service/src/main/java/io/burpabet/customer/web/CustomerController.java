@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -49,7 +50,8 @@ public class CustomerController {
             @RequestParam("size") Optional<Integer> size) {
         int currentPage = page.orElse(0);
         int pageSize = size.orElse(10);
-        Page<Customer> customerPage = customerRepository.findAll(PageRequest.of(currentPage, pageSize));
+        Page<Customer> customerPage = customerRepository.findAll(
+                PageRequest.of(currentPage, pageSize, Sort.by("jurisdiction", "name")));
         return ResponseEntity.ok(customerPagedResourcesAssembler.toModel(customerPage, customerResourceAssembler));
     }
 
