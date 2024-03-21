@@ -1,4 +1,4 @@
-package io.burpabet.betting.web;
+package io.burpabet.betting.web.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

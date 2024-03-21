@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +53,23 @@ public class OperatorCommand extends AbstractShellComponent {
     @Autowired
     private AnsiConsole ansiConsole;
 
+    @Autowired
+    private Flyway flyway;
+
     @Value("${server.port}")
     private int port;
 
     @ShellMethod(value = "Reset all customer data", key = {"reset"})
     public void reset() {
         customerService.deleteAllInBatch();
+        ansiConsole.cyan("Done!").nl();
+    }
+
+    @ShellMethod(value = "Run flyway clean+migrate to reset changefeed's (this will drop the schema)",
+            key = {"migrate"})
+    public void migrate() {
+        flyway.clean();
+        flyway.migrate();
         ansiConsole.cyan("Done!").nl();
     }
 

@@ -213,10 +213,18 @@ AppDashboard.prototype = {
             _this = this;
 
         stompClient.connect({}, function (frame) {
-            stompClient.subscribe(_this.settings.topics.betSummary, function (summary) {
+            stompClient.subscribe(_this.settings.topics.betSettlement, function (summary) {
                 // var _event = JSON.parse(summary.body);
-                // console.log("Stomp event: " + _event);
+                // console.log("Stomp event (settlement): " + _event);
                 _this.loadInitialBets();
+            });
+
+            stompClient.subscribe(_this.settings.topics.betPlacement, function (summary) {
+                // var _event = JSON.parse(summary.body);
+                // console.log("Stomp event (placement): " + _event);
+                setTimeout(function(){
+                    location.reload();
+                }, 1000);
             });
         });
     },
@@ -240,7 +248,8 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         topics: {
-            betSummary: '/topic/bet-summary'
+            betPlacement: '/topic/bet-placement',
+            betSettlement: '/topic/bet-settlement'
         },
 
         elements: {

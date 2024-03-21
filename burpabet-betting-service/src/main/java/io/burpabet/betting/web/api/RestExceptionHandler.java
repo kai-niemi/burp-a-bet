@@ -1,4 +1,7 @@
-package io.burpabet.betting.web;
+package io.burpabet.betting.web.api;
+
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Objects;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpHeaders;
@@ -12,10 +15,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import java.io.FileNotFoundException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Objects;
 
 import io.burpabet.betting.service.NoSuchBetException;
 import io.burpabet.betting.service.NoSuchRaceException;

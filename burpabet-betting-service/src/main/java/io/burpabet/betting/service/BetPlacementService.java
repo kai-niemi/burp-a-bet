@@ -21,6 +21,9 @@ import org.springframework.data.util.Pair;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.burpabet.betting.service.Pusher.TOPIC_BET_PLACEMENT;
+
+
 @ServiceFacade
 public class BetPlacementService {
     private static BetPlacement toBetPlacement(Bet bet, UUID raceID) {
@@ -44,6 +47,9 @@ public class BetPlacementService {
 
     @Autowired
     private IdempotencyService idempotencyService;
+
+    @Autowired
+    private Pusher pusher;
 
     @TransactionBoundary
     public void deleteAllInBatch() {
@@ -118,6 +124,9 @@ public class BetPlacementService {
         BetPlacement placement = toBetPlacement(bet, bet.getRace().getId());
         placement.setEventId(fromWallet.getEventId());
         placement.setOrigin(origin);
+
+        // Delay sending with 5s due to follower reads
+        pusher.convertAndSend(Pusher.TOPIC_BET_PLACEMENT, placement, 5);
 
         return new BetPlacementEvent(fromWallet.getEventId(), EventType.insert, placement);
     }

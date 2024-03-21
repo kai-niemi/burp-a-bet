@@ -1,6 +1,7 @@
-package io.burpabet.betting.web;
+package io.burpabet.betting.web.api;
 
 import io.burpabet.betting.model.Bet;
+
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.SimpleRepresentationModelAssembler;

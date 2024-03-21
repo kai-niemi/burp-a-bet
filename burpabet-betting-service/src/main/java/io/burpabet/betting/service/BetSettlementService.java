@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import io.burpabet.betting.model.Bet;
 import io.burpabet.betting.repository.BetRepository;
@@ -25,8 +24,6 @@ import io.burpabet.common.shell.DebugSupport;
 
 @ServiceFacade
 public class BetSettlementService {
-    private static final String TOPIC_BET_SUMMARY = "/topic/bet-summary";
-
     private static BetSettlement toBetSettlement(Bet bet) {
         BetSettlement betSettlement = new BetSettlement();
         betSettlement.setEntityId(bet.getId());
@@ -48,7 +45,7 @@ public class BetSettlementService {
     private OutboxRepository outboxRepository;
 
     @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private Pusher pusher;
 
     @TransactionBoundary
     public void deleteAllInBatch() {
@@ -124,8 +121,8 @@ public class BetSettlementService {
         settlement.setEventId(fromWallet.getEventId());
         settlement.setOrigin(origin);
 
-        // Should actually delay sending with 5s due to follower reads so some UI updates may be no-ops
-        simpMessagingTemplate.convertAndSend(TOPIC_BET_SUMMARY, settlement);
+        // Delay sending with 5s due to follower reads
+        pusher.convertAndSend(Pusher.TOPIC_BET_SETTLEMENT, settlement, 5);
 
         return new BetSettlementEvent(fromWallet.getEventId(), EventType.insert, settlement);
     }

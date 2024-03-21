@@ -1,5 +1,6 @@
-package io.burpabet.betting.web;
+package io.burpabet.betting.web.api;
 
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,7 +14,7 @@ public class IndexController {
     @GetMapping
     public IndexModel index() {
         IndexModel index = new IndexModel();
-        index.add(linkTo(methodOn(BetController.class)
+        index.add(WebMvcLinkBuilder.linkTo(methodOn(BetController.class)
                 .findAll(null))
                 .withRel("all")
                 .withTitle("Collection of bets"));
