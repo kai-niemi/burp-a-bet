@@ -1,10 +1,10 @@
 -- Set primary region to where kafka runs
-ALTER DATABASE burp_wallet PRIMARY REGION "aws-eu-north-1";
-ALTER DATABASE burp_wallet ADD REGION "aws-eu-central-1";
-ALTER DATABASE burp_wallet ADD REGION "aws-eu-west-1";
+ALTER DATABASE wallet PRIMARY REGION "aws-eu-north-1";
+ALTER DATABASE wallet ADD REGION "aws-eu-central-1";
+ALTER DATABASE wallet ADD REGION "aws-eu-west-1";
 
 SET enable_multiregion_placement_policy=on;
-ALTER DATABASE burp_wallet PLACEMENT RESTRICTED;
+ALTER DATABASE wallet PLACEMENT RESTRICTED;
 
 ALTER TABLE account ADD COLUMN region crdb_internal_region AS (
     CASE

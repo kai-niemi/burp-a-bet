@@ -1,10 +1,10 @@
 -- Set primary region to where kafka runs
-ALTER DATABASE burp_betting PRIMARY REGION "aws-eu-north-1";
-ALTER DATABASE burp_betting ADD REGION "aws-eu-central-1";
-ALTER DATABASE burp_betting ADD REGION "aws-eu-west-1";
+ALTER DATABASE betting PRIMARY REGION "aws-eu-north-1";
+ALTER DATABASE betting ADD REGION "aws-eu-central-1";
+ALTER DATABASE betting ADD REGION "aws-eu-west-1";
 
 SET enable_multiregion_placement_policy=on;
-ALTER DATABASE burp_betting PLACEMENT RESTRICTED;
+ALTER DATABASE betting PLACEMENT RESTRICTED;
 
 -- Pin bet rows based on jurisdiction
 ALTER TABLE bet ADD COLUMN region crdb_internal_region AS (

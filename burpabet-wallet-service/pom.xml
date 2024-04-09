@@ -11,7 +11,7 @@
 
     <artifactId>burpabet-wallet-service</artifactId>
     <packaging>jar</packaging>
-    <name>Burp-a-bet :: Wallet Service</name>
+    <name>Wallet Service</name>
 
     <dependencies>
         <dependency>

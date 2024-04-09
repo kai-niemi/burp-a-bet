@@ -11,7 +11,7 @@
 
     <artifactId>burpabet-customer-service</artifactId>
     <packaging>jar</packaging>
-    <name>Burp-a-bet :: Customer Service</name>
+    <name>Customer Service</name>
 
     <dependencies>
         <dependency>

@@ -11,7 +11,7 @@
 
     <artifactId>burpabet-betting-service</artifactId>
     <packaging>jar</packaging>
-    <name>Burp-a-bet :: Betting Service</name>
+    <name>Betting Service</name>
 
     <dependencies>
         <dependency>

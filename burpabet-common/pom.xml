@@ -11,7 +11,7 @@
 
     <artifactId>burpabet-common</artifactId>
     <packaging>jar</packaging>
-    <name>Burp-a-bet :: Common</name>
+    <name>Common</name>
 
     <dependencies>
         <dependency>

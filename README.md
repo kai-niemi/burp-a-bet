@@ -7,8 +7,8 @@
 Welcome to Burp-a-Bet - an online, voice-activated horse betting system _demo_ based on CockroachDB, Kafka 
 and Spring Boot. 
 
-Actually, the voice activation is imaginary and bets are instead placed by keystrokes through shell commands 
-or API requests. In theory thought it could be.
+The voice activation part is actually just theoretical and bets are placed by keystrokes 
+through an interactive shell or API requests.
 
 # Introduction
 
@@ -111,9 +111,9 @@ The executable jars are now found under each respective module's `target` direct
 
 Create the following databases for each service (localhost example):
 
-    cockroach sql --insecure --host=localhost -e "CREATE database burp_wallet"
-    cockroach sql --insecure --host=localhost -e "CREATE database burp_customer"
-    cockroach sql --insecure --host=localhost -e "CREATE database burp_betting"
+    cockroach sql --insecure --host=localhost -e "CREATE database wallet"
+    cockroach sql --insecure --host=localhost -e "CREATE database customer"
+    cockroach sql --insecure --host=localhost -e "CREATE database betting"
 
 Enable [change feeds](https://www.cockroachlabs.com/docs/stable/create-and-configure-changefeeds#enable-rangefeeds):
 
@@ -196,7 +196,7 @@ For example:
 
     java -jar wallet-service.jar \
     --spring.profiles.active=local \
-    --spring.datasource.url="jdbc:postgresql://my_fancy_cluster.aws-eu-north-1.cockroachlabs.cloud:26257/burp_wallet?sslmode=verify-full&sslrootcert=$HOME/Library/CockroachCloud/certs/<uuid>/cluster-name-ca.crt" \
+    --spring.datasource.url="jdbc:postgresql://my_fancy_cluster.aws-eu-north-1.cockroachlabs.cloud:26257/wallet?sslmode=verify-full&sslrootcert=$HOME/Library/CockroachCloud/certs/<uuid>/cluster-name-ca.crt" \
     --spring.datasource.username=burp \
     --spring.datasource.password=*** \
     --spring.kafka.bootstrap-servers=<kafka-local-ip>:9092 \
