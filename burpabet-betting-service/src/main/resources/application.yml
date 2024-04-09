@@ -21,7 +21,7 @@ spring:
       state-dir: .tmp/kafka-streams/
   ###################################################
   application:
-    name: burpabet-betting
+    name: betting-service
   profiles:
     active: local
   shell:
@@ -95,6 +95,6 @@ logging:
 server:
   port: 8092
 #############################
-burp:
+app:
   customer-api-url: http://localhost:8090/api
   maximum-threads: 50

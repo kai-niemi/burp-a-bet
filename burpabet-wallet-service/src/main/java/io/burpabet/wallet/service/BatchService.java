@@ -1,5 +1,6 @@
 package io.burpabet.wallet.service;
 
+import io.burpabet.common.annotations.Retryable;
 import io.burpabet.common.annotations.ServiceFacade;
 import io.burpabet.common.annotations.TransactionBoundary;
 import io.burpabet.common.domain.Jurisdiction;
@@ -115,6 +116,7 @@ public class BatchService {
     }
 
     @TransactionBoundary
+    @Retryable
     public Money grantBonus(OperatorAccount operatorAccount, Money grant) {
         TransferRequest.Builder requestBuilder = TransferRequest.builder()
                 .withId(UUID.randomUUID())

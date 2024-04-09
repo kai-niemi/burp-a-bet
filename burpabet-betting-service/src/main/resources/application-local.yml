@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:26257/burp_betting?sslmode=disable
+    url: jdbc:postgresql://localhost:26257/betting?sslmode=disable
   flyway:
     placeholders:
       cdc-sink-url: kafka://localhost:9092
   kafka:
     bootstrap-servers: localhost:9092
-burp:
+app:
   customer-api-url: http://localhost:8090/api

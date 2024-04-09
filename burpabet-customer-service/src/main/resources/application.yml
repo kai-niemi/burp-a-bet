@@ -26,7 +26,7 @@ spring:
       state-dir: .tmp/kafka-streams/
 ###################################################
   application:
-    name: burpabet-customer
+    name: customer-service
   profiles:
     active: local
   shell:
@@ -100,5 +100,5 @@ logging:
 server:
   port: 8090
 #############################
-burp:
+app:
   wallet-api-url: http://localhost:8091/api

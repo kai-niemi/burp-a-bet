@@ -20,7 +20,7 @@ import io.burpabet.betting.shell.support.WorkloadExecutor;
 @EnableScheduling
 @EnableAsync
 public class AsyncConfiguration implements AsyncConfigurer {
-    @Value("${burp.maximum-threads}")
+    @Value("${app.maximum-threads}")
     private int threadPoolSize;
 
     @Override

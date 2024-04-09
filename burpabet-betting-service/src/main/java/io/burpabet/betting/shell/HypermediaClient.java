@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 @Component
 public class HypermediaClient {
-    @Value("${burp.customer-api-url}")
+    @Value("${app.customer-api-url}")
     private String customerApiUri;
 
     public static final ParameterizedTypeReference<PagedModel<Map<String, Object>>> PAGED_MODEL_TYPE

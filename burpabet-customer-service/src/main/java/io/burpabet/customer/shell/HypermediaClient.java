@@ -16,7 +16,7 @@ public class HypermediaClient {
             = new TypeReferences.CollectionModelType<>() {
     };
 
-    @Value("${burp.wallet-api-url}")
+    @Value("${app.wallet-api-url}")
     private String walletApiUri;
 
     public <R> R traverseWalletApi(Function<Traverson, R> consumer) {

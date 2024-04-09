@@ -15,7 +15,7 @@ spring:
         spring.json.trusted.packages: "*"
   ###################################################
   application:
-    name: burpabet-wallet
+    name: wallet-service
   profiles:
     active: local
   shell:

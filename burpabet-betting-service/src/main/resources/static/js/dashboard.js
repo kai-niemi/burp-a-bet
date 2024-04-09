@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
             settledBets: '/api/bet/settled',
             unsettledBets: '/api/bet/unsettled',
             allRaces: '/api/race',
-            socket: '/burpabet-betting'
+            socket: '/betting-service'
         },
 
         topics: {
