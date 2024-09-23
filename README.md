@@ -4,6 +4,34 @@
 
 <img align="left" src="logo.png" width="128" height="128" />
 
+<!-- TOC -->
+* [Burp-a-bet](#burp-a-bet-)
+* [Introduction](#introduction)
+* [Design Features](#design-features)
+* [Building](#building)
+    * [Prerequisites](#prerequisites)
+    * [Setup](#setup)
+        * [Clone the project](#clone-the-project)
+        * [Build the executable jars](#build-the-executable-jars)
+* [Demo Tutorial](#demo-tutorial)
+    * [Demo Setup](#demo-setup)
+        * [Prerequisites](#prerequisites-1)
+        * [Setup CockroachDB](#setup-cockroachdb)
+            * [Create the databases](#create-the-databases)
+        * [Setup and Start Kafka](#setup-and-start-kafka)
+        * [Start Services](#start-services)
+    * [Custom Parameters (optional)](#custom-parameters-optional)
+    * [Demo Commands](#demo-commands)
+        * [Customer Service](#customer-service)
+        * [Wallet Service](#wallet-service)
+        * [Betting Service](#betting-service)
+    * [Appendix](#appendix)
+        * [API Testing](#api-testing)
+        * [Rule Invariants](#rule-invariants)
+        * [Additional Resources](#additional-resources)
+* [Terms of Use](#terms-of-use)
+<!-- TOC -->
+
 Welcome to Burp-a-Bet - an online, voice-activated horse betting system _demo_ based on CockroachDB, Kafka 
 and Spring Boot. 
 
@@ -56,24 +84,18 @@ using the [HAL+forms](https://rwcbook.github.io/hal-forms/) hypermedia type.
 The shells are used to initiate the different journeys above and other management tasks. The APIs are used for
 observability and also for initiating journeys using HTTP requests through cURL / Postman or similar tools.
 
-# Building and Running
+# Building
 
-The project builds executable JAR files for each deployable component or microservice. These JAR files runs 
-on any platform for which there is a Java 17+ runtime.
+The project builds executable JAR files for each deployable component or microservice. 
+These JAR files runs on any platform for which there is a Java 17+ runtime.
                  
 ## Prerequisites
-
-### Building
 
 - Java 17 JDK
     - https://openjdk.org/projects/jdk/17/
     - https://www.oracle.com/java/technologies/downloads/#java17
 - Maven 3+ (optional, embedded wrapper available)
     - https://maven.apache.org/
-
-### Running
-
-- Java 17+ JRE
 - CockroachDB 23.1+ with an Enterprise License
   - https://www.cockroachlabs.com/docs/releases/
 - Kafka 3.6+
@@ -107,9 +129,31 @@ Confirm the installation by running:
 
 The executable jars are now found under each respective module's `target` directory.
 
-### Create the databases
+# Demo Tutorial
 
-Create the following databases for each service (localhost example):
+This section describes how to run a local demo on MacOS.
+
+> For multi-region deployments using CockroachCloud on either AWS, GCP or Azure, there are
+prepared template script and SQL files in the [deploy](deploy/) directory. It describes a
+manual process for a bit more advanced demos involving multi-region patterns.
+
+## Demo Setup
+
+### Prerequisites
+
+- CockroachDB 23.1+ with an Enterprise License
+    - https://www.cockroachlabs.com/docs/releases/
+- Kafka 3.6+
+    - https://kafka.apache.org/downloads
+
+### Setup CockroachDB
+
+For deploying a local CockroachDB cluster, 
+see https://www.cockroachlabs.com/docs/v24.2/start-a-local-cluster.
+
+#### Create the databases
+
+Create the following databases, one for each service:
 
     cockroach sql --insecure --host=localhost -e "CREATE database wallet"
     cockroach sql --insecure --host=localhost -e "CREATE database customer"
@@ -119,7 +163,7 @@ Enable [change feeds](https://www.cockroachlabs.com/docs/stable/create-and-confi
 
     cockroach sql --insecure --host=localhost -e "SET CLUSTER SETTING kv.rangefeed.enabled = true"
 
-### Setup Kafka
+### Setup and Start Kafka
 
 Kafka Streams is required to help drive the distributed business transactions on top
 of CockroachDB CDC outbox events.
@@ -155,23 +199,27 @@ Tail a topic, in this case `registration`:
 
     bin/kafka-console-consumer.sh --topic registration --from-beginning --bootstrap-server localhost:9092 --property print.key=true
 
-## Running Locally
+### Start Services
 
 Burp-a-bet provides both built-in command line shells and REST (hypermedia driven) API endpoints
-in each service.  
-
-The shell is used for demo purposes to initiate the different journeys. The REST 
+in each service. The shell is used for demo purposes to initiate the different journeys. The REST 
 APIs are for observability and for command completion in the shells.
 
-Start the services in three separate shell sessions using the 
-default Spring profiles (order doesn't matter):
+Start the services in three separate shell sessions:
 
+Terminal 1:
+    
     ./run-customer.sh
+
+Terminal 2:
+
     ./run-wallet.sh
+    
+Terminal 3:
+
     ./run-betting.sh
     
-Now you should have all three services up and running locally and listening
-on the following ports:
+Now you should have all three services up and running locally and listening on the following ports:
 
 | Service  | Shell | API / Front-end       | Capability                                                                                  |
 |----------|-------|-----------------------|---------------------------------------------------------------------------------------------|
@@ -187,7 +235,7 @@ You can verify with curl:
 
 _Hint: if you are using Chrome, then [Json Viewer](https://chromewebstore.google.com/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh) is a must-have._
 
-## Custom Parameters
+## Custom Parameters (optional)
 
 See [common-application-properties](http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html) on how to tailor the application context. 
 All parameters can be overridden through the CLI. 
@@ -208,27 +256,23 @@ put the above in a script and use the `--noshell` arg:
 
     nohup ./run-wallet.sh --noshell > wallet.txt &
 
-## Multi-region Deployments
+## Demo Commands
 
-For multi-region deployments using CockroachCloud on either AWS, GCP or Azure, there are 
-prepared template script and SQL files in the [deploy](deploy/) directory. It describes a 
-manual process for a bit more advanced demos involving multi-region patterns.
-
-## Usage
-
-Type `help` in the different shells for command guidance.
+In the different shells, type `help` for command guidance (or TAB for code completion).
 
 ### Customer Service
  
-The customer service orchestrates the registration journey. Upon a registration, an outbox event is sent to the wallet and betting service.
-These services do their stuff and either approves or rejects the registration. 
+The customer service orchestrates the **registration** journey. Upon a customer registration, 
+an outbox event is sent to the wallet and betting service (through CDC). These services then 
+do their stuff and either approves or rejects the registration, which is funneled back
+to the customer service. 
 
 At registration:
 
 - The betting service validates the jurisdiction.
 - The wallet service creates a customer account and operator account if needed, and grants a registration bonus.
 
-If both services accept, the registration is approved. If any rejects it, the customer 
+If both services accept the registration is approved. If any one rejects it, the customer 
 service sends a rollback request.
 
 At rollback:
@@ -246,12 +290,14 @@ For more help, type:
 
 ### Wallet Service
 
-The wallet service does not orchestrate any journeys. It provides a financial ledger
-using double-entry principles and an account plan for customers and operators. 
+The wallet service does not orchestrate any journeys but participates. 
+It provides a financial ledger using double-entry principles and an 
+account plan for customers and operators. 
 
-Operators have _liability_ accounts that can have a negative balance. Customers have 
-_expense_ accounts that can only have a positive balance. Funds are transferred only between operator and customer
-accounts, thus the total balance of all accounts must always equal zero.
+Operators have _liability_ accounts that can have a negative balance. 
+Customers have _expense_ accounts that can only have a positive balance. 
+Funds are transferred only between operator and customer accounts, 
+thus the total balance of all accounts must always equal zero.
 
 For more help, type:
 
@@ -259,7 +305,7 @@ For more help, type:
 
 ### Betting Service
 
-The betting service orchestrates the bet placement and settlement journeys. 
+The betting service orchestrates the **bet placement** and **bet settlement** journeys. 
 
 **Bet placement**
 
@@ -269,7 +315,8 @@ These services do their stuff and either approves or rejects the placement.
 At placement:
 
 - The customer service validates the spending budget is not exceeded (spending limit).
-- The wallet service reserves the bet wager from the customers account (if enough funds) to the operator account.
+- The wallet service reserves the bet wager from the customers account (if enough funds) 
+to the operator account.
 
 If both services accept, the placement is approved. If any rejects it, the betting
 service sends a rollback request.
@@ -287,17 +334,24 @@ To settle all bets, type:
 
     settle-bets
 
+On settlement:
+
+- The customer service does nothing
+- The wallet service pays out a reward on wins
+
 For more help, type:
 
     help place-bet
     help settle-bets
 
-## API Testing
+## Appendix
+
+### API Testing
 
 The services also provide REST APIs for initiating the bet placement, bet settlement 
 and registration journeys. See [API Demo](docs/DEMO.md) for a tutorial.
 
-## Rule Invariants
+### Rule Invariants
 
 In terms of measuring correct execution and outcomes during disruptions and/or contention, 
 these are the main business rule invariants to observe:
@@ -318,7 +372,7 @@ Customer service:
 
 - Customers spending budget (like a rate limit) must always be positive.
 
-## Additional Documentation
+### Additional Resources
 
 - [Design Notes](docs/README.md) - Details including architectural patterns and mechanisms.
 - [Service Description](docs/diagrams.png) - [C4 model](https://c4model.com/) diagrams drawn using [okso](https://okso.app/) _(open the [diagrams.okso](docs/diagrams.okso) file)_.

@@ -1,0 +1,11 @@
+# Example config for CockroachDB Cloud Dedicated and self-hosted kafka on AWS
+spring:
+  datasource:
+    url: jdbc:postgresql://odin-n37.aws-eu-north-1.cockroachlabs.cloud:26257/burp_betting?sslmode=verify-full&sslrootcert=$HOME/Library/CockroachCloud/certs/277cd25a-97f3-467b-8bf1-1e7f6fa69840/odin-ca.crt
+    username:
+    password:
+  flyway:
+    placeholders:
+      cdc-sink-url: kafka://13.49.74.241:9092
+  kafka:
+    bootstrap-servers: ec2-13-49-74-241.eu-north-1.compute.amazonaws.com:9092

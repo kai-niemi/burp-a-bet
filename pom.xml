@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.4</version>
+        <version>3.3.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -27,8 +27,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Dependency versions -->
-        <spring.boot.version>3.2.4</spring.boot.version>
-        <spring.shell.version>3.2.3</spring.shell.version>
+        <spring.boot.version>3.3.3</spring.boot.version>
+        <spring.shell.version>3.3.2</spring.shell.version>
     </properties>
 
     <inceptionYear>2024</inceptionYear>

@@ -1,4 +1,4 @@
-# Multi-Region AWS Deployment
+# Multi-Region AWS Deployment (Advanced)
 
 This directory provides template script files for manually deploying the 
 services to a multi-region cluster on AWS across the following regions:

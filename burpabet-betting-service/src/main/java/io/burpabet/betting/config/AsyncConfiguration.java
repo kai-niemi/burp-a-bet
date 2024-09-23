@@ -14,8 +14,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import io.burpabet.betting.shell.support.WorkloadExecutor;
-
 @Configuration
 @EnableScheduling
 @EnableAsync
@@ -47,10 +45,5 @@ public class AsyncConfiguration implements AsyncConfigurer {
         executor.setPrestartAllCoreThreads(false);
         executor.setThreadNamePrefix("worker-");
         return executor;
-    }
-
-    @Bean
-    public WorkloadExecutor workloadExecutor() {
-        return new WorkloadExecutor(getThreadPoolExecutor());
     }
 }

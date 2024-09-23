@@ -1,8 +1,5 @@
 package io.burpabet.betting.shell;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -13,11 +10,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.PagedModel;
@@ -28,22 +23,17 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import io.burpabet.betting.model.Race;
 import io.burpabet.betting.service.BetPlacementService;
 import io.burpabet.betting.service.BetSettlementService;
 import io.burpabet.betting.service.RaceService;
-import io.burpabet.betting.shell.support.WorkloadExecutor;
 import io.burpabet.common.domain.BetPlacement;
 import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Outcome;
-import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.CommandGroups;
 import io.burpabet.common.shell.JurisdictionValueProvider;
 import io.burpabet.common.util.Money;
-import io.burpabet.common.util.Networking;
-import io.burpabet.common.util.RandomData;
 
 import static io.burpabet.betting.shell.HypermediaClient.PAGED_MODEL_TYPE;
 
@@ -64,34 +54,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @Autowired
     private HypermediaClient hypermediaClient;
 
-    @Autowired
-    private AnsiConsole ansiConsole;
-
-    @Autowired
-    private WorkloadExecutor workloadExecutor;
-
-    @Autowired
-    private Flyway flyway;
-
-    @Value("${server.port}")
-    private int port;
-
-    @ShellMethod(value = "Reset all betting data", key = {"reset"})
-    public void reset() {
-        betPlacementService.deleteAllInBatch();
-        betSettlementService.deleteAllInBatch();
-        ansiConsole.cyan("Done!").nl();
-    }
-
-    @ShellMethod(value = "Run flyway clean+migrate to reset changefeed's (this will drop the schema)",
-            key = {"migrate"})
-    public void migrate() {
-        flyway.clean();
-        flyway.migrate();
-        ansiConsole.cyan("Done!").nl();
-    }
-
-    @ShellMethod(value = "Place a bet", key = {"pb", "place-bet", "burp"})
+    @ShellMethod(value = "Place a bet on a given or random race", key = {"pb", "place-bet"})
     public void placeBet(
             @ShellOption(help = "customer id (empty denotes all in jurisdiction)",
                     valueProvider = CustomerValueProvider.class,
@@ -109,10 +72,7 @@ public class OperatorCommand extends AbstractShellComponent {
                     defaultValue = "5.00",
                     valueProvider = StakeValueProvider.class) String stake,
             @ShellOption(help = "number of bets per customer",
-                    defaultValue = "1") int count,
-            @ShellOption(help = "duration for placements in seconds (>0 overrides count)",
-                    defaultValue = "0") int duration
-    ) {
+                    defaultValue = "1") int count) {
         final Collection<Map<String, Object>> customerMap = new ArrayList<>();
 
         if (customerId == null) {
@@ -152,29 +112,21 @@ public class OperatorCommand extends AbstractShellComponent {
                 return betPlacementService.placeBet(betPlacement);
             };
 
-            if (duration > 0) {
-                final Duration theDuration = Duration.ofSeconds(duration);
-                logger.info("Placing bets for %s".formatted(theDuration));
-                workloadExecutor.submit("Placement - " + map.get("name"), c,
-                        x -> Instant.now().isBefore(Instant.now().plus(theDuration)));
-            } else {
-                IntStream.rangeClosed(1, count).forEach(value -> {
-                    try {
-                        BetPlacement bp = c.call();
-                        logger.info("Bet placement journey started: %s".formatted(bp));
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                if (count > 1) {
-                    logger.info("All bets placements (%d) started".formatted(count));
+            IntStream.rangeClosed(1, count).forEach(value -> {
+                try {
+                    BetPlacement bp = c.call();
+                    logger.info("Bet placement journey started: %s".formatted(bp));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
+            });
+            if (count > 1) {
+                logger.info("All bets placements (%d) started".formatted(count));
             }
         });
     }
 
-    @ShellMethod(value = "Settle bets for a given race (or all)",
-            key = {"sb", "settle-bets"})
+    @ShellMethod(value = "Settle all bets", key = {"sb", "settle-bets"})
     public void settle(
             @ShellOption(help = "race id or all if omitted",
                     valueProvider = RaceValueProvider.class,
@@ -183,12 +135,8 @@ public class OperatorCommand extends AbstractShellComponent {
                     value = {"outcome"}, defaultValue = ShellOption.NULL,
                     valueProvider = EnumValueProvider.class) Outcome outcome,
             @ShellOption(help = "query page size when iterating all races", defaultValue = "64") int pageSize,
-            @ShellOption(help = "number of settlements", defaultValue = "1") int count,
-            @ShellOption(help = "duration for settlements in seconds (>0 overrides count)", defaultValue = "0")
-            int duration
+            @ShellOption(help = "number of settlements", defaultValue = "1") int count
     ) {
-        final Duration theDuration = Duration.ofSeconds(duration);
-
         final AtomicInteger counter = new AtomicInteger();
 
         Callable<Void> c = () -> {
@@ -211,47 +159,18 @@ public class OperatorCommand extends AbstractShellComponent {
             return null;
         };
 
-        if (duration > 0) {
-            logger.info("Settling bets for %s".formatted(theDuration));
-            workloadExecutor.submit("Settlement", c,
-                    x -> Instant.now().isBefore(Instant.now().plus(theDuration)));
-        } else {
-            IntStream.rangeClosed(1, count).forEach(value -> {
-                try {
-                    c.call();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
+        IntStream.rangeClosed(1, count).forEach(value -> {
+            try {
+                c.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private void settleBets(int count, UUID raceId, Outcome outcome) {
         logger.info("Bet settlement journey %d started with outcome %s: %s"
                 .formatted(count, outcome, raceId.toString()));
         betSettlementService.settleBets(raceId, outcome);
-    }
-
-    @ShellMethod(value = "Print and API index url", key = {"u", "url"})
-    public void url() throws IOException {
-        ansiConsole.cyan("Public URL: %s"
-                .formatted(ServletUriComponentsBuilder.newInstance()
-                        .scheme("http")
-                        .host(Networking.getPublicIP())
-                        .port(port)
-                        .build()
-                        .toUriString())).nl();
-        ansiConsole.cyan("Local URL: %s"
-                .formatted(ServletUriComponentsBuilder.newInstance()
-                        .scheme("http")
-                        .host(Networking.getLocalIP())
-                        .port(port)
-                        .build()
-                        .toUriString())).nl();
-    }
-
-    @ShellMethod(value = "Print random fact", key = {"f", "fact"})
-    public void fact() {
-        ansiConsole.cyan(RandomData.randomRoachFact()).nl();
     }
 }

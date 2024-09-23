@@ -1,6 +1,5 @@
 package io.burpabet.customer.shell;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.EnumSet;
@@ -9,11 +8,9 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,7 +21,6 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.table.TableModel;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import io.burpabet.common.domain.Jurisdiction;
 import io.burpabet.common.domain.Registration;
@@ -32,7 +28,6 @@ import io.burpabet.common.domain.Status;
 import io.burpabet.common.shell.AnsiConsole;
 import io.burpabet.common.shell.CommandGroups;
 import io.burpabet.common.shell.JurisdictionValueProvider;
-import io.burpabet.common.util.Networking;
 import io.burpabet.common.util.RandomData;
 import io.burpabet.common.util.TableUtils;
 import io.burpabet.customer.model.Customer;
@@ -53,32 +48,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @Autowired
     private AnsiConsole ansiConsole;
 
-    @Autowired
-    private Flyway flyway;
-
-    @Value("${server.port}")
-    private int port;
-
-    @ShellMethod(value = "Reset all customer data", key = {"reset"})
-    public void reset() {
-        customerService.deleteAllInBatch();
-        ansiConsole.cyan("Done!").nl();
-    }
-
-    @ShellMethod(value = "Run flyway clean+migrate to reset changefeed's (this will drop the schema)",
-            key = {"migrate"})
-    public void migrate() {
-        flyway.clean();
-        flyway.migrate();
-        ansiConsole.cyan("Done!").nl();
-    }
-
-    @ShellMethod(value = "Toggle spending limit check", key = {"toggle-limits","tl"})
-    public void toggleSpendingLimit() {
-        customerBettingFacade.toggleSpendingLimits();
-    }
-
-    @ShellMethod(value = "Register a new customer", key = {"r", "register"})
+    @ShellMethod(value = "Register new customer", key = {"rc", "register"})
     public void register(
             @ShellOption(help = "operator ID or random assigned if omitted",
                     valueProvider = OperatorAccountValueProvider.class,
@@ -126,31 +96,7 @@ public class OperatorCommand extends AbstractShellComponent {
         }
     }
 
-    @ShellMethod(value = "Print and API index url", key = {"u", "url"})
-    public void url() throws IOException {
-        ansiConsole.cyan("Public URL: %s"
-                .formatted(ServletUriComponentsBuilder.newInstance()
-                        .scheme("http")
-                        .host(Networking.getPublicIP())
-                        .port(port)
-                        .build()
-                        .toUriString())).nl();
-
-        ansiConsole.cyan("Local URL: %s"
-                .formatted(ServletUriComponentsBuilder.newInstance()
-                        .scheme("http")
-                        .host(Networking.getLocalIP())
-                        .port(port)
-                        .build()
-                        .toUriString())).nl();
-    }
-
-    @ShellMethod(value = "Print random fact", key = {"f", "fact"})
-    public void fact() {
-        ansiConsole.cyan(RandomData.randomRoachFact()).nl();
-    }
-
-    @ShellMethod(value = "List customer accounts", key = {"l", "list"})
+    @ShellMethod(value = "List registered customers", key = {"lc", "list"})
     public void listCustomers() {
         Page<Customer> page = customerService.findAll(PageRequest.ofSize(64)
                 .withSort(Sort.by("jurisdiction").ascending()));
@@ -163,6 +109,11 @@ public class OperatorCommand extends AbstractShellComponent {
                 break;
             }
         }
+    }
+
+    @ShellMethod(value = "Toggle spending limit check", key = {"toggle-limits", "tl"})
+    public void toggleSpendingLimit() {
+        customerBettingFacade.toggleSpendingLimits();
     }
 
     private void printPage(Page<Customer> page) {

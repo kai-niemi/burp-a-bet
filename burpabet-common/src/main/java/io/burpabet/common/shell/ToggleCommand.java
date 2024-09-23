@@ -7,7 +7,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 @ShellComponent
-@ShellCommandGroup(CommandGroups.OPERATOR)
+@ShellCommandGroup(CommandGroups.ADMIN)
 public class ToggleCommand {
     public static final String TRACE_LOGGER = "io.burpabet";
 

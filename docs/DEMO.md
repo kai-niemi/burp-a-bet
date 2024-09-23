@@ -1,4 +1,4 @@
-# Demo
+# Demo API
 
 This guide describes initiating the three different journeys through
 the REST APIs using only cURL.

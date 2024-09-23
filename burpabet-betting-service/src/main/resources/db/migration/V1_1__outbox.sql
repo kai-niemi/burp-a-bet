@@ -28,9 +28,9 @@ with diff
 -- Request topic for settlement journey
 create changefeed into '${cdc-sink-url}?topic_name=settlement'
 with diff
-         as select id         as event_id,
+         as select id           as event_id,
                    aggregate_id as aggregate_id,
-                   event_op() as event_type,
+                   event_op()   as event_type,
                    payload
             from outbox
             where event_op() != 'delete'
@@ -39,9 +39,9 @@ with diff
 -- Response topic for registration journey
 create changefeed into '${cdc-sink-url}?topic_name=betting-registration'
 with diff
-         as select id         as event_id,
+         as select id           as event_id,
                    aggregate_id as aggregate_id,
-                   event_op() as event_type,
+                   event_op()   as event_type,
                    payload
             from outbox
             where event_op() != 'delete'

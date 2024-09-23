@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Remove __ prefix to enable
+params=
 __params="\
 --spring.datasource.url=jdbc:postgresql://192.168.1.99:26257/wallet?sslmode=disable \
 --spring.datasource.username=root \
@@ -8,7 +8,7 @@ __params="\
 --spring.kafka.bootstrap-servers=192.168.1.99:9092 \
 --spring.flyway.placeholders.cdc-sink-url=kafka://192.168.1.99:9092"
 # List of spring profiles (selected from menu)
-profiles=
+profiles=local
 # Base dir for app module
 basedir=burpabet-wallet-service
 # Executable jar
@@ -18,4 +18,4 @@ jarfile=${basedir}/target/wallet-service.jar
 # Do not edit below
 ######################################
 
-source menu.sh
+source run.sh
