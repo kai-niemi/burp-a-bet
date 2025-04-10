@@ -18,6 +18,11 @@ public class HomeController {
         return "notice";
     }
 
+    @GetMapping("/health")
+    public String healthPage(Model model) {
+        return "health";
+    }
+
     @GetMapping("/bets-placed")
     public String betPlacedPage(Model model) {
         return "bet-placed";

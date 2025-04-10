@@ -2,7 +2,7 @@
 
 params=
 __params="\
---spring.datasource.url=jdbc:postgresql://192.168.1.99:26257/wallet?sslmode=disable \
+--spring.datasource.url=jdbc:postgresql://192.168.1.99:26257/burp_wallet?sslmode=disable \
 --spring.datasource.username=root \
 --spring.datasource.password= \
 --spring.kafka.bootstrap-servers=192.168.1.99:9092 \

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -27,8 +27,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Dependency versions -->
-        <spring.boot.version>3.3.3</spring.boot.version>
-        <spring.shell.version>3.3.2</spring.shell.version>
+        <spring.boot.version>3.4.4</spring.boot.version>
+        <spring.shell.version>3.4.0</spring.shell.version>
     </properties>
 
     <inceptionYear>2024</inceptionYear>
@@ -94,24 +94,24 @@
             <dependency>
                 <groupId>net.ttddyy</groupId>
                 <artifactId>datasource-proxy</artifactId>
-                <version>1.9</version>
+                <version>1.10.1</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.7.0</version>
+                <version>42.7.5</version>
             </dependency>
 
             <!-- Test -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.10.1</version>
+                <version>5.11.4</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
-                <version>5.10.1</version>
+                <version>5.11.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -124,6 +124,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>3.4.4</version>
                     <executions>
                         <execution>
                             <id>build-info</id>
@@ -147,7 +148,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.2</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -160,7 +161,7 @@
 
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.4.1</version>
                 <configuration>
                     <failOnError>false</failOnError>
                     <filesets>
@@ -179,7 +180,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.5.2</version>
                 <configuration>
                     <groups>${groups}</groups>
                 </configuration>

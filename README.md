@@ -9,26 +9,26 @@
 * [Introduction](#introduction)
 * [Design Features](#design-features)
 * [Building](#building)
-    * [Prerequisites](#prerequisites)
-    * [Setup](#setup)
-        * [Clone the project](#clone-the-project)
-        * [Build the executable jars](#build-the-executable-jars)
+  * [Prerequisites](#prerequisites)
+  * [Setup](#setup)
+    * [Clone the project](#clone-the-project)
+    * [Build the executable jars](#build-the-executable-jars)
 * [Demo Tutorial](#demo-tutorial)
-    * [Demo Setup](#demo-setup)
-        * [Prerequisites](#prerequisites-1)
-        * [Setup CockroachDB](#setup-cockroachdb)
-            * [Create the databases](#create-the-databases)
-        * [Setup and Start Kafka](#setup-and-start-kafka)
-        * [Start Services](#start-services)
-    * [Custom Parameters (optional)](#custom-parameters-optional)
-    * [Demo Commands](#demo-commands)
-        * [Customer Service](#customer-service)
-        * [Wallet Service](#wallet-service)
-        * [Betting Service](#betting-service)
-    * [Appendix](#appendix)
-        * [API Testing](#api-testing)
-        * [Rule Invariants](#rule-invariants)
-        * [Additional Resources](#additional-resources)
+  * [Demo Setup](#demo-setup)
+    * [Prerequisites](#prerequisites-1)
+    * [Setup CockroachDB](#setup-cockroachdb)
+      * [Create the databases](#create-the-databases)
+    * [Setup and Start Kafka](#setup-and-start-kafka)
+    * [Start Services](#start-services)
+  * [Custom Parameters (optional)](#custom-parameters-optional)
+  * [Demo Commands](#demo-commands)
+    * [Customer Service](#customer-service)
+    * [Wallet Service](#wallet-service)
+    * [Betting Service](#betting-service)
+  * [Appendix](#appendix)
+    * [API Testing](#api-testing)
+    * [Rule Invariants](#rule-invariants)
+    * [Additional Resources](#additional-resources)
 * [Terms of Use](#terms-of-use)
 <!-- TOC -->
 
@@ -155,9 +155,9 @@ see https://www.cockroachlabs.com/docs/v24.2/start-a-local-cluster.
 
 Create the following databases, one for each service:
 
-    cockroach sql --insecure --host=localhost -e "CREATE database wallet"
-    cockroach sql --insecure --host=localhost -e "CREATE database customer"
-    cockroach sql --insecure --host=localhost -e "CREATE database betting"
+    cockroach sql --insecure --host=localhost -e "CREATE database burp_wallet"
+    cockroach sql --insecure --host=localhost -e "CREATE database burp_customer"
+    cockroach sql --insecure --host=localhost -e "CREATE database burp_betting"
 
 Enable [change feeds](https://www.cockroachlabs.com/docs/stable/create-and-configure-changefeeds#enable-rangefeeds):
 
@@ -178,22 +178,22 @@ Ensure kafka is available to the app services and CockroachDB nodes at the defau
 
 Example setup using Kraft:
 
-    curl https://dlcdn.apache.org/kafka/3.6.1/kafka_2.13-3.6.1.tgz -o kafka_2.13-3.6.1.tgz
-    tar -xzf kafka_2.13-3.6.1.tgz
-    ln -s kafka_2.13-3.6.1 current
+    curl https://dlcdn.apache.org/kafka/4.0.0/kafka_2.13-4.0.0.tgz -o kafka_2.13-4.0.0.tgz
+    tar -xzf kafka_2.13-4.0.0.tgz
+    ln -s kafka_2.13-4.0.0 current
     cd current
     KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
-    bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/kraft/server.properties
+    bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties
 
 Depending on your network setup you may need to edit the following Socket 
-properties in `config/kraft/server.properties`:
+properties in `config/server.properties`:
 
     listeners=PLAINTEXT://..
     advertised.listener=PLAINTEXT://
 
 Start daemon:
 
-    bin/kafka-server-start.sh -daemon config/kraft/server.properties
+    bin/kafka-server-start.sh -daemon config/server.properties
 
 Tail a topic, in this case `registration`:
 
@@ -244,7 +244,7 @@ For example:
 
     java -jar wallet-service.jar \
     --spring.profiles.active=local \
-    --spring.datasource.url="jdbc:postgresql://my_fancy_cluster.aws-eu-north-1.cockroachlabs.cloud:26257/wallet?sslmode=verify-full&sslrootcert=$HOME/Library/CockroachCloud/certs/<uuid>/cluster-name-ca.crt" \
+    --spring.datasource.url="jdbc:postgresql://my_fancy_cluster.aws-eu-north-1.cockroachlabs.cloud:26257/burp_wallet?sslmode=verify-full&sslrootcert=$HOME/Library/CockroachCloud/certs/<uuid>/cluster-name-ca.crt" \
     --spring.datasource.username=burp \
     --spring.datasource.password=*** \
     --spring.kafka.bootstrap-servers=<kafka-local-ip>:9092 \

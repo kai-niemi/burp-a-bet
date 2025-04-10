@@ -48,7 +48,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @Autowired
     private AnsiConsole ansiConsole;
 
-    @ShellMethod(value = "Register new customer", key = {"rc", "register"})
+    @ShellMethod(value = "Register a new customer", key = {"r", "register"})
     public void register(
             @ShellOption(help = "operator ID or random assigned if omitted",
                     valueProvider = OperatorAccountValueProvider.class,

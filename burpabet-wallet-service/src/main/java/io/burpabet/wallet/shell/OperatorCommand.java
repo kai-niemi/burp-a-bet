@@ -159,7 +159,7 @@ public class OperatorCommand extends AbstractShellComponent {
                 });
     }
 
-    @ShellMethod(value = "Print account balances (optional", key = {"pb", "print-balance"})
+    @ShellMethod(value = "Print account balances (optional)", key = {"pb", "print-balance"})
     @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
     public void printBalance() {
         Page<Account> page = accountRepository.findAll(PageRequest.ofSize(64)

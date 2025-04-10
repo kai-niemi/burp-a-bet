@@ -98,3 +98,21 @@ server:
 app:
   customer-api-url: http://localhost:8090/api
   maximum-threads: 50
+#############################
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: env,info,health,metrics,flyway,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+    db:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

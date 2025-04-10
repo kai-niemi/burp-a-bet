@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:26257/customer?sslmode=disable
+    url: jdbc:postgresql://localhost:26257/burp_customer?sslmode=disable
   flyway:
     placeholders:
       cdc-sink-url: kafka://localhost:9092

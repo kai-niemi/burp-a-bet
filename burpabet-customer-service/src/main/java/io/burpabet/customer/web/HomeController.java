@@ -13,4 +13,9 @@ public class HomeController {
     public RedirectView homePage(Model model) {
         return new RedirectView("api");
     }
+
+    @GetMapping("/health")
+    public RedirectView healthPage(Model model) {
+        return new RedirectView("api");
+    }
 }
