@@ -1,43 +1,34 @@
 # Demo API
 
-This guide describes initiating the three different journeys through
-the REST APIs using only cURL.
+This guide describes how to run three different journeys through 
+the REST APIs using cURL.
 
-## Register Customer
+## Register Customer (using customer-service)
 
-GET form:
+GET the request form:
 
-    curl http://localhost:8090/api/registration/ 
+    curl http://localhost:8090/api/registration/ > registration.json && cat registration.json | jq 
 
-Piped to file:
-
-    curl http://localhost:8090/api/registration/ > registration.json
-
-POST form back (idempotent):
+POST the form back and expect a 201:
 
     curl -v -d "@registration.json" -H "Content-Type:application/json" -X POST http://localhost:8090/api/registration/
 
-## Place a bet
+## Place a bet (using betting-service)
 
-GET form:
+GET the request form:
 
-    curl http://localhost:8092/api/placement/
+    curl http://localhost:8092/api/placement/ > placement.json && cat placement.json | jq
 
-Piped to file:
-
-    curl http://localhost:8092/api/placement/ > placement.json
-
-POST form back (idempotent if key is present):
+POST the form back:
 
     curl -v -d "@placement.json" -H "Content-Type:application/json" -X POST http://localhost:8092/api/placement/
 
-## Settle bets
+## Settle bets (using betting-service)
 
-GET form:
+GET the request form:
 
-    curl http://localhost:8092/api/settlement/ 
-    curl http://localhost:8092/api/settlement/ > settlement.json
+    curl http://localhost:8092/api/settlement/ > settlement.json && cat settlement.json | jq
 
-POST form back (non-idempotent):
+POST the form back and expect a 201:
 
     curl -v -d "@settlement.json" -H "Content-Type:application/json" -X POST http://localhost:8092/api/settlement/
