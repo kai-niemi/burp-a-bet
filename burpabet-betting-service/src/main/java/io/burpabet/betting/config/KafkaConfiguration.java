@@ -59,7 +59,8 @@ public class KafkaConfiguration {
         KStream<String, BetPlacementEvent> walletStream = builder
                 .stream(TopicNames.WALLET_PLACEMENT, Consumed.with(Serdes.String(), placementSerde));
 
-        walletStream.join(builder.stream(TopicNames.CUSTOMER_PLACEMENT, Consumed.with(Serdes.String(), placementSerde)),
+        walletStream.join(
+                        builder.stream(TopicNames.CUSTOMER_PLACEMENT, Consumed.with(Serdes.String(), placementSerde)),
                         betPlacementService::confirmPlacement,
                         JoinWindows.ofTimeDifferenceAndGrace(Duration.ofMinutes(4), Duration.ofMinutes(2)),
                         StreamJoined.with(Serdes.String(), placementSerde, placementSerde))

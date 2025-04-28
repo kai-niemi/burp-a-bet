@@ -1,7 +1,8 @@
 package io.burpabet.customer.web;
 
-import io.burpabet.customer.model.Customer;
-import io.burpabet.customer.shell.HypermediaClient;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,10 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.SimpleRepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.ResourceAccessException;
 
-import java.util.HashMap;
-import java.util.Map;
+import io.burpabet.customer.model.Customer;
+import io.burpabet.customer.shell.HypermediaClient;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.afford;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -41,8 +42,8 @@ public class CustomerResourceAssembler implements SimpleRepresentationModelAssem
             });
 
             resource.add(walletLink);
-        } catch (RestClientException e) {
-            logger.warn("", e);
+        } catch (ResourceAccessException e) {
+            logger.warn(e.toString());
         }
 
         resource.add(linkTo(methodOn(CustomerController.class)

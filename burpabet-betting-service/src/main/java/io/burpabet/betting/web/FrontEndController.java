@@ -125,6 +125,6 @@ public class FrontEndController {
                 break;
             }
         }
-        return () -> new RedirectView("/bets-settled");
+        return () -> new RedirectView("/bets-placed");
     }
 }

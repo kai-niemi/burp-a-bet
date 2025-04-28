@@ -155,7 +155,8 @@ public class OperatorCommand extends AbstractShellComponent {
                 .unordered()
                 .forEach(operatorAccount -> {
                     Money total = batchService.grantBonus(operatorAccount, Money.of(amount, currency));
-                    ansiConsole.cyan("Granted %s in total for %s".formatted(total, operatorAccount.getName())).nl();
+                    ansiConsole.cyan("Granted %s in total for all operator customers of '%s'"
+                            .formatted(total, operatorAccount.getName())).nl();
                 });
     }
 
