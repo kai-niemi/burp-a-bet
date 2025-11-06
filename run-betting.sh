@@ -11,7 +11,7 @@ __params="\
 # List of spring profiles
 profiles=local
 # Base dir for app module
-basedir=burpabet-betting-service
+basedir=betting-service
 # Executable jar
 jarfile=${basedir}/target/betting-service.jar
 

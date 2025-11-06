@@ -36,7 +36,7 @@ The service uses the following entity model for double-entry bookkeeping of mone
 
 ![schema](wallet-er.png)
 
-[V1_0__create.sql](../burpabet-wallet-service/src/main/resources/db/migration/V1_0__create.sql)
+[V1_0__create.sql](../wallet-service/src/main/resources/db/migration/V1_0__create.sql)
 
 - **account**  - Accounts with a derived balance from the sum of all transactions
 - **transaction**  - Balanced multi-legged monetary transactions
@@ -49,7 +49,7 @@ The service uses the following entity model for double-entry bookkeeping of mone
 
 ![schema](customer-er.png)
 
-[V1_0__create.sql](../burpabet-customer-service/src/main/resources/db/migration/V1_0__create.sql)
+[V1_0__create.sql](../customer-service/src/main/resources/db/migration/V1_0__create.sql)
 
 - **customer**  - Customer registrations
 
@@ -59,7 +59,7 @@ The service uses the following entity model for double-entry bookkeeping of mone
 
 ![schema](betting-er.png)
 
-[V1_0__create.sql](../burpabet-betting-service/src/main/resources/db/migration/V1_0__create.sql)
+[V1_0__create.sql](../betting-service/src/main/resources/db/migration/V1_0__create.sql)
 
 - **race**  - A race at a given track, with a given horse and the decimal odds
 - **bet**  - A customer bet for a given race

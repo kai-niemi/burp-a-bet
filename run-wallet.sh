@@ -10,7 +10,7 @@ __params="\
 # List of spring profiles (selected from menu)
 profiles=local
 # Base dir for app module
-basedir=burpabet-wallet-service
+basedir=wallet-service
 # Executable jar
 jarfile=${basedir}/target/wallet-service.jar
 

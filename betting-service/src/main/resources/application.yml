@@ -1,0 +1,118 @@
+########################
+# Spring boot properties
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+########################
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    streams:
+      properties:
+        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
+        spring.json.trusted.packages: "*"
+      state-dir: .tmp/kafka-streams/
+  ###################################################
+  application:
+    name: betting-service
+  profiles:
+    active: local
+  shell:
+    command:
+      stacktrace:
+        enabled: true
+      version:
+        enabled: true
+    script:
+      enabled: true
+    interactive:
+      enabled: true
+    noninteractive:
+      enabled: false
+    history:
+      name: .tmp/betting-service.history
+  output:
+    ansi:
+      enabled: ALWAYS
+  flyway:
+    enabled: true
+    clean-on-validation-error: true
+    baseline-on-migrate: true
+    clean-disabled: false
+#    baseline-on-migrate: false
+#    clean-on-validation-error: false
+#    clean-disabled: true
+    placeholders:
+      cdc-sink-url: kafka://localhost:9092
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: io.cockroachdb.common.jpa.CockroachDBDialect
+        connection:
+          # inverse of hikari->auto-commit
+          provider_disables_autocommit: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+          batch_size: 256
+          fetch_size: 256
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
+        hql:
+          bulk_id_strategy: org.hibernate.hql.spi.id.inline.CteValuesListBulkIdStrategy
+        cache:
+          use_minimal_puts: true
+          use_second_level_cache: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password:
+    hikari:
+      # inverse of provider_disables_autocommit
+      auto-commit: true
+      maximum-pool-size: 32
+      minimum-idle: 0
+      initialization-fail-timeout: -1
+      connection-timeout: 5000
+      pool-name: betting-cp
+#############################
+logging:
+  file:
+    name: .tmp/betting-service.log
+  pattern:
+    console: "%clr(%d{${LOG_DATEFORMAT_PATTERN:HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) [%t] %clr([%logger{39}]){cyan} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+    file: "%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:%5p} [%t] %logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+#############################
+server:
+  port: 8092
+#############################
+app:
+  customer-api-url: http://localhost:8090/api
+  maximum-threads: 50
+#############################
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: env,info,health,metrics,flyway,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+    db:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

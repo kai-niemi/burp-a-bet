@@ -1,7 +1,6 @@
 # Demo API
 
-This guide describes how to run three different journeys through 
-the REST APIs using cURL.
+This guide describes how to run three different journeys through the REST APIs using cURL.
 
 ## Register Customer (using customer-service)
 

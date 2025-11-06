@@ -2,8 +2,6 @@
 
 [![Java CI with Maven](https://github.com/kai-niemi/burp-a-bet/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/kai-niemi/burp-a-bet/actions/workflows/maven.yml)
 
-<img align="left" src="logo.png" width="128" height="128" />
-
 <!-- TOC -->
 * [Burp-a-bet](#burp-a-bet-)
 * [Introduction](#introduction)
@@ -32,43 +30,37 @@
 * [Terms of Use](#terms-of-use)
 <!-- TOC -->
 
-Welcome to Burp-a-Bet - an online, voice-activated horse betting system _demo_ based on CockroachDB, Kafka 
-and Spring Boot. 
-
-The voice activation part is actually just theoretical and bets are placed by keystrokes 
-through an interactive shell or API requests.
+<img align="left" src="logo.png" width="128" height="128" />
+Welcome to Burp-a-Bet  horse betting. It's an online betting demo system based on CockroachDB, Kafka and Spring Boot.
+The voice activation part is work in progress. For now all bets are placed by keystrokes in the embedded interactive shell.
 
 # Introduction
-
-The system is designed to _demonstrate_ different architectural patterns and mechanisms in the context 
-of an Online Sports Betting use case. The purpose is not to accurately model the full domain complexity of 
-sports betting but to give an idea of how such systems are crafted using [CockroachDB](https://www.cockroachlabs.com/) 
-as the database of choice.
-
-The system provides three separate and independent microservices that together supports the following 
-customer journeys:
  
-- **Customer Registration** - where a player registers with a game operator (horse racing only)
+This system is designed to _demonstrate_ different architectural patterns and mechanisms in the context 
+of an Online Sports Betting use case. For example distributed business transactions using Sagas over 
+of XA/2PC.
+
+The purpose is not to accurately model the full domain complexity of sports betting but to give an idea 
+of how such systems are crafted using [CockroachDB](https://www.cockroachlabs.com/) as the database of choice.
+
+The system provides three independent microservices that together supports the following customer journeys:
+ 
+- **Customer Registration** - where a player registers with a betting operator
 - **Bet Placement** - where a player wagers a bet on a specific game (track and horse)
 - **Bet Settlement** - where open bets are settled with a win or loss
-                    
-Screenshot of the `betting-service` web UI:
-
-<img src="docs/frontend.png" width="512" />
 
 # Design Features
 
 To promote service autonomy, independence and transactional integrity, all journeys (business transactions) 
 are modelled using [Sagas](https://microservices.io/patterns/data/saga.html) with the orchestration method. 
 
-All services maintain their local state in an isolated database using [ACID](https://en.wikipedia.org/wiki/ACID) 
-guarantees and local transactions. The message exchange between the services are effectively journey state 
-transitions. These messages through the transactional outbox pattern where 
-[CDC queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) are used in combination 
-with [Kafka stream joins](https://kafka.apache.org/documentation/streams/) to pair together requests with responses.  
+All services maintain their local state in an isolated database using [ACID](https://en.wikipedia.org/wiki/ACID) guarantees and local transactions. 
+The message exchange between the services are effectively journey state transitions. These messages through 
+the transactional outbox pattern where [CDC queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) are used in combination with [Kafka stream joins](https://kafka.apache.org/documentation/streams/) 
+to pair together requests with responses.  
 
-In summary, this makes the journeys fully asynchronous but still safe from a transactional standpoint. See 
-the rule invariants section below for the meaning of _safe_ in this context.
+In summary, this makes the journeys fully asynchronous but still safe from a transactional standpoint. 
+See the rule invariants section below for the meaning of _safe_ in this context.
 
 This system demonstrates the following mechanisms in CockroachDB:
 
@@ -78,8 +70,7 @@ This system demonstrates the following mechanisms in CockroachDB:
 * [Multi-region (optional)](https://www.cockroachlabs.com/docs/v23.2/table-localities#regional-by-row-tables) - using regional-by-row to pin accounts and bets to specific jurisdictions. 
 * Computed virtual columns and enum types
 
-All three services provide an interactive shell and a [REST API](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven)
-using the [HAL+forms](https://rwcbook.github.io/hal-forms/) hypermedia type.
+All three services provide an interactive shell and a [REST API](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven) using the [HAL+forms](https://rwcbook.github.io/hal-forms/) hypermedia type.
 
 The shells are used to initiate the different journeys above and other management tasks. The APIs are used for
 observability and also for initiating journeys using HTTP requests through cURL / Postman or similar tools.
@@ -91,9 +82,9 @@ These JAR files runs on any platform for which there is a Java 17+ runtime.
                  
 ## Prerequisites
 
-- Java 17 JDK
-    - https://openjdk.org/projects/jdk/17/
-    - https://www.oracle.com/java/technologies/downloads/#java17
+- JDK 21 (LTS)
+    - https://openjdk.org/projects/jdk/21/
+    - https://www.oracle.com/java/technologies/downloads/#java21
 - Maven 3+ (optional, embedded wrapper available)
     - https://maven.apache.org/
 - CockroachDB 23.1+ with an Enterprise License
@@ -105,13 +96,13 @@ These JAR files runs on any platform for which there is a Java 17+ runtime.
 
 Install the JDK (Ubuntu example):
 
-    sudo apt-get install openjdk-17-jdk
+    sudo apt-get install openjdk-21-jdk
 
 Install the JDK (MacOS example using sdkman):
 
     curl -s "https://get.sdkman.io" | bash
     sdk list java
-    sdk install java 17.0..  
+    sdk install java 21.0..  
 
 Confirm the installation by running:
 
