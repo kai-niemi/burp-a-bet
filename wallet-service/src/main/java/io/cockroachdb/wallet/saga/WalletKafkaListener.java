@@ -36,7 +36,7 @@ public class WalletKafkaListener {
     private WalletRegistrationFacade registrationFacade;
 
     @KafkaListener(id = "registration", topics = TopicNames.REGISTRATION, groupId = "wallet",
-            properties = {"spring.json.value.default.type=io.cockroachdb.common.domain.RegistrationEvent"})
+            properties = {"spring.json.value.default.type=io.cockroachdb.betting.common.domain.RegistrationEvent"})
     public void onRegistrationEvent(RegistrationEvent event) {
         Registration registration = event.getPayload();
 
@@ -50,7 +50,7 @@ public class WalletKafkaListener {
     }
 
     @KafkaListener(id = "placement", topics = TopicNames.PLACEMENT, groupId = "wallet",
-            properties = {"spring.json.value.default.type=io.cockroachdb.common.domain.BetPlacementEvent"})
+            properties = {"spring.json.value.default.type=io.cockroachdb.betting.common.domain.BetPlacementEvent"})
     public void onBetPlacementEvent(BetPlacementEvent event) {
         BetPlacement placement = event.getPayload();
 
@@ -64,7 +64,7 @@ public class WalletKafkaListener {
     }
 
     @KafkaListener(id = "settlement", topics = TopicNames.SETTLEMENT, groupId = "wallet",
-            properties = {"spring.json.value.default.type=io.cockroachdb.common.domain.BetSettlementEvent"})
+            properties = {"spring.json.value.default.type=io.cockroachdb.betting.common.domain.BetSettlementEvent"})
     public void onBetSettlementEvent(BetSettlementEvent event) {
         BetSettlement settlement = event.getPayload();
 

@@ -12,6 +12,7 @@ import io.cockroachdb.betting.common.shell.AnsiConsole;
 import io.cockroachdb.betting.common.shell.ExitCommand;
 import io.cockroachdb.betting.common.shell.JurisdictionValueProvider;
 import io.cockroachdb.betting.common.shell.ToggleCommand;
+import io.cockroachdb.betting.shell.StakeValueProvider;
 
 @Configuration
 public class ShellConfiguration {
@@ -23,6 +24,11 @@ public class ShellConfiguration {
     @Bean
     public ToggleCommand toggleCommand() {
         return new ToggleCommand();
+    }
+
+    @Bean
+    public StakeValueProvider stakeValueProvider() {
+        return new StakeValueProvider();
     }
 
     @Bean

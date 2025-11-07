@@ -157,36 +157,20 @@ Enable [change feeds](https://www.cockroachlabs.com/docs/stable/create-and-confi
 ### Setup and Start Kafka
 
 Kafka Streams is required to help drive the distributed business transactions on top
-of CockroachDB CDC outbox events.
+of CockroachDB CDC outbox events. You can either use a manged Kafka cluster or a 
+local self-hosted setup. In the latter case, just follow the [quickstart](https://kafka.apache.org/quickstart) guidelines 
+to setup a vanilla Kafka instance.
 
-You can either use a manged Kafka cluster or a local self-hosted setup. In the latter case, 
-just follow the [quickstart](https://kafka.apache.org/quickstart) guidelines to setup 
-a vanilla Kafka instance.
-
-Ensure kafka is available to the app services and CockroachDB nodes at the default port `9092`:
-
-    kafka://localhost:9092
-
-Example setup using Kraft:
-
-    curl https://dlcdn.apache.org/kafka/4.0.0/kafka_2.13-4.0.0.tgz -o kafka_2.13-4.0.0.tgz
-    tar -xzf kafka_2.13-4.0.0.tgz
-    ln -s kafka_2.13-4.0.0 current
-    cd current
-    KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
-    bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties
-
-Depending on your network setup you may need to edit the following Socket 
-properties in `config/server.properties`:
+Depending on your network setup, you may need to edit the following in `config/server.properties`:
 
     listeners=PLAINTEXT://..
     advertised.listener=PLAINTEXT://
 
-Start daemon:
+Then start Kafka in daemon mode:
 
     bin/kafka-server-start.sh -daemon config/server.properties
 
-Tail a topic, in this case `registration`:
+To tail some topic, in this case `registration`:
 
     bin/kafka-console-consumer.sh --topic registration --from-beginning --bootstrap-server localhost:9092 --property print.key=true
 

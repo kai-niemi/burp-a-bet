@@ -36,7 +36,7 @@ public class BettingKafkaListener {
     @TransactionBoundary
     @Retryable
     @KafkaListener(id = "registration", topics = TopicNames.REGISTRATION, groupId = "betting",
-            properties = {"spring.json.value.default.type=io.cockroachdb.common.domain.RegistrationEvent"})
+            properties = {"spring.json.value.default.type=io.cockroachdb.betting.common.domain.RegistrationEvent"})
     public void onRegistrationEvent(RegistrationEvent event) {
         Registration registration = event.getPayload();
 

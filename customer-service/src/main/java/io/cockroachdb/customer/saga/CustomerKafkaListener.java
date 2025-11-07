@@ -33,7 +33,7 @@ public class CustomerKafkaListener {
     private CustomerBettingFacade customerBettingFacade;
 
     @KafkaListener(id = "placement", topics = TopicNames.PLACEMENT, groupId = "customer",
-            properties = {"spring.json.value.default.type=io.cockroachdb.common.domain.BetPlacementEvent"})
+            properties = {"spring.json.value.default.type=io.cockroachdb.betting.common.domain.BetPlacementEvent"})
     public void onBetPlacementEvent(BetPlacementEvent event) {
         BetPlacement placement = event.getPayload();
 
@@ -47,7 +47,7 @@ public class CustomerKafkaListener {
     }
 
     @KafkaListener(id = "settlement", topics = TopicNames.SETTLEMENT, groupId = "customer",
-            properties = {"spring.json.value.default.type=io.cockroachdb.common.domain.BetSettlementEvent"})
+            properties = {"spring.json.value.default.type=io.cockroachdb.betting.common.domain.BetSettlementEvent"})
     public void onBetSettlementEvent(BetSettlementEvent event) {
         BetSettlement settlement = event.getPayload();
 

@@ -55,7 +55,6 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        dialect: io.cockroachdb.common.jpa.CockroachDBDialect
         connection:
           # inverse of hikari->auto-commit
           provider_disables_autocommit: false
