@@ -11,7 +11,6 @@
 
     <artifactId>customer-service</artifactId>
     <packaging>jar</packaging>
-    <name>Customer Service</name>
 
     <dependencies>
         <dependency>

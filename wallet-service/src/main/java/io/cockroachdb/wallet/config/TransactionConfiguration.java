@@ -19,7 +19,7 @@ import io.cockroachdb.wallet.WalletApplication;
 
 @Configuration
 @EnableTransactionManagement(order = AdvisorOrder.TRANSACTION_BOUNDARY_ADVISOR, proxyTargetClass = true)
-@EnableJpaRepositories(basePackageClasses = WalletApplication.class,enableDefaultTransactions = false)
+@EnableJpaRepositories(basePackageClasses = WalletApplication.class, enableDefaultTransactions = false)
 @EnableResilientMethods(proxyTargetClass = true, order = AdvisorOrder.TRANSACTION_BEFORE_ADVISOR)
 @EnableJpaAuditing
 public class TransactionConfiguration {

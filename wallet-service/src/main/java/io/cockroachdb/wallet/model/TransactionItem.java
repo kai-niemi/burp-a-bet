@@ -20,8 +20,7 @@ import io.cockroachdb.betting.common.util.Money;
  */
 @Entity
 @Table(name = "transaction_item")
-@Relation(value = "transaction-item",
-        collectionRelation = "transaction-item-list")
+@Relation(value = "transaction-item", collectionRelation = "transaction-item-list")
 public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
     @EmbeddedId
     private Id id;

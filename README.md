@@ -31,7 +31,8 @@
 <!-- TOC -->
 
 <img align="left" src="logo.png" width="128" height="128" />
-Welcome to Burp-a-Bet  horse betting. It's an online betting demo system based on CockroachDB, Kafka and Spring Boot.
+
+Welcome to Burp-a-Bet horse betting. It's an online betting demo system based on CockroachDB, Kafka and Spring Boot.
 The voice activation part is work in progress. For now all bets are placed by keystrokes in the embedded interactive shell.
 
 # Introduction

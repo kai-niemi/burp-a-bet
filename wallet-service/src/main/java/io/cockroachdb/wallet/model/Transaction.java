@@ -27,8 +27,7 @@ import io.cockroachdb.betting.common.jpa.AbstractEntity;
  */
 @Entity
 @Table(name = "transaction")
-@Relation(value = "transaction",
-        collectionRelation = "transaction-list")
+@Relation(value = "transaction", collectionRelation = "transaction-list")
 public class Transaction extends AbstractEntity<UUID> {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

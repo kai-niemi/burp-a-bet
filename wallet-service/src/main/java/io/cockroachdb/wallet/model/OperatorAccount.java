@@ -10,8 +10,7 @@ import org.springframework.hateoas.server.core.Relation;
 
 @Entity
 @DiscriminatorValue("operator")
-@Relation(value = "operator-account",
-        collectionRelation = "operator-account-list")
+@Relation(value = "operator-account", collectionRelation = "operator-account-list")
 public class OperatorAccount extends Account {
     public static Builder builder() {
         return new Builder();

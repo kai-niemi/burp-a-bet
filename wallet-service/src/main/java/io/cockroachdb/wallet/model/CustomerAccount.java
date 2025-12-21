@@ -11,8 +11,7 @@ import org.springframework.hateoas.server.core.Relation;
 
 @Entity
 @DiscriminatorValue("customer")
-@Relation(value = "customer-account",
-        collectionRelation = "customer-account-list")
+@Relation(value = "customer-account", collectionRelation = "customer-account-list")
 public class CustomerAccount extends Account {
     @Column(name = "foreign_id")
     protected UUID foreignId;

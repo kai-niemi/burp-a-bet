@@ -11,7 +11,6 @@
 
     <artifactId>betting-service</artifactId>
     <packaging>jar</packaging>
-    <name>Betting Service</name>
 
     <dependencies>
         <dependency>
