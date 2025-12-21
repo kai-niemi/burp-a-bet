@@ -20,7 +20,7 @@ public @interface TimeTravel {
     /**
      * @return the time travel mode, either follower read or snapshot
      */
-    TimeTravelMode mode() default TimeTravelMode.FOLLOWER_READ;
+    TimeTravelMode mode() default TimeTravelMode.EXACT_STALENESS_READ;
 
     /**
      * See https://www.cockroachlabs.com/docs/stable/interval.html

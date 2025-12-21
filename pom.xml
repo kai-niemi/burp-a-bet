@@ -15,8 +15,6 @@
 
     <packaging>pom</packaging>
 
-    <name>Project Aggregator</name>
-
     <description>
         Betting demo parent project and build aggregator.
     </description>

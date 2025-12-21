@@ -54,7 +54,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @Autowired
     private AnsiConsole ansiConsole;
 
-    @ShellMethod(value = "Create operator accounts (optional)", key = {"co", "create-operators"})
+    @ShellMethod(value = "Create operator accounts (optional)", key = {"oa", "operator-accounts"})
     public void createOperators(
             @ShellOption(help = "initial account balance (can go negative)", defaultValue = "0.00") String balance,
             @ShellOption(help = "account currency (ISO-4701 code)", defaultValue = "USD") String currency,
@@ -82,7 +82,7 @@ public class OperatorCommand extends AbstractShellComponent {
                         }));
     }
 
-    @ShellMethod(value = "Create customer accounts (optional)", key = {"cc", "create-customers"})
+    @ShellMethod(value = "Create customer accounts (optional)", key = {"ca", "customer-accounts"})
     public void createCustomers(
             @ShellOption(help = "initial account balance (can go negative)", defaultValue = "0.00") String balance,
             @ShellOption(help = "account currency (ISO-4701 code)", defaultValue = "USD") String currency,
@@ -121,7 +121,7 @@ public class OperatorCommand extends AbstractShellComponent {
                 });
     }
 
-    @ShellMethod(value = "Grant bonus to customers (optional)", key = {"gb", "grant-bonus"})
+    @ShellMethod(value = "Grant additional registration bonus to customers (optional)", key = {"gb", "grant-bonus"})
     public void grant(
             @ShellOption(help = "bonus amount", defaultValue = "50.00") String amount,
             @ShellOption(help = "bonus currency (ISO-4701 code)", defaultValue = "USD") String currency,
@@ -161,7 +161,7 @@ public class OperatorCommand extends AbstractShellComponent {
     }
 
     @ShellMethod(value = "Print account balances (optional)", key = {"pb", "print-balance"})
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
     public void printBalance() {
         Page<Account> page = accountRepository.findAll(PageRequest.ofSize(64)
                 .withSort(Sort.by("balance", "accountType").descending()));

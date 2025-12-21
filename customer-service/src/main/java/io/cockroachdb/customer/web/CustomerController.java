@@ -44,7 +44,7 @@ public class CustomerController {
     private PagedResourcesAssembler<Customer> customerPagedResourcesAssembler;
 
     @GetMapping(value = "/")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
     public HttpEntity<PagedModel<EntityModel<Customer>>> findAll(
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
@@ -56,7 +56,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/jurisdiction/{jurisdiction}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
     public HttpEntity<PagedModel<EntityModel<Customer>>> findAllWithJurisdiction(
             @PathVariable("jurisdiction") Jurisdiction jurisdiction,
             @PageableDefault(size = 15) Pageable page) {
@@ -65,7 +65,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/status/{status}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
     public HttpEntity<PagedModel<EntityModel<Customer>>> findAllWithStatus(
             @PathVariable("status") Status status,
             @PageableDefault(size = 15) Pageable page) {
@@ -74,7 +74,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/any")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
     public HttpEntity<EntityModel<Customer>> findAnyCustomer() {
         return ResponseEntity.ok(customerResourceAssembler
                 .toModel(customerRepository.findAny()
@@ -82,7 +82,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/{id}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
     public HttpEntity<EntityModel<Customer>> getCustomer(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(customerResourceAssembler
                 .toModel(customerRepository.findById(id)

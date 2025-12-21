@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.server.core.Relation;
 import org.springframework.util.Assert;
 
@@ -20,13 +19,12 @@ import io.cockroachdb.betting.common.util.Money;
  * between account and transaction entities.
  */
 @Entity
-@DynamicUpdate
 @Table(name = "transaction_item")
 @Relation(value = "transaction-item",
         collectionRelation = "transaction-item-list")
 public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
     @EmbeddedId
-    private Id id = new Id();
+    private Id id;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -62,7 +60,11 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
     @ManyToOne(fetch = FetchType.LAZY)
     private Transaction transaction;
 
-    protected TransactionItem(Transaction transaction, Account account) {
+    public TransactionItem() {
+
+    }
+
+    public TransactionItem(Transaction transaction, Account account) {
         this.id = new Id(transaction.getId(), account.getId());
         this.transaction = transaction;
         this.account = account;
@@ -113,25 +115,12 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
         return account;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
     public Transaction getTransaction() {
         return transaction;
     }
 
-    public void setTransaction(Transaction transaction) {
-        this.transaction = transaction;
-    }
-
-
     @Embeddable
     public static class Id implements Serializable {
-        public static Id of(UUID accountId, UUID transactionId) {
-            return new Id(accountId, transactionId);
-        }
-
         @Column(name = "account_id", updatable = false)
         private UUID accountId;
 
@@ -141,9 +130,9 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
         protected Id() {
         }
 
-        protected Id(UUID accountId, UUID transactionId) {
-            this.accountId = accountId;
+        protected Id(UUID transactionId, UUID accountId) {
             this.transactionId = transactionId;
+            this.accountId = accountId;
         }
 
         public UUID getAccountId() {
@@ -228,6 +217,7 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
         }
 
         public TransactionItem build() {
+            Assert.notNull(transaction, "transaction is null");
             Assert.notNull(account, "account is null");
             TransactionItem transactionItem = new TransactionItem(transaction, account);
             transactionItem.setAmount(amount);

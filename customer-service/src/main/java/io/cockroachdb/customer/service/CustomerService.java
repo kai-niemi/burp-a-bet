@@ -1,7 +1,15 @@
 package io.cockroachdb.customer.service;
 
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
+
 import io.cockroachdb.betting.common.annotations.OutboxOperation;
-import io.cockroachdb.betting.common.annotations.Retryable;
 import io.cockroachdb.betting.common.annotations.SagaCoordinator;
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
 import io.cockroachdb.betting.common.annotations.TimeTravel;
@@ -15,14 +23,6 @@ import io.cockroachdb.betting.common.outbox.OutboxRepository;
 import io.cockroachdb.betting.common.shell.DebugSupport;
 import io.cockroachdb.customer.model.Customer;
 import io.cockroachdb.customer.repository.CustomerRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.util.Pair;
-
-import java.util.Optional;
 
 @ServiceFacade
 @SagaCoordinator("registration")
@@ -55,7 +55,7 @@ public class CustomerService {
         outboxRepository.deleteAllInBatch();
     }
 
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.FOLLOWER_READ))
+    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
     public Page<Customer> findAll(Pageable pageable) {
         return customerRepository.findAll(pageable);
     }
@@ -66,7 +66,6 @@ public class CustomerService {
     }
 
     @TransactionBoundary
-    @Retryable
     @OutboxOperation(aggregateType = "registration")
     public Registration registerCustomer(Customer customer) {
         customer = customerRepository.save(customer);
@@ -74,7 +73,6 @@ public class CustomerService {
     }
 
     @TransactionBoundary
-    @Retryable
     public RegistrationEvent confirmRegistration(RegistrationEvent fromWallet, RegistrationEvent fromBetting) {
         Registration walletPayload = fromWallet.getPayload();
         Registration bettingPayload = fromBetting.getPayload();
@@ -86,13 +84,13 @@ public class CustomerService {
             String origin = null;
 
             if (walletPayload.getStatus().equals(Status.APPROVED) &&
-                    bettingPayload.getStatus().equals(Status.APPROVED)) {
+                bettingPayload.getStatus().equals(Status.APPROVED)) {
                 customer.setStatus(Status.APPROVED);
             } else if (walletPayload.getStatus().equals(Status.REJECTED) &&
-                    bettingPayload.getStatus().equals(Status.REJECTED)) {
+                       bettingPayload.getStatus().equals(Status.REJECTED)) {
                 customer.setStatus(Status.REJECTED);
             } else if (walletPayload.getStatus().equals(Status.REJECTED) ||
-                    bettingPayload.getStatus().equals(Status.REJECTED)) {
+                       bettingPayload.getStatus().equals(Status.REJECTED)) {
                 customer.setStatus(Status.ROLLBACK);
                 origin = walletPayload.getStatus().equals(Status.REJECTED)
                         ? walletPayload.getOrigin() : bettingPayload.getOrigin();

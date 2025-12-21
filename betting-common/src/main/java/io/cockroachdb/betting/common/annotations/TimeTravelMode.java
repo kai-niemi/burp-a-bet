@@ -7,13 +7,14 @@ package io.cockroachdb.betting.common.annotations;
  */
 public enum TimeTravelMode {
     /**
-     * Non-authoritative read from the closest range replica.
+     * A historical read as of a static, user-provided timestamp.
      */
-    FOLLOWER_READ,
+    EXACT_STALENESS_READ,
     /**
-     * Non-authoritative read using a relative timestamp.
+     * A historical read that uses a dynamic, system-determined timestamp to minimize staleness
+     * while being more tolerant to replication lag than an exact staleness read.
      */
-    HISTORICAL_READ,
+    BOUNDED_STALENESS_READ,
     /**
      * Authoritative reads (default in CockroachDB)
      */

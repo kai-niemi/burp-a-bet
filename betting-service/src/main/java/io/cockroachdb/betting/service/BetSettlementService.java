@@ -8,10 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 
-import io.cockroachdb.betting.model.Bet;
-import io.cockroachdb.betting.repository.BetRepository;
-import io.cockroachdb.betting.repository.RaceRepository;
-import io.cockroachdb.betting.common.annotations.Retryable;
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.BetSettlement;
@@ -21,6 +17,9 @@ import io.cockroachdb.betting.common.domain.Outcome;
 import io.cockroachdb.betting.common.domain.Status;
 import io.cockroachdb.betting.common.outbox.OutboxRepository;
 import io.cockroachdb.betting.common.shell.DebugSupport;
+import io.cockroachdb.betting.model.Bet;
+import io.cockroachdb.betting.repository.BetRepository;
+import io.cockroachdb.betting.repository.RaceRepository;
 
 @ServiceFacade
 public class BetSettlementService {
@@ -54,7 +53,6 @@ public class BetSettlementService {
     }
 
     @TransactionBoundary
-    @Retryable
     public void settleBets(UUID raceId, Outcome outcome) {
         betRepository.findUnsettledBetsWithRaceId(raceId)
                 .stream()
@@ -79,7 +77,6 @@ public class BetSettlementService {
     }
 
     @TransactionBoundary
-    @Retryable
     public BetSettlementEvent confirmSettlement(BetSettlementEvent fromWallet, BetSettlementEvent fromCustomer) {
         BetSettlement walletPayload = fromWallet.getPayload();
         BetSettlement customerPayload = fromCustomer.getPayload();
@@ -95,15 +92,15 @@ public class BetSettlementService {
         String origin = null;
 
         if (walletPayload.getStatus().equals(Status.APPROVED) &&
-                customerPayload.getStatus().equals(Status.APPROVED)) {
+            customerPayload.getStatus().equals(Status.APPROVED)) {
             bet.setSettled(true);
             bet.setSettlementStatus(Status.APPROVED);
         } else if (walletPayload.getStatus().equals(Status.REJECTED) &&
-                customerPayload.getStatus().equals(Status.REJECTED)) {
+                   customerPayload.getStatus().equals(Status.REJECTED)) {
             bet.setSettled(false);
             bet.setSettlementStatus(Status.REJECTED);
         } else if (walletPayload.getStatus().equals(Status.REJECTED) ||
-                customerPayload.getStatus().equals(Status.REJECTED)) {
+                   customerPayload.getStatus().equals(Status.REJECTED)) {
             bet.setSettled(false);
             bet.setSettlementStatus(Status.ROLLBACK);
 

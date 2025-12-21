@@ -48,7 +48,7 @@ public class OperatorCommand extends AbstractShellComponent {
     @Autowired
     private AnsiConsole ansiConsole;
 
-    @ShellMethod(value = "Register a new customer", key = {"r", "register"})
+    @ShellMethod(value = "Register new customer", key = {"r", "register"})
     public void register(
             @ShellOption(help = "operator ID or random assigned if omitted",
                     valueProvider = OperatorAccountValueProvider.class,
@@ -96,7 +96,7 @@ public class OperatorCommand extends AbstractShellComponent {
         }
     }
 
-    @ShellMethod(value = "List registered customers", key = {"lc", "list"})
+    @ShellMethod(value = "List registered customers", key = {"l", "list"})
     public void listCustomers() {
         Page<Customer> page = customerService.findAll(PageRequest.ofSize(64)
                 .withSort(Sort.by("jurisdiction").ascending()));
@@ -111,7 +111,7 @@ public class OperatorCommand extends AbstractShellComponent {
         }
     }
 
-    @ShellMethod(value = "Toggle spending limit check", key = {"toggle-limits", "tl"})
+    @ShellMethod(value = "Toggle spending limit check", key = {"tl","toggle-limits"})
     public void toggleSpendingLimit() {
         customerBettingFacade.toggleSpendingLimits();
     }

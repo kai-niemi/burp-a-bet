@@ -16,7 +16,7 @@ import io.cockroachdb.betting.common.jpa.AbstractEntity;
 @Table(name = "key_log")
 public class IdempotencyKey extends AbstractEntity<UUID> {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+//    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 

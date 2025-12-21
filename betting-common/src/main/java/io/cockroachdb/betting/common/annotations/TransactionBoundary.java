@@ -8,8 +8,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import io.cockroachdb.betting.common.aspect.TransactionRetryPredicate;
 
 /**
  * Indicates the annotated class or method is a transactional service boundary. Its architectural role is to
@@ -25,6 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Transactional(propagation = Propagation.REQUIRES_NEW)
+@Retryable(predicate = TransactionRetryPredicate.class,
+        maxRetries = 5,
+        maxDelay = 15_0000,
+        multiplier = 1.5)
 public @interface TransactionBoundary {
     /**
      * (Optional) Indicates that the annotated class or method can read from a

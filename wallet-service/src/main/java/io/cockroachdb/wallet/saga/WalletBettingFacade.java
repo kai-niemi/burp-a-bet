@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.cockroachdb.betting.common.annotations.OutboxOperation;
-import io.cockroachdb.betting.common.annotations.Retryable;
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.BetPlacement;
@@ -32,7 +31,6 @@ public class WalletBettingFacade {
     private TransferService transferService;
 
     @TransactionBoundary
-    @Retryable
     @OutboxOperation(aggregateType = "placement")
     public BetPlacement reserveWager(BetPlacement placement) {
         Optional<CustomerAccount> optional = accountService
@@ -93,7 +91,6 @@ public class WalletBettingFacade {
     }
 
     @TransactionBoundary
-    @Retryable
     public BetPlacement reverseWager(BetPlacement placement) {
         CustomerAccount customerAccount = accountService
                 .findCustomerAccountByForeignId(placement.getCustomerId())
@@ -138,7 +135,6 @@ public class WalletBettingFacade {
     }
 
     @TransactionBoundary
-    @Retryable
     @OutboxOperation(aggregateType = "settlement")
     public BetSettlement transferPayout(BetSettlement settlement) {
         if (settlement.getPayout().isPositive()) {

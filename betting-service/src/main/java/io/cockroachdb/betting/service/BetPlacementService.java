@@ -1,11 +1,14 @@
 package io.cockroachdb.betting.service;
 
-import io.cockroachdb.betting.model.Bet;
-import io.cockroachdb.betting.model.Race;
-import io.cockroachdb.betting.repository.BetRepository;
-import io.cockroachdb.betting.repository.RaceRepository;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
+
 import io.cockroachdb.betting.common.annotations.OutboxOperation;
-import io.cockroachdb.betting.common.annotations.Retryable;
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.BetPlacement;
@@ -13,13 +16,10 @@ import io.cockroachdb.betting.common.domain.BetPlacementEvent;
 import io.cockroachdb.betting.common.domain.EventType;
 import io.cockroachdb.betting.common.domain.Status;
 import io.cockroachdb.betting.common.shell.DebugSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
-
-import java.util.Optional;
-import java.util.UUID;
+import io.cockroachdb.betting.model.Bet;
+import io.cockroachdb.betting.model.Race;
+import io.cockroachdb.betting.repository.BetRepository;
+import io.cockroachdb.betting.repository.RaceRepository;
 
 
 @ServiceFacade
@@ -56,7 +56,6 @@ public class BetPlacementService {
 
     @TransactionBoundary
     @OutboxOperation(aggregateType = "placement")
-    @Retryable
     public BetPlacement placeBet(BetPlacement betPlacement) {
         if (idempotencyService.alreadyProcessed(betPlacement.getEventId())) {
             throw new DuplicatePlacementException("Event ID already processed: " + betPlacement.getEventId());
@@ -83,7 +82,6 @@ public class BetPlacementService {
     }
 
     @TransactionBoundary
-    @Retryable
     public BetPlacementEvent confirmPlacement(BetPlacementEvent fromWallet, BetPlacementEvent fromCustomer) {
         BetPlacement walletPayload = fromWallet.getPayload();
         BetPlacement customerPayload = fromCustomer.getPayload();
@@ -101,13 +99,13 @@ public class BetPlacementService {
         String origin = "betting-service";
 
         if (walletPayload.getStatus().equals(Status.APPROVED) &&
-                customerPayload.getStatus().equals(Status.APPROVED)) {
+            customerPayload.getStatus().equals(Status.APPROVED)) {
             bet.setPlacementStatus(Status.APPROVED);
         } else if (walletPayload.getStatus().equals(Status.REJECTED) &&
-                customerPayload.getStatus().equals(Status.REJECTED)) {
+                   customerPayload.getStatus().equals(Status.REJECTED)) {
             bet.setPlacementStatus(Status.REJECTED);
         } else if (walletPayload.getStatus().equals(Status.REJECTED) ||
-                customerPayload.getStatus().equals(Status.REJECTED)) {
+                   customerPayload.getStatus().equals(Status.REJECTED)) {
             bet.setPlacementStatus(Status.ROLLBACK);
             origin = walletPayload.getStatus().equals(Status.REJECTED)
                     ? walletPayload.getOrigin() : customerPayload.getOrigin();

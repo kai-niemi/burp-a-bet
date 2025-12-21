@@ -51,7 +51,7 @@ public class DefaultTransferService implements TransferService {
         // Coalesce multi-legged transactions
         final Map<UUID, Pair<Money, String>> legs = coalesce(request);
 
-        final Transaction transaction = transactionRepository.saveAndFlush(Transaction.builder()
+        final Transaction transaction = transactionRepository.save(Transaction.builder()
                 .withJurisdiction(request.getJurisdiction())
                 .withTransferType(request.getTransactionType())
                 .withBookingDate(request.getBookingDate())
@@ -85,9 +85,9 @@ public class DefaultTransferService implements TransferService {
             account.addAmount(amount);
         });
 
-        transactionItemRepository.saveAll(transactionItems);
-
         transaction.addItems(transactionItems);
+
+        transactionItemRepository.saveAll(transactionItems);
 
         return transaction;
     }

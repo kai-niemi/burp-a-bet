@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.hateoas.server.core.Relation;
@@ -55,12 +54,10 @@ public class Transaction extends AbstractEntity<UUID> {
     public Transaction() {
     }
 
-    protected Transaction(UUID id,
-                          Jurisdiction jurisdiction,
+    protected Transaction(Jurisdiction jurisdiction,
                           String transactionType,
                           LocalDate bookingDate,
                           LocalDate transferDate) {
-        this.id = id;
         this.jurisdiction = jurisdiction;
         this.transactionType = transactionType;
         this.bookingDate = bookingDate;
@@ -101,8 +98,6 @@ public class Transaction extends AbstractEntity<UUID> {
     }
 
     public static final class Builder {
-        private UUID transactionId;
-
         private Jurisdiction jurisdiction;
 
         private String transferType;
@@ -110,11 +105,6 @@ public class Transaction extends AbstractEntity<UUID> {
         private LocalDate bookingDate;
 
         private LocalDate transferDate;
-
-        public Builder withId(UUID id) {
-            this.transactionId = id;
-            return this;
-        }
 
         public Builder withJurisdiction(Jurisdiction jurisdiction) {
             this.jurisdiction = jurisdiction;
@@ -137,7 +127,7 @@ public class Transaction extends AbstractEntity<UUID> {
         }
 
         public Transaction build() {
-            return new Transaction(transactionId, jurisdiction, transferType, bookingDate, transferDate);
+            return new Transaction(jurisdiction, transferType, bookingDate, transferDate);
         }
     }
 }

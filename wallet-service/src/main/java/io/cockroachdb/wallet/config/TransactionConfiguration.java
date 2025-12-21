@@ -7,21 +7,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import io.cockroachdb.betting.common.aspect.AdvisorOrder;
-import io.cockroachdb.betting.common.aspect.ExponentialBackoffRetryHandler;
 import io.cockroachdb.betting.common.aspect.OutboxAspect;
-import io.cockroachdb.betting.common.aspect.RetryHandler;
 import io.cockroachdb.betting.common.aspect.TransactionDecoratorAspect;
-import io.cockroachdb.betting.common.aspect.TransactionRetryAspect;
 import io.cockroachdb.betting.common.outbox.OutboxJdbcRepository;
 import io.cockroachdb.betting.common.outbox.OutboxRepository;
 import io.cockroachdb.wallet.WalletApplication;
 
 @Configuration
-@EnableTransactionManagement(order = AdvisorOrder.TRANSACTION_MANAGER_ADVISOR, proxyTargetClass = true)
+@EnableTransactionManagement(order = AdvisorOrder.TRANSACTION_BOUNDARY_ADVISOR, proxyTargetClass = true)
 @EnableJpaRepositories(basePackageClasses = WalletApplication.class,enableDefaultTransactions = false)
+@EnableResilientMethods(proxyTargetClass = true, order = AdvisorOrder.TRANSACTION_BEFORE_ADVISOR)
 @EnableJpaAuditing
 public class TransactionConfiguration {
     @Bean
@@ -32,16 +31,6 @@ public class TransactionConfiguration {
     @Bean
     public OutboxAspect outboxAspect() {
         return new OutboxAspect(outboxRepository());
-    }
-
-    @Bean
-    public RetryHandler retryHandler() {
-        return new ExponentialBackoffRetryHandler();
-    }
-
-    @Bean
-    public TransactionRetryAspect transactionRetryAspect(RetryHandler retryHandler) {
-        return new TransactionRetryAspect(retryHandler);
     }
 
     @Bean

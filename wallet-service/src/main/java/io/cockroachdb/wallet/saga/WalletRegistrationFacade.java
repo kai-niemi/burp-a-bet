@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.cockroachdb.betting.common.annotations.OutboxOperation;
-import io.cockroachdb.betting.common.annotations.Retryable;
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.Registration;
@@ -45,7 +44,6 @@ public class WalletRegistrationFacade {
      * @param registration the customer in pending state
      */
     @TransactionBoundary
-    @Retryable
     @OutboxOperation(aggregateType = "registration")
     public Registration createAccounts(Registration registration) {
         Optional<OperatorAccount> optional = Objects.nonNull(registration.getOperatorId())
@@ -101,7 +99,6 @@ public class WalletRegistrationFacade {
      * @param registration the current registration state
      */
     @TransactionBoundary
-    @Retryable
     public void reverseAccounts(Registration registration) {
         CustomerAccount customerAccount = accountService.findCustomerAccountByForeignId(registration.getEntityId())
                 .orElseThrow(() -> new NoSuchAccountException(registration.getEntityId()));

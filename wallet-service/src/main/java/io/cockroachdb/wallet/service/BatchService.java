@@ -1,6 +1,20 @@
 package io.cockroachdb.wallet.service;
 
-import io.cockroachdb.betting.common.annotations.Retryable;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.Jurisdiction;
@@ -12,20 +26,6 @@ import io.cockroachdb.wallet.repository.CustomerAccountRepository;
 import io.cockroachdb.wallet.repository.OperatorAccountRepository;
 import io.cockroachdb.wallet.repository.TransactionItemRepository;
 import io.cockroachdb.wallet.repository.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 @ServiceFacade
 public class BatchService {
@@ -116,7 +116,6 @@ public class BatchService {
     }
 
     @TransactionBoundary
-    @Retryable
     public Money grantBonus(OperatorAccount operatorAccount, Money grant) {
         TransferRequest.Builder requestBuilder = TransferRequest.builder()
                 .withId(UUID.randomUUID())

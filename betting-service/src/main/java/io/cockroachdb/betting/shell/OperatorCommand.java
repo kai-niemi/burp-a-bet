@@ -54,8 +54,8 @@ public class OperatorCommand extends AbstractShellComponent {
     @Autowired
     private HypermediaClient hypermediaClient;
 
-    @ShellMethod(value = "Place a bet on a given or random race", key = {"pb", "place-bet"})
-    public void placeBet(
+    @ShellMethod(value = "Place bet(s) on a given or random race", key = {"pb", "place-bets"})
+    public void place(
             @ShellOption(help = "customer id (empty denotes all in jurisdiction)",
                     valueProvider = CustomerValueProvider.class,
                     value = {"customer"},

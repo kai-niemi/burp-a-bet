@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import io.cockroachdb.betting.common.annotations.Retryable;
 import io.cockroachdb.betting.common.annotations.SagaStepAction;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.Registration;
@@ -34,7 +33,6 @@ public class BettingKafkaListener {
     private OutboxRepository outboxRepository;
 
     @TransactionBoundary
-    @Retryable
     @KafkaListener(id = "registration", topics = TopicNames.REGISTRATION, groupId = "betting",
             properties = {"spring.json.value.default.type=io.cockroachdb.betting.common.domain.RegistrationEvent"})
     public void onRegistrationEvent(RegistrationEvent event) {

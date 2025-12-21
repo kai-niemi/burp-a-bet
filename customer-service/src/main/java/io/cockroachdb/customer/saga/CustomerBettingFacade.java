@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.cockroachdb.betting.common.annotations.OutboxOperation;
-import io.cockroachdb.betting.common.annotations.Retryable;
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.BetPlacement;
@@ -53,7 +52,6 @@ public class CustomerBettingFacade {
     }
 
     @TransactionBoundary
-    @Retryable
     @OutboxOperation(aggregateType = "placement")
     public BetPlacement acquireSpendingCredits(BetPlacement placement) {
         Optional<Customer> optional = customerRepository.findById(placement.getCustomerId());
@@ -100,7 +98,6 @@ public class CustomerBettingFacade {
     }
 
     @TransactionBoundary
-    @Retryable
     public void releaseSpendingCredits(BetPlacement placement) {
         customerSpendingLimits.computeIfPresent(placement.getCustomerId(),
                 (id, spendingLimit) -> {
@@ -111,7 +108,6 @@ public class CustomerBettingFacade {
     }
 
     @TransactionBoundary
-    @Retryable
     @OutboxOperation(aggregateType = "settlement")
     public BetSettlement approveSettlement(BetSettlement settlement) {
         settlement.setStatus(Status.APPROVED);
