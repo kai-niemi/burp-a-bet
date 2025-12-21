@@ -125,7 +125,9 @@ public class TransferRequest {
         public TransferRequest build() {
             Assert.isTrue(instance.accountLegs.size() >= 2, "At least 2 legs are required");
             Assert.notNull(instance.jurisdiction, "Jurisdiction is null");
-            Assert.notNull(instance.transactionType, "Booking date is null");
+            Assert.notNull(instance.transactionType, "Transaction type is null");
+            Assert.notNull(instance.bookingDate, "Booking date is null");
+            Assert.notNull(instance.transferDate, "Transfer date is null");
             return instance;
         }
     }

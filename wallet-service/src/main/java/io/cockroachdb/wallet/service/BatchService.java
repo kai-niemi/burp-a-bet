@@ -122,7 +122,8 @@ public class BatchService {
                 .withId(UUID.randomUUID())
                 .withJurisdiction(operatorAccount.getJurisdiction())
                 .withTransactionType("extra-bonus")
-                .withBookingDate(LocalDate.now());
+                .withBookingDate(LocalDate.now())
+                .withTransferDate(LocalDate.now());
 
         AtomicReference<Money> total = new AtomicReference<>(Money.zero(grant.getCurrency()));
 

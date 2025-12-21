@@ -1,18 +1,18 @@
 package io.cockroachdb.wallet.model;
 
-import io.cockroachdb.betting.common.domain.Jurisdiction;
-import io.cockroachdb.betting.common.jpa.AbstractEntity;
-import io.cockroachdb.betting.common.util.Money;
-import jakarta.persistence.*;
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.UUID;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.server.core.Relation;
 import org.springframework.util.Assert;
 
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Consumer;
+import jakarta.persistence.*;
+
+import io.cockroachdb.betting.common.domain.Jurisdiction;
+import io.cockroachdb.betting.common.jpa.AbstractEntity;
+import io.cockroachdb.betting.common.util.Money;
 
 /**
  * Immutable transaction item/leg representing a single account balance update as part
@@ -62,11 +62,10 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
     @ManyToOne(fetch = FetchType.LAZY)
     private Transaction transaction;
 
-    protected TransactionItem() {
-    }
-
-    public static Builder builder(Transaction.Builder parentBuilder, Consumer<TransactionItem> callback) {
-        return new Builder(parentBuilder, callback);
+    protected TransactionItem(Transaction transaction, Account account) {
+        this.id = new Id(transaction.getId(), account.getId());
+        this.transaction = transaction;
+        this.account = account;
     }
 
     @Override
@@ -126,8 +125,13 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
         this.transaction = transaction;
     }
 
+
     @Embeddable
     public static class Id implements Serializable {
+        public static Id of(UUID accountId, UUID transactionId) {
+            return new Id(accountId, transactionId);
+        }
+
         @Column(name = "account_id", updatable = false)
         private UUID accountId;
 
@@ -140,10 +144,6 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
         protected Id(UUID accountId, UUID transactionId) {
             this.accountId = accountId;
             this.transactionId = transactionId;
-        }
-
-        public static Id of(UUID accountId, UUID transactionId) {
-            return new Id(accountId, transactionId);
         }
 
         public UUID getAccountId() {
@@ -177,22 +177,39 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
         }
     }
 
-    public static class Builder {
-        private final Transaction.Builder parentBuilder;
+    public static Builder builder() {
+        return new Builder();
+    }
 
-        private final Consumer<TransactionItem> callback;
+    public static class Builder {
+        private Transaction transaction;
+
+        private Account account;
 
         private Money amount;
 
         private Money runningBalance;
 
-        private Account account;
+        private Jurisdiction jurisdiction;
 
         private String note;
 
-        private Builder(Transaction.Builder parentBuilder, Consumer<TransactionItem> callback) {
-            this.parentBuilder = parentBuilder;
-            this.callback = callback;
+        private Builder() {
+        }
+
+        public Builder withTransaction(Transaction transaction) {
+            this.transaction = transaction;
+            return this;
+        }
+
+        public Builder withAccount(Account account) {
+            this.account = account;
+            return this;
+        }
+
+        public Builder withJurisdiction(Jurisdiction jurisdiction) {
+            this.jurisdiction = jurisdiction;
+            return this;
         }
 
         public Builder withAmount(Money amount) {
@@ -205,29 +222,19 @@ public class TransactionItem extends AbstractEntity<TransactionItem.Id> {
             return this;
         }
 
-        public Builder withAccount(Account account) {
-            this.account = account;
-            return this;
-        }
-
         public Builder withNote(String note) {
             this.note = note;
             return this;
         }
 
-        public Transaction.Builder then() {
+        public TransactionItem build() {
             Assert.notNull(account, "account is null");
-
-            TransactionItem transactionItem = new TransactionItem();
-            transactionItem.setAccount(account);
+            TransactionItem transactionItem = new TransactionItem(transaction, account);
             transactionItem.setAmount(amount);
             transactionItem.setRunningBalance(runningBalance);
             transactionItem.setNote(note);
-            transactionItem.setJurisdiction(account.getJurisdiction());
-
-            callback.accept(transactionItem);
-
-            return parentBuilder;
+            transactionItem.setJurisdiction(jurisdiction);
+            return transactionItem;
         }
     }
 }

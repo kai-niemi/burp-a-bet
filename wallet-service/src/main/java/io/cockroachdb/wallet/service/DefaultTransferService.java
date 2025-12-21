@@ -1,6 +1,7 @@
 package io.cockroachdb.wallet.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
@@ -11,12 +12,14 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.util.Assert;
 
 import io.cockroachdb.betting.common.annotations.ControlService;
 import io.cockroachdb.betting.common.annotations.TransactionMandatory;
 import io.cockroachdb.betting.common.util.Money;
 import io.cockroachdb.wallet.model.Account;
 import io.cockroachdb.wallet.model.Transaction;
+import io.cockroachdb.wallet.model.TransactionItem;
 import io.cockroachdb.wallet.repository.AccountRepository;
 import io.cockroachdb.wallet.repository.TransactionItemRepository;
 import io.cockroachdb.wallet.repository.TransactionRepository;
@@ -48,38 +51,45 @@ public class DefaultTransferService implements TransferService {
         // Coalesce multi-legged transactions
         final Map<UUID, Pair<Money, String>> legs = coalesce(request);
 
-        // Lookup accounts with locks
-        final List<Account> accounts = accountRepository.findAllByIdForUpdate(legs.keySet());
-
-        final Transaction.Builder transactionBuilder = Transaction.builder()
+        final Transaction transaction = transactionRepository.saveAndFlush(Transaction.builder()
                 .withJurisdiction(request.getJurisdiction())
                 .withTransferType(request.getTransactionType())
                 .withBookingDate(request.getBookingDate())
-                .withTransferDate(request.getTransferDate());
+                .withTransferDate(request.getTransferDate())
+                .build());
+
+        Assert.notNull(transaction.getId(), "id is null");
+
+        final List<TransactionItem> transactionItems = new ArrayList<>();
+
+        // Lookup accounts with pessimistic locks
+        final List<Account> accounts = accountRepository.findAllByIdForUpdate(legs.keySet());
 
         legs.forEach((accountId, value) -> {
-            final Money amount = value.getFirst();
-
             Account account = accounts.stream()
                     .filter(a -> Objects.equals(a.getId(), accountId))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchAccountException(accountId));
 
-            transactionBuilder
-                    .andItem()
+            final Money amount = value.getFirst();
+
+            transactionItems.add(TransactionItem.builder()
+                    .withTransaction(transaction)
                     .withAccount(account)
                     .withRunningBalance(account.getBalance())
                     .withAmount(amount)
                     .withNote(value.getSecond())
-                    .then();
+                    .withJurisdiction(request.getJurisdiction())
+                    .build());
 
             account.addAmount(amount);
         });
 
-        Transaction transaction = transactionBuilder.build();
-        transactionItemRepository.saveAll(transaction.getItems());
+        transactionItemRepository.saveAll(transactionItems);
 
-        return transactionRepository.save(transaction);
+        transaction.addItems(transactionItems);
+
+        return transaction;
     }
 
     private Map<UUID, Pair<Money, String>> coalesce(TransferRequest request) {
@@ -101,7 +111,7 @@ public class DefaultTransferService implements TransferService {
         amounts.forEach((key, value) -> {
             if (value.compareTo(BigDecimal.ZERO) != 0) {
                 throw new BadRequestException("Unbalanced transaction: currency ["
-                        + key + "], amount sum [" + value + "]");
+                                              + key + "], amount sum [" + value + "]");
             }
         });
 

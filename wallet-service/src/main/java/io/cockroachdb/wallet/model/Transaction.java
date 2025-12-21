@@ -1,14 +1,27 @@
 package io.cockroachdb.wallet.model;
 
-import io.cockroachdb.betting.common.domain.Jurisdiction;
-import io.cockroachdb.betting.common.jpa.AbstractEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.springframework.hateoas.server.core.Relation;
 
-import java.time.LocalDate;
-import java.util.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+import io.cockroachdb.betting.common.domain.Jurisdiction;
+import io.cockroachdb.betting.common.jpa.AbstractEntity;
 
 /**
  * Represents a monetary transaction (balance update) between at least two different accounts.
@@ -37,7 +50,7 @@ public class Transaction extends AbstractEntity<UUID> {
     private LocalDate bookingDate;
 
     @OneToMany(orphanRemoval = true, mappedBy = "transaction", fetch = FetchType.LAZY)
-    private List<TransactionItem> items;
+    private List<TransactionItem> items = new ArrayList<>();
 
     public Transaction() {
     }
@@ -46,28 +59,21 @@ public class Transaction extends AbstractEntity<UUID> {
                           Jurisdiction jurisdiction,
                           String transactionType,
                           LocalDate bookingDate,
-                          LocalDate transferDate,
-                          List<TransactionItem> items) {
+                          LocalDate transferDate) {
         this.id = id;
         this.jurisdiction = jurisdiction;
         this.transactionType = transactionType;
         this.bookingDate = bookingDate;
         this.transferDate = transferDate;
-        this.items = items;
-
-        items.forEach(item -> {
-            item.setId(new TransactionItem.Id(
-                    Objects.requireNonNull(item.getAccount().getId()),
-                    Objects.requireNonNull(id)
-            ));
-            item.setJurisdiction(jurisdiction);
-            item.setTransaction(this);
-        });
     }
 
     @Override
     public UUID getId() {
         return id;
+    }
+
+    public void addItems(List<TransactionItem> items) {
+        this.items.addAll(items);
     }
 
     public Jurisdiction getJurisdiction() {
@@ -95,8 +101,6 @@ public class Transaction extends AbstractEntity<UUID> {
     }
 
     public static final class Builder {
-        private final List<TransactionItem> items = new ArrayList<>();
-
         private UUID transactionId;
 
         private Jurisdiction jurisdiction;
@@ -107,10 +111,10 @@ public class Transaction extends AbstractEntity<UUID> {
 
         private LocalDate transferDate;
 
-//        public Builder withId(UUID id) {
-//            this.transactionId = id;
-//            return this;
-//        }
+        public Builder withId(UUID id) {
+            this.transactionId = id;
+            return this;
+        }
 
         public Builder withJurisdiction(Jurisdiction jurisdiction) {
             this.jurisdiction = jurisdiction;
@@ -132,12 +136,8 @@ public class Transaction extends AbstractEntity<UUID> {
             return this;
         }
 
-        public TransactionItem.Builder andItem() {
-            return TransactionItem.builder(this, items::add);
-        }
-
         public Transaction build() {
-            return new Transaction(transactionId, jurisdiction, transferType, bookingDate, transferDate, items);
+            return new Transaction(transactionId, jurisdiction, transferType, bookingDate, transferDate);
         }
     }
 }

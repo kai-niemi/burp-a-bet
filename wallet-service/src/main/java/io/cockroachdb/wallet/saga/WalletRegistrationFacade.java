@@ -121,9 +121,8 @@ public class WalletRegistrationFacade {
                 .withId(idempotencyKey)
                 .withJurisdiction(customerAccount.getJurisdiction())
                 .withTransactionType("welcome-bonus")
-                .withBookingDate(LocalDate.now());
-
-        requestBuilder
+                .withBookingDate(LocalDate.now())
+                .withTransferDate(LocalDate.now())
                 .addLeg()
                 .withId(customerAccount.getId())
                 .withAmount(WELCOME_BONUS)
@@ -145,9 +144,8 @@ public class WalletRegistrationFacade {
                 .withId(idempotencyKey)
                 .withJurisdiction(customerAccount.getJurisdiction())
                 .withTransactionType("welcome-bonus-reversal")
-                .withBookingDate(LocalDate.now());
-
-        requestBuilder
+                .withBookingDate(LocalDate.now())
+                .withTransferDate(LocalDate.now())
                 .addLeg()
                 .withId(customerAccount.getId())
                 .withAmount(WELCOME_BONUS.negate())
