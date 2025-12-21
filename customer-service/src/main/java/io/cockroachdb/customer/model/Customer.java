@@ -7,6 +7,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -18,14 +20,13 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@DynamicUpdate
 @Table(name = "customer")
 @Relation(value = "customer",
         collectionRelation = "customer-list")
 public class Customer extends AbstractEntity<UUID> {
     @Id
-    @Column(updatable = false, nullable = false)
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     @Column(name = "operator_id")

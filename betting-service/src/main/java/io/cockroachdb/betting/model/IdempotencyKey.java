@@ -3,17 +3,21 @@ package io.cockroachdb.betting.model;
 import java.time.Instant;
 import java.util.UUID;
 
-import io.cockroachdb.betting.common.jpa.AbstractEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
+import io.cockroachdb.betting.common.jpa.AbstractEntity;
 
 @Entity
 @Table(name = "key_log")
 public class IdempotencyKey extends AbstractEntity<UUID> {
     @Id
-    @Column(updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     @Column(name = "time_received", nullable = false)

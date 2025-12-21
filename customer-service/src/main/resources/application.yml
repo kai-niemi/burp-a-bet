@@ -21,7 +21,7 @@ spring:
 #        default.list.key.serde.inner: org.apache.kafka.common.serialization.Serdes$UUIDSerde
 #        default.list.key.serde.type: java.util.ArrayList
         default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-        default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
+        default.value.serde: org.springframework.kafka.support.serializer.JacksonJsonSerde
         spring.json.trusted.packages: "*"
       state-dir: .tmp/kafka-streams/
 ###################################################
@@ -48,7 +48,7 @@ spring:
       enabled: ALWAYS
   flyway:
     enabled: true
-    clean-on-validation-error: true
+#    clean-on-validation-error: true
     baseline-on-migrate: true
     clean-disabled: false
 #    baseline-on-migrate: false

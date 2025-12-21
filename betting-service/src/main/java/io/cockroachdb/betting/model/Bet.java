@@ -2,14 +2,9 @@ package io.cockroachdb.betting.model;
 
 import java.util.UUID;
 
-import io.cockroachdb.betting.common.domain.Jurisdiction;
-import io.cockroachdb.betting.common.jpa.AbstractAuditedEntity;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.UuidGenerator;
+import org.springframework.hateoas.server.core.Relation;
 
-import io.cockroachdb.betting.common.domain.BetType;
-import io.cockroachdb.betting.common.domain.Status;
-import io.cockroachdb.betting.common.util.Money;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
@@ -18,11 +13,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import org.springframework.hateoas.server.core.Relation;
+
+import io.cockroachdb.betting.common.domain.BetType;
+import io.cockroachdb.betting.common.domain.Jurisdiction;
+import io.cockroachdb.betting.common.domain.Status;
+import io.cockroachdb.betting.common.jpa.AbstractAuditedEntity;
+import io.cockroachdb.betting.common.util.Money;
 
 @Entity
 @DynamicUpdate
@@ -31,8 +33,8 @@ import org.springframework.hateoas.server.core.Relation;
         collectionRelation = "bet-list")
 public class Bet extends AbstractAuditedEntity<UUID> {
     @Id
-    @Column(updatable = false, nullable = false)
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.EAGER)

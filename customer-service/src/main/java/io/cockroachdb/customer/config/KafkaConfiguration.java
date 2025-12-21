@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.config.TopicBuilder;
-import org.springframework.kafka.support.serializer.JsonSerde;
+import org.springframework.kafka.support.serializer.JacksonJsonSerde;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import io.cockroachdb.betting.common.domain.RegistrationEvent;
@@ -59,7 +59,7 @@ public class KafkaConfiguration {
 
     @Bean
     public KStream<String, RegistrationEvent> registrationStream(StreamsBuilder builder) {
-        JsonSerde<RegistrationEvent> registrationSerde = new JsonSerde<>(RegistrationEvent.class);
+        JacksonJsonSerde<RegistrationEvent> registrationSerde = new JacksonJsonSerde<>(RegistrationEvent.class);
 
         KStream<String, RegistrationEvent> walletStream = builder
                 .stream(TopicNames.WALLET_REGISTRATION, Consumed.with(Serdes.String(), registrationSerde));

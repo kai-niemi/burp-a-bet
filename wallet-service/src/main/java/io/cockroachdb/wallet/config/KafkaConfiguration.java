@@ -2,7 +2,7 @@ package io.cockroachdb.wallet.config;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -16,7 +16,7 @@ public class KafkaConfiguration {
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
-        KafkaAdmin kafkaAdmin = new KafkaAdmin(this.properties.buildAdminProperties((null)));
+        KafkaAdmin kafkaAdmin = new KafkaAdmin(this.properties.buildAdminProperties());
         kafkaAdmin.setFatalIfBrokerNotAvailable(this.properties.getAdmin().isFailFast());
         return kafkaAdmin;
     }

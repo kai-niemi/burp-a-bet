@@ -52,7 +52,6 @@ public class DefaultTransferService implements TransferService {
         final List<Account> accounts = accountRepository.findAllByIdForUpdate(legs.keySet());
 
         final Transaction.Builder transactionBuilder = Transaction.builder()
-                .withId(request.getId())
                 .withJurisdiction(request.getJurisdiction())
                 .withTransferType(request.getTransactionType())
                 .withBookingDate(request.getBookingDate())

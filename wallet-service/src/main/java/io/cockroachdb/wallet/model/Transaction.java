@@ -14,14 +14,13 @@ import java.util.*;
  * Represents a monetary transaction (balance update) between at least two different accounts.
  */
 @Entity
-@DynamicInsert
-@DynamicUpdate
 @Table(name = "transaction")
 @Relation(value = "transaction",
         collectionRelation = "transaction-list")
 public class Transaction extends AbstractEntity<UUID> {
     @Id
-    @Column(updatable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     @Column
@@ -108,10 +107,10 @@ public class Transaction extends AbstractEntity<UUID> {
 
         private LocalDate transferDate;
 
-        public Builder withId(UUID id) {
-            this.transactionId = id;
-            return this;
-        }
+//        public Builder withId(UUID id) {
+//            this.transactionId = id;
+//            return this;
+//        }
 
         public Builder withJurisdiction(Jurisdiction jurisdiction) {
             this.jurisdiction = jurisdiction;

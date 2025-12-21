@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.config.TopicBuilder;
-import org.springframework.kafka.support.serializer.JsonSerde;
+import org.springframework.kafka.support.serializer.JacksonJsonSerde;
 
 import io.cockroachdb.betting.service.BetPlacementService;
 import io.cockroachdb.betting.service.BetSettlementService;
@@ -54,7 +54,7 @@ public class KafkaConfiguration {
 
     @Bean
     public KStream<String, BetPlacementEvent> betPlacementStream(StreamsBuilder builder) {
-        JsonSerde<BetPlacementEvent> placementSerde = new JsonSerde<>(BetPlacementEvent.class);
+        JacksonJsonSerde<BetPlacementEvent> placementSerde = new JacksonJsonSerde<>(BetPlacementEvent.class);
 
         KStream<String, BetPlacementEvent> walletStream = builder
                 .stream(TopicNames.WALLET_PLACEMENT, Consumed.with(Serdes.String(), placementSerde));
@@ -94,7 +94,7 @@ public class KafkaConfiguration {
 
     @Bean
     public KStream<String, BetSettlementEvent> betSettelemtKStream(StreamsBuilder builder) {
-        JsonSerde<BetSettlementEvent> settlementSerde = new JsonSerde<>(BetSettlementEvent.class);
+        JacksonJsonSerde<BetSettlementEvent> settlementSerde = new JacksonJsonSerde<>(BetSettlementEvent.class);
 
         KStream<String, BetSettlementEvent> walletStream = builder
                 .stream(TopicNames.WALLET_SETTLEMENT, Consumed.with(Serdes.String(), settlementSerde));

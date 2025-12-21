@@ -2,20 +2,19 @@ package io.cockroachdb.wallet.model;
 
 import java.util.UUID;
 
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
+
+import jakarta.persistence.*;
 
 import io.cockroachdb.betting.common.domain.Jurisdiction;
 import io.cockroachdb.betting.common.jpa.AbstractAuditedEntity;
 import io.cockroachdb.betting.common.util.Money;
 import io.cockroachdb.wallet.service.NegativeBalanceException;
-import jakarta.persistence.*;
 
 /**
  * Represents a monetary account like asset, liability, expense, capital accounts and so forth.
  */
 @Entity
-@DynamicUpdate
 @Table(name = "account")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "account_class", discriminatorType = DiscriminatorType.STRING)

@@ -8,10 +8,10 @@ import org.jline.utils.AttributedStyle;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.jdbc.JdbcRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.data.jdbc.autoconfigure.DataJdbcRepositoriesAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
@@ -23,7 +23,7 @@ import ch.qos.logback.classic.Level;
 @Configuration
 @ConfigurationPropertiesScan(basePackageClasses = CustomerApplication.class)
 @SpringBootApplication(exclude = {
-        JdbcRepositoriesAutoConfiguration.class,
+        DataJdbcRepositoriesAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
 })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
