@@ -5,7 +5,7 @@
 <!-- TOC -->
 * [Burp-a-bet](#burp-a-bet-)
 * [Introduction](#introduction)
-* [Design Features](#design-features)
+* [Design Notes](#design-notes)
 * [Building](#building)
   * [Prerequisites](#prerequisites)
   * [Setup](#setup)
@@ -13,7 +13,6 @@
     * [Build the executable jars](#build-the-executable-jars)
 * [Demo Tutorial](#demo-tutorial)
   * [Demo Setup](#demo-setup)
-    * [Prerequisites](#prerequisites-1)
     * [Setup CockroachDB](#setup-cockroachdb)
       * [Create the databases](#create-the-databases)
     * [Setup and Start Kafka](#setup-and-start-kafka)
@@ -32,17 +31,19 @@
 
 <img align="left" src="logo.png" width="128" height="128" />
 
-Welcome to Burp-a-Bet horse betting. It's an online betting demo system based on CockroachDB, Kafka and Spring Boot.
-The voice activation part is work in progress. For now all bets are placed by keystrokes in the embedded interactive shell.
+Welcome to Burp-a-Bet horse betting - a voice activated online betting system demo based 
+on CockroachDB, Kafka and Spring Boot. The voice activation part is work in progress. 
+For now all bets are placed by keystrokes in the embedded interactive shell.
 
 # Introduction
  
-This system is designed to _demonstrate_ different architectural patterns and mechanisms in the context 
-of an Online Sports Betting use case. For example distributed business transactions using Sagas over 
-of XA/2PC.
+The system is designed to _demonstrate_ different architectural patterns and mechanisms in the context 
+of an Online Sports Betting use case. In particular distributed business transactions using Sagas over 
+XA/2PC.
 
-The purpose is not to accurately model the full domain complexity of sports betting but to give an idea 
-of how such systems are crafted using [CockroachDB](https://www.cockroachlabs.com/) as the database of choice.
+The purpose is not to accurately model the full domain complexity of sports betting, but to give an idea 
+of how the mechanics of such systems could be crafted using [CockroachDB](https://www.cockroachlabs.com/) as the SoR database of 
+choice.
 
 The system provides three independent microservices that together supports the following customer journeys:
  
@@ -50,36 +51,52 @@ The system provides three independent microservices that together supports the f
 - **Bet Placement** - where a player wagers a bet on a specific game (track and horse)
 - **Bet Settlement** - where open bets are settled with a win or loss
 
-# Design Features
+# Design Notes
 
-To promote service autonomy, independence and transactional integrity, all journeys (business transactions) 
-are modelled using [Sagas](https://microservices.io/patterns/data/saga.html) with the orchestration method. 
+To promote service autonomy, independence and availability, all journeys aka business transactions 
+are modeled using [Sagas](https://microservices.io/patterns/data/saga.html) using the orchestration method.  
 
-All services maintain their local state in an isolated database using [ACID](https://en.wikipedia.org/wiki/ACID) guarantees and local transactions. 
-The message exchange between the services are effectively journey state transitions. These messages through 
-the transactional outbox pattern where [CDC queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) are used in combination with [Kafka stream joins](https://kafka.apache.org/documentation/streams/) 
-to pair together requests with responses.  
+Think of this pattern as a decomposed two-phase commit protocol providing eventual consistency between
+independent service through asynchronous message exchange. This fits well into the microservice architecture
+style where strong ACID transactions are typically scoped to the bounded contexts. Journeys spanning
+between services are typically coordinated asynchronously without ACID / blocking protocols to promote 
+decoupling, scalability and availability.
 
-In summary, this makes the journeys fully asynchronous but still safe from a transactional standpoint. 
-See the rule invariants section below for the meaning of _safe_ in this context.
+The downside with Saga's is that it adds complexity to the architecture and blurs out the state
+transitions in customer journeys, making it less visible and harder to trace flows. There are plenty
+of different application frameworks for using Saga's at a larger scale. This demo however focuses
+mainly on the primitives for using Saga's including message passing and local ACID transactions.
 
-This system demonstrates the following mechanisms in CockroachDB:
+All services maintain their local state in an isolated database using [ACID](https://en.wikipedia.org/wiki/ACID) guarantees and 
+local transactions. The message exchange between the services are customer journey state transitions. 
+Messages are passed through the transactional outbox pattern where [CDC queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) are used in 
+combination with [Kafka stream joins](https://kafka.apache.org/documentation/streams/) to stitch together requests with responses.  
 
-* [CDC Queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) - where each service have an outbox table and a CDC query that sends events to Kafka.
-* [Row-level TTL eviction](https://www.cockroachlabs.com/docs/v23.2/row-level-ttl) - that deletes expired outbox keys.
-* [Follower reads](https://www.cockroachlabs.com/docs/v23.2/follower-reads) - used by REST endpoints to inspect betting and race data without interfering with ongoing journeys (causing retries).
+This makes the journeys fully asynchronous and transactionally safe in terms of safeguarded rule 
+invariants. The outbox pattern, for example, guarantees at-least-once semantics in the message passing
+and that no events are emitted if transactions fail. There can't be any out-of-sync message passing
+where an event is emitted and then the transaciton rolls back. See the rule invariants section below 
+for a more precise meaning of _safety_ in this context.
+
+In summary, the system demonstrates the following mechanisms in CockroachDB:
+
+* [CDC Queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) - each service has an outbox table and CDC projection query to send events to Kafka.
+* [Row-level TTL eviction](https://www.cockroachlabs.com/docs/v23.2/row-level-ttl) - deletes expired outbox event records.
+* [Follower reads](https://www.cockroachlabs.com/docs/v23.2/follower-reads) - used by REST endpoints to inspect betting and race data without interfering with ongoing 
+journeys (causing retries).
 * [Multi-region (optional)](https://www.cockroachlabs.com/docs/v23.2/table-localities#regional-by-row-tables) - using regional-by-row to pin accounts and bets to specific jurisdictions. 
 * Computed virtual columns and enum types
 
 All three services provide an interactive shell and a [REST API](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven) using the [HAL+forms](https://rwcbook.github.io/hal-forms/) hypermedia type.
 
-The shells are used to initiate the different journeys above and other management tasks. The APIs are used for
-observability and also for initiating journeys using HTTP requests through cURL / Postman or similar tools.
+The interactive shells are used to initiate the different journeys described above and other management tasks. 
+The APIs are used for observability and also for initiating journeys using HTTP requests through cURL / 
+Postman or similar tools.
 
 # Building
 
 The project builds executable JAR files for each deployable component or microservice. 
-These JAR files runs on any platform for which there is a Java 17+ runtime.
+These JAR files runs on any platform for which there is a Java 21+ runtime.
                  
 ## Prerequisites
 
@@ -126,22 +143,15 @@ The executable jars are now found under each respective module's `target` direct
 This section describes how to run a local demo on MacOS.
 
 > For multi-region deployments using CockroachCloud on either AWS, GCP or Azure, there are
-prepared template script and SQL files in the [deploy](deploy/) directory. It describes a
+prepared template script and SQL files in the [scripts](scripts/) directory. It describes a
 manual process for a bit more advanced demos involving multi-region patterns.
 
 ## Demo Setup
 
-### Prerequisites
-
-- CockroachDB 23.1+ with an Enterprise License
-    - https://www.cockroachlabs.com/docs/releases/
-- Kafka 3.6+
-    - https://kafka.apache.org/downloads
-
 ### Setup CockroachDB
 
-For deploying a local CockroachDB cluster, 
-see https://www.cockroachlabs.com/docs/v24.2/start-a-local-cluster.
+For deploying a local CockroachDB cluster, see 
+https://www.cockroachlabs.com/docs/v24.2/start-a-local-cluster.
 
 #### Create the databases
 
@@ -151,16 +161,15 @@ Create the following databases, one for each service:
     cockroach sql --insecure --host=localhost -e "CREATE database burp_customer"
     cockroach sql --insecure --host=localhost -e "CREATE database burp_betting"
 
-Enable [change feeds](https://www.cockroachlabs.com/docs/stable/create-and-configure-changefeeds#enable-rangefeeds):
+Enable [range feeds](https://www.cockroachlabs.com/docs/stable/create-and-configure-changefeeds#enable-rangefeeds):
 
     cockroach sql --insecure --host=localhost -e "SET CLUSTER SETTING kv.rangefeed.enabled = true"
 
 ### Setup and Start Kafka
 
-Kafka Streams is required to help drive the distributed business transactions on top
-of CockroachDB CDC outbox events. You can either use a manged Kafka cluster or a 
-local self-hosted setup. In the latter case, just follow the [quickstart](https://kafka.apache.org/quickstart) guidelines 
-to setup a vanilla Kafka instance.
+Kafka Streams is required to drive the distributed business transactions on top of CockroachDB 
+CDC outbox events. You can either use a manged Kafka cluster or a local self-hosted setup. In 
+the latter case, just follow the [quickstart](https://kafka.apache.org/quickstart) guidelines to setup a vanilla Kafka instance.
 
 Depending on your network setup, you may need to edit the following in `config/server.properties`:
 
@@ -171,17 +180,13 @@ Then start Kafka in daemon mode:
 
     bin/kafka-server-start.sh -daemon config/server.properties
 
-To tail some topic, in this case `registration`:
-
-    bin/kafka-console-consumer.sh --topic registration --from-beginning --bootstrap-server localhost:9092 --property print.key=true
-
 ### Start Services
 
 Burp-a-bet provides both built-in command line shells and REST (hypermedia driven) API endpoints
 in each service. The shell is used for demo purposes to initiate the different journeys. The REST 
 APIs are for observability and for command completion in the shells.
 
-Start the services in three separate shell sessions:
+Start the services in three separate shell sessions (order does not matter):
 
 Terminal 1:
     
@@ -239,17 +244,17 @@ In the different shells, type `help` for command guidance (or TAB for code compl
 ### Customer Service
  
 The customer service orchestrates the **registration** journey. Upon a customer registration, 
-an outbox event is sent to the wallet and betting service (through CDC). These services then 
+an outbox event is sent to the wallet and betting service through CDC. These services then 
 do their stuff and either approves or rejects the registration, which is funneled back
-to the customer service. 
+to the customer service through a stream join. 
 
 At registration:
 
 - The betting service validates the jurisdiction.
 - The wallet service creates a customer account and operator account if needed, and grants a registration bonus.
 
-If both services accept the registration is approved. If any one rejects it, the customer 
-service sends a rollback request.
+If both services accept the registration, it is approved. If any service rejects it, the customer 
+service sends a compensating rollback request.
 
 At rollback:
 
@@ -266,14 +271,13 @@ For more help, type:
 
 ### Wallet Service
 
-The wallet service does not orchestrate any journeys but participates. 
-It provides a financial ledger using double-entry principles and an 
-account plan for customers and operators. 
+The wallet service does not orchestrate any journeys, only participates in them. It provides a 
+financial ledger using double-entry principles and an account plan for customers and operators. 
 
-Operators have _liability_ accounts that can have a negative balance. 
-Customers have _expense_ accounts that can only have a positive balance. 
-Funds are transferred only between operator and customer accounts, 
-thus the total balance of all accounts must always equal zero.
+- Operators have _liability_ accounts that can have a negative balance. 
+- Customers have _expense_ accounts that can only have a positive balance. 
+- Funds are transferred only between operator and customer accounts, thus the total balance 
+of all accounts must always equal zero.
 
 For more help, type:
 
@@ -294,8 +298,8 @@ At placement:
 - The wallet service reserves the bet wager from the customers account (if enough funds) 
 to the operator account.
 
-If both services accept, the placement is approved. If any rejects it, the betting
-service sends a rollback request.
+If both services accept, the placement is approved. If any service rejects it, the betting
+service sends a compensating rollback request.
 
 At rollback:
 
@@ -304,7 +308,7 @@ At rollback:
 
 To place 10 bets for a random customer on a random race, type:
 
-    place-bet --count 10
+    place-bets --count 10
 
 To settle all bets, type:
 
@@ -317,8 +321,7 @@ On settlement:
 
 For more help, type:
 
-    help place-bet
-    help settle-bets
+    help <commnd>
 
 ## Appendix
 

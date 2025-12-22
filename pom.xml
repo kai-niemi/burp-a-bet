@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>io.cockroachdb.betting</groupId>
-    <artifactId>betting-parent</artifactId>
+    <artifactId>burp-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
@@ -61,7 +61,7 @@
     </issueManagement>
 
     <modules>
-        <module>betting-common</module>
+        <module>burp-common</module>
         <module>betting-service</module>
         <module>customer-service</module>
         <module>wallet-service</module>
