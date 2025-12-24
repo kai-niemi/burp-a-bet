@@ -37,7 +37,7 @@ The overall steps include:
 3. Deploy service JARs to each client using `deploy-*.sh`
 2. SSH to each client VM
    - Download the CockroachCloud cluster certificate and test connectivity
-   - Install Java 17+ on each client instance (see top README)
+   - Install Java 21+ on each client instance (see top README)
    - Install Kafka 3.6+ on each client instance (see top README)
      - Configure `listeners` and `advertised.listeners` addresses so both the services and CockroachDB can connect. 
    - Start the Kafka servers (see top README)
@@ -47,7 +47,3 @@ and watch the performance increase.
    - `cockroach sql --url "betting-db connection string" < betting-multi-region.sql`
    - `cockroach sql --url "customer-db connection string" < customer-multi-region.sql`
    - `cockroach sql --url "wallet-db connection string" < wallet-multi-region.sql`
-
-## Conceptual Diagram
-
-<img src="architecture.png" width="512" />

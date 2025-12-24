@@ -2,6 +2,8 @@ package io.cockroachdb.betting.common.aspect;
 
 import java.lang.annotation.Annotation;
 
+import javax.sql.DataSource;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,8 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
-import io.cockroachdb.betting.common.annotations.TimeTravel;
-import io.cockroachdb.betting.common.annotations.TimeTravelMode;
+import io.cockroachdb.betting.common.annotations.FollowerRead;
+import io.cockroachdb.betting.common.annotations.FollowerReadMode;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.annotations.TransactionPriority;
 
@@ -28,8 +30,8 @@ import io.cockroachdb.betting.common.annotations.TransactionPriority;
  * @author Kai Niemi
  */
 @Aspect
-@Order(TransactionDecoratorAspect.PRECEDENCE)
-public class TransactionDecoratorAspect {
+@Order(TransactionAttributesAspect.PRECEDENCE)
+public class TransactionAttributesAspect {
     static <A extends Annotation> A findAnnotation(ProceedingJoinPoint pjp, Class<A> annotationType) {
         return AnnotationUtils.findAnnotation(pjp.getSignature().getDeclaringType(), annotationType);
     }
@@ -42,9 +44,9 @@ public class TransactionDecoratorAspect {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public TransactionDecoratorAspect(@Autowired JdbcTemplate jdbcTemplate) {
-        Assert.notNull(jdbcTemplate, "jdbcTemplate is null");
-        this.jdbcTemplate = jdbcTemplate;
+    public TransactionAttributesAspect(@Autowired DataSource dataSource) {
+        Assert.notNull(dataSource, "dataSource is null");
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Around(value = "io.cockroachdb.betting.common.aspect.Pointcuts.anyTransactionBoundaryOperation(transactionBoundary)",
@@ -78,26 +80,26 @@ public class TransactionDecoratorAspect {
             jdbcTemplate.execute("SET transaction_read_only=true");
         }
 
-        TimeTravel timeTravel = transactionBoundary.timeTravel();
+        FollowerRead followerRead = transactionBoundary.timeTravel();
 
-        if (timeTravel.mode().equals(TimeTravelMode.EXACT_STALENESS_READ)) {
+        if (followerRead.mode().equals(FollowerReadMode.EXACT_STALENESS_READ)) {
             Assert.isTrue(TransactionSynchronizationManager.isCurrentTransactionReadOnly(),
                     "Expecting read-only transaction - check @Transactional readonly attribute: "
                     + pjp.getSignature().toShortString());
 
-            if ("0s".equals(timeTravel.interval())) {
+            if ("0s".equals(followerRead.interval())) {
                 jdbcTemplate.execute("SET TRANSACTION AS OF SYSTEM TIME follower_read_timestamp()");
             } else {
                 jdbcTemplate.execute("SET TRANSACTION AS OF SYSTEM TIME INTERVAL '"
-                                     + timeTravel.interval() + "'");
+                                     + followerRead.interval() + "'");
             }
-        } else if (timeTravel.mode().equals(TimeTravelMode.BOUNDED_STALENESS_READ)) {
+        } else if (followerRead.mode().equals(FollowerReadMode.BOUNDED_STALENESS_READ)) {
             Assert.isTrue(TransactionSynchronizationManager.isCurrentTransactionReadOnly(),
                     "Expecting read-only transaction - check @Transactional readonly attribute: "
                     + pjp.getSignature().toShortString());
 
             jdbcTemplate.execute("SET TRANSACTION AS OF SYSTEM TIME with_max_staleness('"
-                                 + timeTravel.interval() + "')");
+                                 + followerRead.interval() + "')");
         } else {
             throw new UnsupportedOperationException("Not a supported followerRead type");
         }

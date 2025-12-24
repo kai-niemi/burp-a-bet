@@ -16,11 +16,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Target({})
 @Retention(RUNTIME)
-public @interface TimeTravel {
+public @interface FollowerRead {
     /**
      * @return the time travel mode, either follower read or snapshot
      */
-    TimeTravelMode mode() default TimeTravelMode.EXACT_STALENESS_READ;
+    FollowerReadMode mode() default FollowerReadMode.EXACT_STALENESS_READ;
 
     /**
      * See https://www.cockroachlabs.com/docs/stable/interval.html

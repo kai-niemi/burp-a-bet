@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.cockroachdb.betting.model.Race;
 import io.cockroachdb.betting.service.RaceService;
-import io.cockroachdb.betting.common.annotations.TimeTravel;
-import io.cockroachdb.betting.common.annotations.TimeTravelMode;
+import io.cockroachdb.betting.common.annotations.FollowerRead;
+import io.cockroachdb.betting.common.annotations.FollowerReadMode;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 
 @RestController
@@ -43,7 +43,7 @@ public class RaceController {
     }
 
     @GetMapping(value = "/settled")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public HttpEntity<PagedModel<RaceModel>> findRacesWithSettledBets(
             @PageableDefault(size = 15) Pageable page) {
         return ResponseEntity.ok(racePagedResourcesAssembler
@@ -51,7 +51,7 @@ public class RaceController {
     }
 
     @GetMapping(value = "/{id}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public HttpEntity<RaceModel> getRaceById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(raceResourceAssembler
                 .toModel(raceService.getRaceById(id)));

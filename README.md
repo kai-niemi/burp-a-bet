@@ -22,10 +22,10 @@
     * [Customer Service](#customer-service)
     * [Wallet Service](#wallet-service)
     * [Betting Service](#betting-service)
-  * [Appendix](#appendix)
-    * [API Testing](#api-testing)
-    * [Rule Invariants](#rule-invariants)
-    * [Additional Resources](#additional-resources)
+* [Appendix](#appendix)
+  * [API Testing](#api-testing)
+  * [Rule Invariants](#rule-invariants)
+  * [Additional Resources](#additional-resources)
 * [Terms of Use](#terms-of-use)
 <!-- TOC -->
 
@@ -53,45 +53,7 @@ The system provides three independent microservices that together supports the f
 
 # Design Notes
 
-To promote service autonomy, independence and availability, all journeys aka business transactions 
-are modeled using [Sagas](https://microservices.io/patterns/data/saga.html) using the orchestration method.  
-
-Think of this pattern as a decomposed two-phase commit protocol providing eventual consistency between
-independent service through asynchronous message exchange. This fits well into the microservice architecture
-style where strong ACID transactions are typically scoped to the bounded contexts. Journeys spanning
-between services are typically coordinated asynchronously without ACID / blocking protocols to promote 
-decoupling, scalability and availability.
-
-The downside with Saga's is that it adds complexity to the architecture and blurs out the state
-transitions in customer journeys, making it less visible and harder to trace flows. There are plenty
-of different application frameworks for using Saga's at a larger scale. This demo however focuses
-mainly on the primitives for using Saga's including message passing and local ACID transactions.
-
-All services maintain their local state in an isolated database using [ACID](https://en.wikipedia.org/wiki/ACID) guarantees and 
-local transactions. The message exchange between the services are customer journey state transitions. 
-Messages are passed through the transactional outbox pattern where [CDC queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) are used in 
-combination with [Kafka stream joins](https://kafka.apache.org/documentation/streams/) to stitch together requests with responses.  
-
-This makes the journeys fully asynchronous and transactionally safe in terms of safeguarded rule 
-invariants. The outbox pattern, for example, guarantees at-least-once semantics in the message passing
-and that no events are emitted if transactions fail. There can't be any out-of-sync message passing
-where an event is emitted and then the transaciton rolls back. See the rule invariants section below 
-for a more precise meaning of _safety_ in this context.
-
-In summary, the system demonstrates the following mechanisms in CockroachDB:
-
-* [CDC Queries](https://www.cockroachlabs.com/docs/stable/cdc-queries) - each service has an outbox table and CDC projection query to send events to Kafka.
-* [Row-level TTL eviction](https://www.cockroachlabs.com/docs/v23.2/row-level-ttl) - deletes expired outbox event records.
-* [Follower reads](https://www.cockroachlabs.com/docs/v23.2/follower-reads) - used by REST endpoints to inspect betting and race data without interfering with ongoing 
-journeys (causing retries).
-* [Multi-region (optional)](https://www.cockroachlabs.com/docs/v23.2/table-localities#regional-by-row-tables) - using regional-by-row to pin accounts and bets to specific jurisdictions. 
-* Computed virtual columns and enum types
-
-All three services provide an interactive shell and a [REST API](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven) using the [HAL+forms](https://rwcbook.github.io/hal-forms/) hypermedia type.
-
-The interactive shells are used to initiate the different journeys described above and other management tasks. 
-The APIs are used for observability and also for initiating journeys using HTTP requests through cURL / 
-Postman or similar tools.
+See [Design Notes](docs/DESIGN.md) for details on demonstrated architectural patterns and mechanisms.
 
 # Building
 
@@ -323,14 +285,14 @@ For more help, type:
 
     help <commnd>
 
-## Appendix
+# Appendix
 
-### API Testing
+## API Testing
 
 The services also provide REST APIs for initiating the bet placement, bet settlement 
 and registration journeys. See [API Demo](docs/DEMO.md) for a tutorial.
 
-### Rule Invariants
+## Rule Invariants
 
 In terms of measuring correct execution and outcomes during disruptions and/or contention, 
 these are the main business rule invariants to observe:
@@ -351,9 +313,8 @@ Customer service:
 
 - Customers spending budget (like a rate limit) must always be positive.
 
-### Additional Resources
+## Additional Resources
 
-- [Design Notes](docs/README.md) - Details including architectural patterns and mechanisms.
 - [Service Description](docs/diagrams.png) - [C4 model](https://c4model.com/) diagrams drawn using [okso](https://okso.app/) _(open the [diagrams.okso](docs/diagrams.okso) file)_.
 - [Registration Journey Diagram](docs/registration-sequence.png) - Using a [websequence](https://www.websequencediagrams.com/) diagram.
 

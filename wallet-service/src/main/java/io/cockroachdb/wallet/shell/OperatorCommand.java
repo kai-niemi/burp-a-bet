@@ -20,8 +20,8 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.table.TableModel;
 
-import io.cockroachdb.betting.common.annotations.TimeTravel;
-import io.cockroachdb.betting.common.annotations.TimeTravelMode;
+import io.cockroachdb.betting.common.annotations.FollowerRead;
+import io.cockroachdb.betting.common.annotations.FollowerReadMode;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.Jurisdiction;
 import io.cockroachdb.betting.common.shell.AnsiConsole;
@@ -161,7 +161,7 @@ public class OperatorCommand extends AbstractShellComponent {
     }
 
     @ShellMethod(value = "Print account balances (optional)", key = {"pb", "print-balance"})
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public void printBalance() {
         Page<Account> page = accountRepository.findAll(PageRequest.ofSize(64)
                 .withSort(Sort.by("balance", "accountType").descending()));

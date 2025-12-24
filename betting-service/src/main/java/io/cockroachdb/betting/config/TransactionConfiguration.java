@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import io.cockroachdb.betting.BettingApplication;
 import io.cockroachdb.betting.common.aspect.AdvisorOrder;
 import io.cockroachdb.betting.common.aspect.OutboxAspect;
-import io.cockroachdb.betting.common.aspect.TransactionDecoratorAspect;
+import io.cockroachdb.betting.common.aspect.TransactionAttributesAspect;
 import io.cockroachdb.betting.common.outbox.OutboxJdbcRepository;
 import io.cockroachdb.betting.common.outbox.OutboxRepository;
 
@@ -34,7 +34,7 @@ public class TransactionConfiguration {
     }
 
     @Bean
-    public TransactionDecoratorAspect transactionDecoratorAspect(DataSource dataSource) {
-        return new TransactionDecoratorAspect(new JdbcTemplate(dataSource));
+    public TransactionAttributesAspect transactionAttributesAspect(DataSource dataSource) {
+        return new TransactionAttributesAspect(dataSource);
     }
 }

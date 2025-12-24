@@ -21,7 +21,6 @@ import io.cockroachdb.betting.model.Race;
 import io.cockroachdb.betting.repository.BetRepository;
 import io.cockroachdb.betting.repository.RaceRepository;
 
-
 @ServiceFacade
 public class BetPlacementService {
     private static BetPlacement toBetPlacement(Bet bet, UUID raceID) {

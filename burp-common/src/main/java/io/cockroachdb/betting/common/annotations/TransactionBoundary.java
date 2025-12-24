@@ -39,7 +39,7 @@ public @interface TransactionBoundary {
      * represents a computed time interval sufficiently in the past
      * for reads to be served by closest follower replica.
      */
-    TimeTravel timeTravel() default @TimeTravel(mode = TimeTravelMode.DISABLED);
+    FollowerRead timeTravel() default @FollowerRead(mode = FollowerReadMode.DISABLED);
 
     /**
      * Sets the 'transaction_read_only' session variable.
@@ -68,9 +68,4 @@ public @interface TransactionBoundary {
      * Sets the 'application_name' session variable.
      */
     String applicationName() default "(empty)";
-
-    /**
-     * Optional collection of arbitrary session and local variables.
-     */
-//    SetVariable[] variables() default {};
 }

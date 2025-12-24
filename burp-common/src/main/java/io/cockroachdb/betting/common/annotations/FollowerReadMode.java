@@ -5,7 +5,7 @@ package io.cockroachdb.betting.common.annotations;
  * <p>
  * See {@link <a href="https://www.cockroachlabs.com/docs/stable/as-of-system-time.html">AS OF SYSTEM TIME</a>}
  */
-public enum TimeTravelMode {
+public enum FollowerReadMode {
     /**
      * A historical read as of a static, user-provided timestamp.
      */

@@ -37,8 +37,8 @@ public class OutboxJdbcRepository implements OutboxRepository {
         jdbcTemplate.execute("delete from outbox where 1=1");
     }
 
-    @TransactionMandatory
     @Override
+    @TransactionMandatory
     public void writeEvent(Object event, String aggregateType) {
         Assert.isTrue(TransactionSynchronizationManager.isActualTransactionActive(),
                 "Expected existing transaction - check advisor @Order");

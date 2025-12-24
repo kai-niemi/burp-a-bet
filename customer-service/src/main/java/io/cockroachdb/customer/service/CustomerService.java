@@ -12,8 +12,8 @@ import org.springframework.data.util.Pair;
 import io.cockroachdb.betting.common.annotations.OutboxOperation;
 import io.cockroachdb.betting.common.annotations.SagaCoordinator;
 import io.cockroachdb.betting.common.annotations.ServiceFacade;
-import io.cockroachdb.betting.common.annotations.TimeTravel;
-import io.cockroachdb.betting.common.annotations.TimeTravelMode;
+import io.cockroachdb.betting.common.annotations.FollowerRead;
+import io.cockroachdb.betting.common.annotations.FollowerReadMode;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.betting.common.domain.EventType;
 import io.cockroachdb.betting.common.domain.Registration;
@@ -55,7 +55,7 @@ public class CustomerService {
         outboxRepository.deleteAllInBatch();
     }
 
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public Page<Customer> findAll(Pageable pageable) {
         return customerRepository.findAll(pageable);
     }

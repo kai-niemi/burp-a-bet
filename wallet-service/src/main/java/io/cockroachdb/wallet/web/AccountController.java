@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.cockroachdb.betting.common.annotations.TimeTravel;
-import io.cockroachdb.betting.common.annotations.TimeTravelMode;
+import io.cockroachdb.betting.common.annotations.FollowerRead;
+import io.cockroachdb.betting.common.annotations.FollowerReadMode;
 import io.cockroachdb.betting.common.annotations.TransactionBoundary;
 import io.cockroachdb.wallet.model.Account;
 import io.cockroachdb.wallet.model.CustomerAccount;
@@ -56,7 +56,7 @@ public class AccountController {
     private PagedResourcesAssembler<OperatorAccount> operatorAccountPagedResourcesAssembler;
 
     @GetMapping(value = "/operator")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public HttpEntity<PagedModel<EntityModel<OperatorAccount>>> findAllOperatorAccounts(
             @PageableDefault(size = 15) Pageable page,
             @RequestParam(required = false, name = "shuffle", defaultValue = "false") boolean shuffle) {
@@ -68,14 +68,14 @@ public class AccountController {
     }
 
     @GetMapping(value = "/operator/{id}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public HttpEntity<EntityModel<OperatorAccount>> getOperatorAccount(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(operatorAccountResourceAssembler.toModel(
                 operatorAccountRepository.findById(id).orElseThrow(() -> new NoSuchAccountException(id))));
     }
 
     @GetMapping(value = "/customer")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public HttpEntity<PagedModel<EntityModel<CustomerAccount>>> findAllCustomerAccounts(
             @PageableDefault(size = 15) Pageable page) {
         Page<CustomerAccount> accountPage = customerAccountRepository.findAll(page);
@@ -84,21 +84,21 @@ public class AccountController {
     }
 
     @GetMapping(value = "/customer/{id}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public HttpEntity<EntityModel<CustomerAccount>> getCustomerAccount(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(customerAccountResourceAssembler.toModel(
                 customerAccountRepository.findById(id).orElseThrow(() -> new NoSuchAccountException(id))));
     }
 
     @GetMapping(value = "/customer/foreign/{id}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public HttpEntity<EntityModel<CustomerAccount>> getCustomerAccountByForeignId(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(customerAccountResourceAssembler.toModel(
                 customerAccountRepository.findByForeignId(id).orElseThrow(() -> new NoSuchAccountException(id))));
     }
 
     @PatchMapping(value = "/{id}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public ResponseEntity<?> updateAccount(@PathVariable("id") UUID id, @RequestBody Account account) {
         Account accountProxy = accountRepository.getReferenceById(id);
         accountProxy.setClosed(account.isClosed());
@@ -109,7 +109,7 @@ public class AccountController {
     }
 
     @DeleteMapping(value = "/{id}")
-    @TransactionBoundary(timeTravel = @TimeTravel(mode = TimeTravelMode.EXACT_STALENESS_READ))
+    @TransactionBoundary(timeTravel = @FollowerRead(mode = FollowerReadMode.EXACT_STALENESS_READ))
     public ResponseEntity<Void> deleteAccount(@PathVariable("id") UUID id) {
         accountRepository.deleteById(id);
         return ResponseEntity.ok().build();
